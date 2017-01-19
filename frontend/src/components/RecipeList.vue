@@ -11,6 +11,6 @@
 </style>
 <script>
   export default{
-    name: 'recipelist'
-  }
+    name: "recipelist"
+  };
 </script>

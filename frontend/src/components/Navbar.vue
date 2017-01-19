@@ -16,7 +16,7 @@
     text-decoration: none;
     font-family: Verdana,Geneva,sans-serif;
     color: #ffffff;
-    font-size: 5vh;
+    font-size: 30px;
     padding: 10px;
     display: inline-block;
   }
@@ -31,6 +31,6 @@
 </style>
 <script>
   export default{
-    name: 'navbar'
-  }
+    name: "navbar"
+  };
 </script>
