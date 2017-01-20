@@ -26,7 +26,7 @@
         <input type="text" v-model="category.name" placeholder="Kategooria"/>
         <a @click="deleteCategoryRow(category)">Kustuta</a>
       </div>
-      <a @click="addCategoryRow(list)">Lisa kategooria</a>
+      <a @click="addCategoryRow()">Lisa kategooria</a>
     </div>
 
     <div>

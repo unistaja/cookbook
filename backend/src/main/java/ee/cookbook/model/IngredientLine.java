@@ -10,12 +10,12 @@ public class IngredientLine {
 
 //  public long listId;
 
-  @ManyToOne(cascade = {CascadeType.ALL})
-  @JoinColumn(name = "ingredientId")
+  @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
+  @JoinColumn(name = "ingredient")
   public Ingredient ingredient;
 
-  @ManyToOne(cascade = {CascadeType.ALL})
-  @JoinColumn(name = "unitId")
+  @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
+  @JoinColumn(name = "unit")
   public IngredientUnit unit;
 
   public Double amount;
