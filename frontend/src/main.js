@@ -7,8 +7,10 @@ import App from "./App";
 Vue.use(VueRouter);
 
 const routes = [
-  {path: "/recipelist", component: resolve => require(["./components/RecipeList.vue"], resolve)},
-  {path: "/addrecipe", component: resolve => require(["./components/AddRecipe.vue"], resolve)}
+  {path: "/recipelist", component: resolve => require(["./components/SearchRecipes.vue"], resolve)},
+  {path: "/addrecipe", component: resolve => require(["./components/AddRecipe.vue"], resolve)},
+  {path: "/editrecipe", component: resolve => require(["./components/AddRecipe.vue"], resolve)},
+  {path: "/recipe/:id", component: resolve => require(["./components/ViewRecipe.vue"], resolve)}
 ];
 
 const router = new VueRouter({

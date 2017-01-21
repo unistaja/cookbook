@@ -28,7 +28,7 @@
           <input type="text" v-model="list.name" placeholder="Jaotise nimi"/>
           <a class="one-char-button delete-button" @click="deleteList(list)">-</a>
           <ul v-for="line in list.ingredientLines">
-            <li><input class="amount-input" type="number" v-model="line.amount" placeholder="Kogus"/>
+            <li><input class="amount-input" type="number" v-model.number="line.amount" placeholder="Kogus"/>
             <input class="unit-input" type="text" v-model="line.unit" placeholder="Ühik"/>
             <input class="ingredient-input" type="text" v-model="line.ingredient" placeholder="Koostisosa"/>
             <a class="one-char-button delete-button" @click="deleteRow(line, list)">-</a>
@@ -46,6 +46,7 @@
 
     <div id="savebutton">
       <a id="save" @click="saveRecipe()">Salvesta muudatused</a>
+      <router-link id="cancel" v-if="recipe.id" v-bind:to="'/recipe/' + recipe.id">Katkesta</router-link>
     </div>
 
 
@@ -187,6 +188,7 @@
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 1px 1px rgba(0, 0, 0, 0.2);
     transition-duration: 0.2s;
     user-select:none;
+    cursor: pointer;
   }
 
   .delete-button {
@@ -200,8 +202,9 @@
   }
 
 
-  #save {
+  #cancel, #save {
     padding: 10px 15px;
+    text-decoration: none;
     background: #4479BA;
     color: #FFF;
     border-radius: 4px;
@@ -212,6 +215,7 @@
     user-select:none;
     margin: 10px;
     margin-top: 30px;
+    cursor: pointer;
   }
   #save:hover {
     background: #356094;
@@ -227,30 +231,51 @@
 
 </style>
 <script>
-  export default{
+  import { store } from "../datastore.js";
+
+  export default {
     name: "addrecipe",
     data: function () {
-      return {
-        recipe: {
-          name: null,
-          instructions: null,
-          ingredientLists: [
-            {name: "Koostis", ingredientLines: [{amount: null, unit: null, ingredient: null}]}
-          ],
-          categories: [{}]
-        }
+      const myData = {
+        recipe: store.recipeToEdit
       };
+      store.resetRecipe();
+      return myData;
+    },
+    watch: {
+      $route () {
+        this.recipe = store.recipeToEdit;
+        store.resetRecipe();
+      }
     },
     methods: {
+      routeToRecipe: function (recipeId) {
+        this.$router.push("/recipe/" + recipeId);
+      },
       saveRecipe: function () {
         var xhr = new XMLHttpRequest();
         xhr.open("POST", "/api/recipe");
         xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-        xhr.onready = function (event) {
-          console.log(xhr.status);
-          console.log(xhr.responseText);
+        let routeToRecipe = this.routeToRecipe;
+        xhr.onload = function () {
+          if (this.status === 200) {
+            try {
+              routeToRecipe(JSON.parse(this.responseText).recipeId);
+            } catch (ex) {
+              console.log(ex);
+            }
+          }
         };
-        xhr.send(JSON.stringify(this.recipe));
+        xhr.send(JSON.stringify(this.filteredRecipe()));
+      },
+      filteredRecipe: function () {
+        const newRecipe = Object.assign({}, this.recipe);
+        newRecipe.ingredientLists = newRecipe.ingredientLists.filter(x => x.name);
+        newRecipe.ingredientLists.forEach(list => {
+          list.ingredientLines = list.ingredientLines.filter(x => x.ingredient);
+        });
+        newRecipe.categories = newRecipe.categories.filter(x => x.name);
+        return newRecipe;
       },
       remove: function (arr, el) {
         var index = arr.indexOf(el);
@@ -259,13 +284,13 @@
         }
       },
       addList: function () {
-        this.recipe.ingredientLists.push({name: null, ingredientLines: [{amount: null, unit: null, ingredient: null}]});
+        this.recipe.ingredientLists.push({name: null, ingredientLines: [{}]});
       },
       addRow: function (list) {
-        list.ingredientLines.push({amount: null, unit: null, ingredient: null});
+        list.ingredientLines.push({});
       },
       addCategoryRow: function () {
-        this.recipe.categories.push({name: null});
+        this.recipe.categories.push({});
       },
       deleteList: function (list) {
         this.remove(this.recipe.ingredientLists, list);
