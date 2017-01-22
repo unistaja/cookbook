@@ -5,40 +5,24 @@
       <input id="source" type="text" v-model="recipe.source" placeholder="Allikas"/>
     </div>
 
-    <div id="pictureholder">
-      <div id="picture">
-        <img src="http://placehold.it/350x350"/>
-      </div>
-
-      <div id="categories">
-        <div v-for="category in recipe.categories">
-          <input type="text" v-model="category.name" placeholder="Kategooria"/>
-          <a @click="deleteCategoryRow(category)" class="one-char-button delete-button">-</a>
-        </div>
-        <div>
-          <a @click="addCategoryRow()" class="one-char-button add-button">+</a>
-        </div>
-      </div>
-    </div>
-
 
     <div id="ingredients">
       <div id="ingredient-list">
         <div v-for="list in recipe.ingredientLists">
-          <input type="text" v-model="list.name" placeholder="Jaotise nimi"/>
+          <input type="text" v-focus v-model="list.name" placeholder="Jaotise nimi" @keyup.enter="list.ingredientLines.length === 0 ? addRow(list) : ''"/>
           <a class="one-char-button delete-button" @click="deleteList(list)">-</a>
           <ul>
-            <li v-for="line in list.ingredientLines">
-              <input class="amount-input" type="number" v-model.number="line.amount" placeholder="Kogus"/>
+            <li v-for="(line, lineIndex) in list.ingredientLines">
+              <input class="amount-input" v-focus type="number" v-model.number="line.amount" placeholder="Kogus"/>
               <input class="unit-input" type="text" v-model="line.unit" placeholder="Ühik"/>
-              <input class="ingredient-input" type="text" v-model="line.ingredient" placeholder="Koostisosa"/>
+              <input class="ingredient-input" type="text" v-model="line.ingredient" placeholder="Koostisosa" @keyup.enter="lineIndex === list.ingredientLines.length - 1 ? addRow(list) : ''"/>
               <a class="one-char-button add-button" @click="addAltRow(line)">&or;</a>
               <a class="one-char-button delete-button" @click="deleteRow(line, list)">-</a>
               <ul v-if="line.alternateLines.length > 0">
-                <li v-for="altLine in line.alternateLines">
-                  <input class="amount-input" type="number" v-model.number="altLine.amount" placeholder="Kogus"/>
+                <li v-for="(altLine, altLineIndex) in line.alternateLines">
+                  <input class="amount-input" v-focus type="number" v-model.number="altLine.amount" placeholder="Kogus"/>
                   <input class="unit-input" type="text" v-model="altLine.unit" placeholder="Ühik"/>
-                  <input class="ingredient-input" type="text" v-model="altLine.ingredient" placeholder="Alternatiivkoostisosa"/>
+                  <input class="ingredient-input" type="text" v-model="altLine.ingredient" placeholder="Alternatiivkoostisosa" @keyup.enter="altLineIndex === line.alternateLines.length - 1 ? addAltRow(line) : ''"/>
                   <a class="one-char-button delete-button" @click="remove(line.alternateLines, altLine)">-</a>
                 </li>
               </ul>
@@ -55,15 +39,26 @@
       <textarea v-model="recipe.instructions" placeholder="Juhised" ></textarea>
     </div>
 
+    <div id="pictureholder">
+      <div id="picture">
+        <img src="http://placehold.it/350x350"/>
+      </div>
+
+      <div id="categories">
+        <div v-for="(category, index) in recipe.categories">
+          <input type="text" v-focus v-model="category.name" placeholder="Kategooria" @keyup.enter="index === recipe.categories.length - 1 ? addCategoryRow() : ''"/>
+          <a @click="deleteCategoryRow(category)" class="one-char-button delete-button">-</a>
+        </div>
+        <div>
+          <a @click="addCategoryRow()" class="one-char-button add-button">+</a>
+        </div>
+      </div>
+    </div>
+
     <div id="savebutton">
       <a id="save" @click="saveRecipe()">Salvesta muudatused</a>
       <router-link id="cancel" v-if="recipe.id" v-bind:to="'/recipe/' + recipe.id">Katkesta</router-link>
     </div>
-
-
-
-
-    <!--<a @click="logData()">Logi</a>-->
 
 
   </div>
@@ -82,6 +77,18 @@
 
   #recipeheader {
     order: 0;
+  }
+
+  #pictureholder {
+    order: 1;
+  }
+
+  #ingredients {
+    order: 2;
+  }
+
+  #instructions {
+    order: 3;
   }
 
   #savebutton {
@@ -149,7 +156,7 @@
     margin: 5px;
   }
 
-  @media all and (min-width: 825px) {
+  @media all and (min-width: 840px) {
     #pictureholder, #ingredients {
       flex: 1 auto;
     }
@@ -247,6 +254,7 @@
 </style>
 <script>
   import { store } from "../datastore.js";
+  // import Vue from "vue";
 
   export default {
     name: "addrecipe",
@@ -262,6 +270,16 @@
         this.recipe = store.recipeToEdit;
         store.resetRecipe();
       }
+    },
+    directives: {
+      focus: {
+        inserted: function (el) {
+          el.focus();
+        }
+      }
+    },
+    mounted: function () {
+      document.getElementById("title").focus();
     },
     methods: {
       routeToRecipe: function (recipeId) {
@@ -302,7 +320,7 @@
         }
       },
       addList: function () {
-        this.recipe.ingredientLists.push({name: null, ingredientLines: [{alternateLines: []}]});
+        this.recipe.ingredientLists.push({name: null, ingredientLines: []});
       },
       addRow: function (list) {
         list.ingredientLines.push({alternateLines: []});
