@@ -20,8 +20,18 @@
       <div id="ingredient-list">
         <div v-for="list in recipe.ingredientLists">
           <h2>{{ list.name }}: </h2>
-          <ul v-for="line in list.ingredientLines">
-            <li>{{ line.amount }} {{ line.unit }} {{ line.ingredient }}
+          <ul >
+            <li v-for="line in list.ingredientLines">
+              {{ line.amount }} {{ line.unit }} {{ line.ingredient }}
+              <template v-if="line.alternateLines.length > 0">
+                või
+              <ul>
+                <li v-for="(altLine, index) in line.alternateLines">
+                  {{ altLine.amount }} {{ altLine.unit }} {{ altLine.ingredient }} <template v-if="index < line.alternateLines.length - 1">või</template>
+                </li>
+              </ul>
+              </template>
+            </li>
           </ul>
         </div>
       </div>

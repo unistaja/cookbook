@@ -27,11 +27,22 @@
         <div v-for="list in recipe.ingredientLists">
           <input type="text" v-model="list.name" placeholder="Jaotise nimi"/>
           <a class="one-char-button delete-button" @click="deleteList(list)">-</a>
-          <ul v-for="line in list.ingredientLines">
-            <li><input class="amount-input" type="number" v-model.number="line.amount" placeholder="Kogus"/>
-            <input class="unit-input" type="text" v-model="line.unit" placeholder="Ühik"/>
-            <input class="ingredient-input" type="text" v-model="line.ingredient" placeholder="Koostisosa"/>
-            <a class="one-char-button delete-button" @click="deleteRow(line, list)">-</a>
+          <ul>
+            <li v-for="line in list.ingredientLines">
+              <input class="amount-input" type="number" v-model.number="line.amount" placeholder="Kogus"/>
+              <input class="unit-input" type="text" v-model="line.unit" placeholder="Ühik"/>
+              <input class="ingredient-input" type="text" v-model="line.ingredient" placeholder="Koostisosa"/>
+              <a class="one-char-button add-button" @click="addAltRow(line)">&or;</a>
+              <a class="one-char-button delete-button" @click="deleteRow(line, list)">-</a>
+              <ul v-if="line.alternateLines.length > 0">
+                <li v-for="altLine in line.alternateLines">
+                  <input class="amount-input" type="number" v-model.number="altLine.amount" placeholder="Kogus"/>
+                  <input class="unit-input" type="text" v-model="altLine.unit" placeholder="Ühik"/>
+                  <input class="ingredient-input" type="text" v-model="altLine.ingredient" placeholder="Alternatiivkoostisosa"/>
+                  <a class="one-char-button delete-button" @click="remove(line.alternateLines, altLine)">-</a>
+                </li>
+              </ul>
+            </li>
           </ul>
           <ul>
             <li><a @click="addRow(list)" class="one-char-button add-button">+</a>
@@ -176,7 +187,11 @@
 
   #ingredient-list {
     text-align: left;
-    width: 25em;
+    width: 26em;
+  }
+
+  #ingredient-list li {
+    margin: 5px 0px;
   }
 
   .one-char-button {
@@ -269,10 +284,13 @@
         xhr.send(JSON.stringify(this.filteredRecipe()));
       },
       filteredRecipe: function () {
-        const newRecipe = Object.assign({}, this.recipe);
+        const newRecipe = JSON.parse(JSON.stringify(this.recipe)); // do deep copy
         newRecipe.ingredientLists = newRecipe.ingredientLists.filter(x => x.name);
         newRecipe.ingredientLists.forEach(list => {
           list.ingredientLines = list.ingredientLines.filter(x => x.ingredient);
+          list.ingredientLines.forEach(line => {
+            line.alternateLines = line.alternateLines.filter(x => x.ingredient);
+          });
         });
         newRecipe.categories = newRecipe.categories.filter(x => x.name);
         return newRecipe;
@@ -284,19 +302,30 @@
         }
       },
       addList: function () {
-        this.recipe.ingredientLists.push({name: null, ingredientLines: [{}]});
+        this.recipe.ingredientLists.push({name: null, ingredientLines: [{alternateLines: []}]});
       },
       addRow: function (list) {
-        list.ingredientLines.push({});
+        list.ingredientLines.push({alternateLines: []});
       },
       addCategoryRow: function () {
         this.recipe.categories.push({});
+      },
+      addAltRow: function (line) {
+        line.alternateLines.push({});
       },
       deleteList: function (list) {
         this.remove(this.recipe.ingredientLists, list);
       },
       deleteRow: function (row, list) {
-        this.remove(list.ingredientLines, row);
+        if (row.alternateLines.length > 0 && row.alternateLines[0].ingredient) {
+          const newMain = row.alternateLines[0];
+          row.amount = newMain.amount;
+          row.unit = newMain.unit;
+          row.ingredient = newMain.ingredient;
+          row.alternateLines.splice(0, 1);
+        } else {
+          this.remove(list.ingredientLines, row);
+        }
       },
       deleteCategoryRow: function (row) {
         this.remove(this.recipe.categories, row);

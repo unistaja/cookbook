@@ -7,7 +7,7 @@ export function getNewRecipe () {
     instructions: null,
     user: {},
     ingredientLists: [
-      {name: "Koostis", ingredientLines: [{}]}
+      {name: "Koostis", ingredientLines: [{alternateLines: []}]}
     ],
     categories: [{}]
   };

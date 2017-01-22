@@ -1,10 +1,9 @@
 package ee.cookbook.model;
 
 import javax.persistence.*;
-import java.util.List;
 
 @Entity
-public class IngredientLine {
+public class AlternateIngredientLine {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   public long id;
@@ -18,9 +17,4 @@ public class IngredientLine {
   public IngredientUnit unit;
 
   public Double amount;
-
-  @OneToMany(cascade = {CascadeType.ALL}, orphanRemoval = true)
-  @JoinColumn(name = "lineId", nullable = false)
-  public List<AlternateIngredientLine> alternateLines;
-
 }

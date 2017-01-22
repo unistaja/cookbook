@@ -13,7 +13,7 @@ import java.util.List;
 @RequestMapping("/api/recipe")
 public class RecipeController {
   @Autowired
-  RecipeRepository recipeRepository;
+  private RecipeRepository recipeRepository;
 
   @RequestMapping(value = "/{recipeId}", method = RequestMethod.GET)
   Recipe getRecipe(@PathVariable long recipeId) {
