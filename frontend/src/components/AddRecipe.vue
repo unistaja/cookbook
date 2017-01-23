@@ -2,20 +2,32 @@
   <div id="addrecipe">
     <div id="recipeheader">
       <input id="title" type="text" v-model="recipe.name" placeholder="Pealkiri"/>
-      <input id="source" type="text" v-model="recipe.source" placeholder="Allikas"/>
+      <input id="source" type="text" list="source-data" v-model="recipe.source" placeholder="Allikas"/>
+      <datalist id="source-data">
+        <option v-for="source in autofill.sources" :value="source">{{ source }}</option>
+      </datalist>
     </div>
 
 
     <div id="ingredients">
+      <datalist id="ingredient-data">
+        <option v-for="ingredient in autofill.ingredients" :value="ingredient">{{ ingredient }}</option>
+      </datalist>
+      <datalist id="unit-data">
+        <option v-for="unit in autofill.units" :value="unit">{{ unit }}</option>
+      </datalist>
+      <datalist id="list-name-data">
+        <option v-for="name in autofill.listNames" :value="name">{{ name }}</option>
+      </datalist>
       <div id="ingredient-list">
         <div v-for="list in recipe.ingredientLists">
-          <input type="text" v-focus v-model="list.name" placeholder="Jaotise nimi" @keyup.enter="list.ingredientLines.length === 0 ? addRow(list) : ''"/>
+          <input type="text" list="list-name-data" v-focus v-model="list.name" placeholder="Jaotise nimi" @keyup.enter="list.ingredientLines.length === 0 ? addRow(list) : ''"/>
           <a class="one-char-button delete-button" @click="deleteList(list)">-</a>
           <ul>
             <li v-for="(line, lineIndex) in list.ingredientLines">
               <input class="amount-input" v-focus type="number" v-model.number="line.amount" placeholder="Kogus"/>
-              <input class="unit-input" type="text" v-model="line.unit" placeholder="Ühik"/>
-              <input class="ingredient-input" type="text" v-model="line.ingredient" placeholder="Koostisosa" @keyup.enter="lineIndex === list.ingredientLines.length - 1 ? addRow(list) : ''"/>
+              <input class="unit-input" type="text" list="unit-data" v-model="line.unit" placeholder="Ühik"/>
+              <input class="ingredient-input" type="text" list="ingredient-data" v-model="line.ingredient" placeholder="Koostisosa" @keyup.enter="lineIndex === list.ingredientLines.length - 1 ? addRow(list) : ''"/>
               <a class="one-char-button add-button" @click="addAltRow(line)">&or;</a>
               <a class="one-char-button delete-button" @click="deleteRow(line, list)">-</a>
               <ul v-if="line.alternateLines.length > 0">
@@ -45,8 +57,11 @@
       </div>
 
       <div id="categories">
+        <datalist id="category-data">
+          <option v-for="category in autofill.categories" :value="category.name">{{ category.name }}</option>
+        </datalist>
         <div v-for="(category, index) in recipe.categories">
-          <input type="text" v-focus v-model="category.name" placeholder="Kategooria" @keyup.enter="index === recipe.categories.length - 1 ? addCategoryRow() : ''"/>
+          <input type="text" list="category-data" v-focus v-model="category.name" placeholder="Kategooria" @keyup.enter="index === recipe.categories.length - 1 ? addCategoryRow() : ''"/>
           <a @click="deleteCategoryRow(category)" class="one-char-button delete-button">-</a>
         </div>
         <div>
@@ -254,13 +269,20 @@
 </style>
 <script>
   import { store } from "../datastore.js";
-  // import Vue from "vue";
+  import { getAutoFillData } from "../api.js";
 
   export default {
     name: "addrecipe",
     data: function () {
       const myData = {
-        recipe: store.recipeToEdit
+        recipe: store.recipeToEdit,
+        autofill: {
+          units: [],
+          ingredients: [],
+          listNames: [],
+          categories: [],
+          sources: []
+        }
       };
       store.resetRecipe();
       return myData;
@@ -280,6 +302,18 @@
     },
     mounted: function () {
       document.getElementById("title").focus();
+    },
+    beforeRouteEnter (to, from, next) {
+      getAutoFillData((err, res) => {
+        if (err) {
+          console.log("Fetching autofill data failed!");
+          next();
+        } else {
+          next(vm => {
+            vm.autofill = res;
+          });
+        }
+      });
     },
     methods: {
       routeToRecipe: function (recipeId) {

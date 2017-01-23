@@ -23,7 +23,9 @@ public class Recipe implements Persistable<Long>{
   @NotNull
   public String instructions;
 
-  public String source;
+  @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
+  @JoinColumn(name = "source")
+  public RecipeSource source;
 
   @NotNull
   public String name;

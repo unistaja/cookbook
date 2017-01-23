@@ -18,6 +18,26 @@ export function getRecipe (recipeId, callback) {
   xhr.send();
 }
 
+export function getAutoFillData (callback) {
+  const xhr = new XMLHttpRequest();
+  xhr.open("GET", "/api/recipe/autofill");
+  xhr.onload = function () {
+    if (this.status === 200) {
+      try {
+        callback(null, JSON.parse(this.responseText));
+      } catch (ex) {
+        callback({});
+      }
+    } else {
+      callback({errorCode: this.status, message: this.responseText});
+    }
+  };
+  xhr.onerror = function () {
+    callback({});
+  };
+  xhr.send();
+}
+
 export function loadUser (callback) {
   const xhr = new XMLHttpRequest();
   xhr.open("GET", "/api/user");

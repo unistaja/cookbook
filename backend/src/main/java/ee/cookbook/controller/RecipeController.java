@@ -3,6 +3,8 @@ package ee.cookbook.controller;
 import ee.cookbook.dao.RecipeRepository;
 import ee.cookbook.model.Recipe;
 import ee.cookbook.model.User;
+import ee.cookbook.protocol.AutoFillData;
+import ee.cookbook.service.AutoFillDataService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -14,10 +16,17 @@ import java.util.List;
 public class RecipeController {
   @Autowired
   private RecipeRepository recipeRepository;
+  @Autowired
+  private AutoFillDataService autoFillDataService;
 
   @RequestMapping(value = "/{recipeId}", method = RequestMethod.GET)
   Recipe getRecipe(@PathVariable long recipeId) {
     return recipeRepository.findOne(recipeId);
+  }
+
+  @RequestMapping(value = "/autofill", method = RequestMethod.GET)
+  AutoFillData getAutoFillData() {
+    return autoFillDataService.getAutoFillData();
   }
 
   @RequestMapping(method = RequestMethod.POST)
