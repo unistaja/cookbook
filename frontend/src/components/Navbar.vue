@@ -4,7 +4,7 @@
     <router-link to="/recipelist">Retseptid</router-link>
     <router-link to="/addrecipe">Lisa retsept</router-link>
     <span>
-      Tere, {{ user.username }}! (<a href="/logout" class="logout">Logi välja</a>)
+      Tere, <router-link to="/user" class="logout">{{ user.username }}</router-link>! (<a href="/logout" class="logout">Logi välja</a>)
     </span>
   </div>
 </template>

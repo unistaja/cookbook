@@ -8,30 +8,31 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-
-import javax.persistence.EntityManager;
+import org.springframework.stereotype.Component;
 
 @Configuration
 @EnableWebSecurity
+@Component
 public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
-    @Autowired
-    private EntityManager em;
-    @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(userDetailsServiceBean())
-                .passwordEncoder(new BCryptPasswordEncoder());
+  @Autowired
+  private CookbookUserDetailsService userDetailsService;
 
-    }
+  @Override
+  protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+    auth.userDetailsService(userDetailsServiceBean())
+        .passwordEncoder(new BCryptPasswordEncoder());
 
-    @Override
-    public UserDetailsService userDetailsServiceBean() throws Exception{
-        return new CookbookUserDetailsService(em);
-    }
+  }
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
-        super.configure(http);
-        //TODO: figure out how to actually handle this
-        http.csrf().disable();
-    }
+  @Override
+  public UserDetailsService userDetailsServiceBean() throws Exception {
+    return userDetailsService;
+  }
+
+  @Override
+  protected void configure(HttpSecurity http) throws Exception {
+    super.configure(http);
+    //TODO: figure out how to actually handle this
+    http.csrf().disable();
+  }
 }

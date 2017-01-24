@@ -81,3 +81,24 @@ export function getRecipes (callback) {
   };
   xhr.send();
 }
+
+export function changePassword (oldPassword, newPassword, callback) {
+  const xhr = new XMLHttpRequest();
+  xhr.open("POST", "/api/user");
+  xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+  xhr.onload = function () {
+    if (this.status === 200) {
+      if (this.responseText === "OK") {
+        callback(null);
+      } else {
+        callback("Parooli muutmine ebaõnnestus. Kontrolli vana parooli õigsust.");
+      }
+    } else {
+      callback("Parooli muutmine ebaõnnestus. Kontrolli vana parooli õigsust.");
+    }
+  };
+  xhr.onerror = function () {
+    callback("Parooli muutmine ebaõnnestus võrguvea tõttu. Proovi uuesti.");
+  };
+  xhr.send("oldPassword=" + oldPassword + "&newPassword=" + newPassword);
+}
