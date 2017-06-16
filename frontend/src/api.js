@@ -90,6 +90,8 @@ export function changePassword (oldPassword, newPassword, callback) {
     if (this.status === 200) {
       if (this.responseText === "OK") {
         callback(null);
+      } else if (this.responseText === "PASSWORD_EMPTY") {
+        callback("Palun sisesta uus parool");
       } else {
         callback("Parooli muutmine ebaõnnestus. Kontrolli vana parooli õigsust.");
       }

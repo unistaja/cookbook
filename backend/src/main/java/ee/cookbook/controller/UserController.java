@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
 @RestController
 @RequestMapping("/api/user")
 public class UserController {
@@ -23,6 +22,9 @@ public class UserController {
 
   @RequestMapping(method = RequestMethod.POST)
   public String changePassword(@RequestParam String oldPassword, @RequestParam String newPassword, Authentication auth) {
+    if (newPassword == null || newPassword.isEmpty()) {
+      return "PASSWORD_EMPTY";
+    }
     User currentUser = (User) auth.getPrincipal();
     BCryptPasswordEncoder hasher = new BCryptPasswordEncoder();
     if (hasher.matches(oldPassword, currentUser.passwordHash)) {
@@ -32,5 +34,4 @@ public class UserController {
     }
     return "ERROR";
   }
-
 }
