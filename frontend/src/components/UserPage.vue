@@ -64,22 +64,32 @@
     data: function () {
       return {
         oldPassword: null,
-        newPassword: null,
+        newPassword:null,
         message: null,
         error: false
       };
     },
     methods: {
       savePassword: function () {
-        changePassword(this.oldPassword, this.newPassword, (err) => {
-          if (err) {
-            this.error = true;
-            this.message = err;
+          if (this.oldPassword !== null && this.oldPassword.length > 0) {
+            if (this.newPassword !== null && this.newPassword.length > 0) {
+              changePassword(this.oldPassword, this.newPassword, (err) => {
+                if (err) {
+                  this.error = true;
+                  this.message = err;
+                } else {
+                  this.error = false;
+                  this.message = "Parool edukalt muudetud!";
+                }
+              });
+            } else {
+              this.error = true;
+              this.message = "Palun sisesta uus parool.";
+            }
           } else {
-            this.error = false;
-            this.message = "Parool edukalt muudetud!";
+            this.error=true;
+            this.message = "Palun sisesta oma praegune parool.";
           }
-      });
       }
     }
   };
