@@ -8,6 +8,8 @@ import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
 
 public class PasswordChangeTest extends BaseSelenideTest {
+  private final String newPassword = "tester";
+
   @Test
   public void changingPasswordWorks() {
     openUserPage();
@@ -51,8 +53,6 @@ public class PasswordChangeTest extends BaseSelenideTest {
     login();
     $(By.className("logout")).shouldHave(exactTextCaseSensitive(testUsername));
   }
-
-  private final String newPassword = "tester";
 
   private void setOldPasswordValue(String value) {
     selectByPlaceholder("Vana parool").setValue(value);
