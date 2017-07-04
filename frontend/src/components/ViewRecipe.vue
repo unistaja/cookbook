@@ -11,7 +11,7 @@
       </div>
 
       <div id="categories" v-if="recipe.categories && recipe.categories.length != 0">
-        <h2>Kategooriad: </h2> {{ recipe.categories.map(x => x.name).join(",") }}
+        <h2>Kategooriad: </h2> {{ recipe.categories.map(x => x.name).join(", ") }}
       </div>
     </div>
 

@@ -9,8 +9,6 @@
         <a id="save" @click="savePassword()">Salvesta muudatused</a>
       </div>
     </div>
-
-
   </div>
 </template>
 <style scoped>
@@ -41,9 +39,9 @@
     text-decoration: none;
   }
   #save:active {
-      box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.6);
-      background: #2E5481;
-      border: solid 1px #203E5F;
+    box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.6);
+    background: #2E5481;
+    border: solid 1px #203E5F;
   }
 
   .error {
@@ -74,13 +72,13 @@
         if (this.oldPassword === null || this.oldPassword.length <= 0) {
           this.error = true;
           this.message = "Palun sisesta oma praegune parool.";
-          return
+          return;
         }
-       if (this.newPassword === null || this.newPassword.length <= 0) {
+        if (this.newPassword === null || this.newPassword.length <= 0) {
           this.error = true;
           this.message = "Palun sisesta uus parool.";
-          return
-       }
+          return;
+        }
         changePassword(this.oldPassword, this.newPassword, (err) => {
           if (err) {
             this.error = true;
@@ -89,7 +87,7 @@
             this.error = false;
             this.message = "Parool edukalt muudetud!";
           }
-          });
+        });
       }
     }
   };

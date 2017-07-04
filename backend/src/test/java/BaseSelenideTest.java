@@ -5,6 +5,7 @@ import com.codeborne.selenide.SelenideElement;
 import ee.cookbook.CookbookApplication;
 import org.flywaydb.test.annotation.FlywayTest;
 import org.flywaydb.test.junit.FlywayTestExecutionListener;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
@@ -63,8 +64,6 @@ public abstract class BaseSelenideTest {
   @Before
   public void setUpTest() {
     try {
-      String myDriver = "org.gjt.mm.mysql.Driver";
-      Class.forName(myDriver);
       Connection conn = DriverManager.getConnection(flywayUrl, flywayUser, flywayPassword);
       String query = "INSERT INTO `cookbooktest`.`user` (`username`, `passwordHash`, `active`) VALUES ('Selenide', '$2a$10$gjZVQu8KKAAsWA3OafjGFOxoD/3kjOr7a2zhJsZnHf.Gs29Tsdp.W', 1);";
       PreparedStatement preparedStmt = conn.prepareStatement(query);
@@ -84,7 +83,10 @@ public abstract class BaseSelenideTest {
     $(By.name("password")).setValue(testPassword);
     $(By.name("submit")).click();
   }
-
+  @After
+  public void closePage() {
+    close();
+  }
   public SelenideElement selectByPlaceholder(String placeholderValue) {
     return $(Selectors.byAttribute("placeholder", placeholderValue));
   }
