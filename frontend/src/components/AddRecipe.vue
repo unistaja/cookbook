@@ -20,31 +20,31 @@
         <option v-for="name in autofill.listNames" :value="name">{{ name }}</option>
       </datalist>
       <div id="ingredient-list">
-        <div v-for="list in recipe.ingredientLists">
-          <input type="text" list="list-name-data" v-focus v-model="list.name" placeholder="Jaotise nimi" @keyup.enter="list.ingredientLines.length === 0 ? addRow(list) : ''"/>
-          <a class="one-char-button delete-button" @click="deleteList(list)">-</a>
+        <div v-for="(list, listIndex) in recipe.ingredientLists">
+          <input type="text" list="list-name-data" v-focus v-model="list.name" :id="'list' + listIndex + '-name'" placeholder="Jaotise nimi" @keyup.enter="list.ingredientLines.length === 0 ? addRow(list) : ''"/>
+          <a class="one-char-button delete-button" @click="deleteList(list)" :id="'list' + listIndex +'-del'">-</a>
           <ul>
             <li v-for="(line, lineIndex) in list.ingredientLines">
-              <input class="amount-input" v-focus type="number" v-model.number="line.amount" placeholder="Kogus"/>
-              <input class="unit-input" type="text" list="unit-data" v-model="line.unit" placeholder="Ühik"/>
-              <input class="ingredient-input" type="text" list="ingredient-data" v-model="line.ingredient" placeholder="Koostisosa" @keyup.enter="lineIndex === list.ingredientLines.length - 1 ? addRow(list) : ''"/>
-              <a class="one-char-button add-button" @click="addAltRow(line)">&or;</a>
-              <a class="one-char-button delete-button" @click="deleteRow(line, list)">-</a>
+              <input class="amount-input" v-focus type="number" v-model.number="line.amount" :id="'list' + listIndex + '-line' + lineIndex + '-amt'" placeholder="Kogus"/>
+              <input class="unit-input" type="text" list="unit-data" v-model="line.unit" :id="'list' + listIndex + '-line' + lineIndex + '-unit'" placeholder="Ühik"/>
+              <input class="ingredient-input" type="text" list="ingredient-data" v-model="line.ingredient" :id="'list' + listIndex + '-line' + lineIndex + '-ingr'" placeholder="Koostisosa" @keyup.enter="lineIndex === list.ingredientLines.length - 1 ? addRow(list) : ''"/>
+              <a class="one-char-button add-button" :id="'list' + listIndex + '-line' + lineIndex + '-addAlt'" @click="addAltRow(line)">&or;</a>
+              <a class="one-char-button delete-button" :id="'list' + listIndex + '-line' + lineIndex + '-del'" @click="deleteRow(line, list)">-</a>
               <ul v-if="line.alternateLines.length > 0">
                 <li v-for="(altLine, altLineIndex) in line.alternateLines">
-                  <input class="amount-input" v-focus type="number" v-model.number="altLine.amount" placeholder="Kogus"/>
-                  <input class="unit-input" type="text" v-model="altLine.unit" placeholder="Ühik"/>
-                  <input class="ingredient-input" type="text" v-model="altLine.ingredient" placeholder="Alternatiivkoostisosa" @keyup.enter="altLineIndex === line.alternateLines.length - 1 ? addAltRow(line) : ''"/>
-                  <a class="one-char-button delete-button" @click="remove(line.alternateLines, altLine)">-</a>
+                  <input class="amount-input" v-focus type="number" v-model.number="altLine.amount" :id="'list' + listIndex + '-line' + lineIndex + '-altLine' + altLineIndex + '-amt'" placeholder="Kogus"/>
+                  <input class="unit-input" type="text" v-model="altLine.unit" :id="'list' + listIndex + '-line' + lineIndex + '-altLine' + altLineIndex + '-unit'" placeholder="Ühik"/>
+                  <input class="ingredient-input" type="text" v-model="altLine.ingredient" placeholder="Alternatiivkoostisosa" :id="'list' + listIndex + '-line' + lineIndex + '-altLine' + altLineIndex + '-ingr'" @keyup.enter="altLineIndex === line.alternateLines.length - 1 ? addAltRow(line) : ''"/>
+                  <a class="one-char-button delete-button" @click="remove(line.alternateLines, altLine)" :id="'list' + listIndex + '-line' + lineIndex + '-altLine' + altLineIndex + '-del'">-</a>
                 </li>
               </ul>
             </li>
           </ul>
           <ul>
-            <li><a @click="addRow(list)" class="one-char-button add-button">+</a>
+            <li><a @click="addRow(list)" class="one-char-button add-button" :id="'list' + listIndex + '-addLine'">+</a></li>
           </ul>
         </div>
-        <a @click="addList()" class="one-char-button add-button">+</a>
+        <a @click="addList()" class="one-char-button add-button" id="addList">+</a>
       </div>
     </div>
     <div id="instructions">
@@ -61,11 +61,11 @@
           <option v-for="category in autofill.categories" :value="category.name">{{ category.name }}</option>
         </datalist>
         <div v-for="(category, index) in recipe.categories">
-          <input type="text" list="category-data" v-focus v-model="category.name" placeholder="Kategooria" @keyup.enter="index === recipe.categories.length - 1 ? addCategoryRow() : ''"/>
-          <a @click="deleteCategoryRow(category)" class="one-char-button delete-button">-</a>
+          <input type="text" list="category-data" v-focus v-model="category.name" :id= "'category' + index" placeholder="Kategooria" @keyup.enter="index === recipe.categories.length - 1 ? addCategoryRow() : ''" />
+          <a @click="deleteCategoryRow(category)" class="one-char-button delete-button" :id="'category' + index + '-del'">-</a>
         </div>
         <div>
-          <a @click="addCategoryRow()" class="one-char-button add-button">+</a>
+          <a @click="addCategoryRow()" class="one-char-button add-button" id="addCategory">+</a>
         </div>
       </div>
     </div>
