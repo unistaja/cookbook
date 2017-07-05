@@ -153,7 +153,7 @@ public class AddRecipeTest extends BaseSelenideTest {
       $(By.id("addCategory")).click();
       categoryField++;
     }
-   removeCategory(recipe, 2);
+    removeCategory(recipe, 2);
   }
 
   //checking the shown information
