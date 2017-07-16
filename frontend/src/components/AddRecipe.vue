@@ -1,7 +1,8 @@
 <template>
   <div id="addrecipe">
     <div id="recipeheader">
-      <input id="title" type="text" v-model="recipe.name" placeholder="Pealkiri"/>
+      <div v-show="errors.has('title')" class="error">Palun sisestage retsepti pealkiri.</div>
+      <input id="title" v-validate="'required'"  type="text" v-model="recipe.name" placeholder="Pealkiri" name="title">
       <input id="source" type="text" list="source-data" v-model="recipe.source" placeholder="Allikas"/>
       <datalist id="source-data">
         <option v-for="source in autofill.sources" :value="source">{{ source }}</option>
@@ -20,26 +21,31 @@
         <option v-for="name in autofill.listNames" :value="name">{{ name }}</option>
       </datalist>
       <div id="ingredient-list">
+        <span v-if="message" :class="[error ? 'error' : 'success']">{{ message }}</span>
         <div v-for="(list, listIndex) in recipe.ingredientLists">
-          <input type="text" list="list-name-data" v-focus v-model="list.name" :id="'list' + listIndex + '-name'" placeholder="Jaotise nimi" @keyup.enter="list.ingredientLines.length === 0 ? addRow(list) : ''"/>
+          <div v-show="errors.has('list' + listIndex + '-name')" class="error">{{errors.first('list' + listIndex + '-name')}}</div>
+          <input type="text" list="list-name-data" v-focus v-model="list.name" :name="'list' + listIndex + '-name'" :id="'list' + listIndex + '-name'" placeholder="Jaotise nimi" @keyup="listCheck(list, listIndex), noListsCheck()" @focusout="listCheck(list, listIndex)" @keyup.enter="list.ingredientLines.length === 0 ? addRow(list) : ''"/>
           <a class="one-char-button delete-button" @click="deleteList(list)" :id="'list' + listIndex +'-del'">-</a>
           <ul>
             <li v-for="(line, lineIndex) in list.ingredientLines">
-              <input class="amount-input" v-focus type="number" v-model.number="line.amount" :id="'list' + listIndex + '-line' + lineIndex + '-amt'" placeholder="Kogus"/>
-              <input class="unit-input" type="text" list="unit-data" v-model="line.unit" :id="'list' + listIndex + '-line' + lineIndex + '-unit'" placeholder="Ühik"/>
-              <input class="ingredient-input" type="text" list="ingredient-data" v-model="line.ingredient" :id="'list' + listIndex + '-line' + lineIndex + '-ingr'" placeholder="Koostisosa" @keyup.enter="lineIndex === list.ingredientLines.length - 1 ? addRow(list) : ''"/>
+              <div v-show="errors.has('list'+listIndex+'-line'+lineIndex+'-name')" class="error">Palun sisestage koostisosa nimi.</div>
+              <input v-focus class="amount-input" @keyup="updateInfo()" type="number" v-model.number="line.amount" :id="'list' + listIndex + '-line' + lineIndex + '-amt'" placeholder="Kogus" v-bind:ref="'list' + listIndex + 'line' + lineIndex + 'amt'"/>
+              <input class="unit-input" @keyup="updateInfo()" :name="'list' + listIndex + '-line' + lineIndex + '-unit'" type="text" list="unit-data" v-model="line.unit" :id="'list' + listIndex + '-line' + lineIndex + '-unit'" placeholder="Ühik"/>
+              <input v-validate="line.unit || line.amount? 'required' : ''" @keyup="listCheck(list, listIndex), updateInfo()" @focusout="listCheck(list, listIndex), updateInfo()" :name="'list'+listIndex+'-line'+lineIndex+'-name'" class="ingredient-input" type="text" list="ingredient-data"  v-model="line.ingredient" :id="'list' + listIndex + '-line' + lineIndex + '-ingr'" placeholder="Koostisosa" @keyup.enter="lineIndex === list.ingredientLines.length - 1 ? addRow(list) : ''"/>
               <a class="one-char-button add-button" :id="'list' + listIndex + '-line' + lineIndex + '-addAlt'" @click="addAltRow(line)">&or;</a>
               <a class="one-char-button delete-button" :id="'list' + listIndex + '-line' + lineIndex + '-del'" @click="deleteRow(line, list)">-</a>
               <ul v-if="line.alternateLines.length > 0">
                 <li v-for="(altLine, altLineIndex) in line.alternateLines">
-                  <input class="amount-input" v-focus type="number" v-model.number="altLine.amount" :id="'list' + listIndex + '-line' + lineIndex + '-altLine' + altLineIndex + '-amt'" placeholder="Kogus"/>
-                  <input class="unit-input" type="text" v-model="altLine.unit" :id="'list' + listIndex + '-line' + lineIndex + '-altLine' + altLineIndex + '-unit'" placeholder="Ühik"/>
-                  <input class="ingredient-input" type="text" v-model="altLine.ingredient" placeholder="Alternatiivkoostisosa" :id="'list' + listIndex + '-line' + lineIndex + '-altLine' + altLineIndex + '-ingr'" @keyup.enter="altLineIndex === line.alternateLines.length - 1 ? addAltRow(line) : ''"/>
+                  <div v-show="errors.has('list'+listIndex+'-line'+lineIndex+'-altLine'+altLineIndex+'-name')" class="error">Palun sisestage koostisosa nimi.</div>
+                  <input class="amount-input" @keyup="updateInfo()" v-focus type="number" v-model.number="altLine.amount" :id="'list' + listIndex + '-line' + lineIndex + '-altLine' + altLineIndex + '-amt'" placeholder="Kogus"/>
+                  <input class="unit-input" @keyup="updateInfo()" type="text" v-model="altLine.unit" :id="'list' + listIndex + '-line' + lineIndex + '-altLine' + altLineIndex + '-unit'" placeholder="Ühik"/>
+                  <input class="ingredient-input"  v-validate="altLine.unit || altLine.amount ? 'required' : ''" :name="'list'+listIndex+'-line'+lineIndex+'-altLine'+altLineIndex+'-name'" type="text" v-model="altLine.ingredient" placeholder="Alternatiivkoostisosa" :id="'list' + listIndex + '-line' + lineIndex + '-altLine' + altLineIndex + '-ingr'" @keyup.enter="altLineIndex === line.alternateLines.length - 1 ? addAltRow(line) : ''"/>
                   <a class="one-char-button delete-button" @click="remove(line.alternateLines, altLine)" :id="'list' + listIndex + '-line' + lineIndex + '-altLine' + altLineIndex + '-del'">-</a>
                 </li>
               </ul>
             </li>
           </ul>
+
           <ul>
             <li><a @click="addRow(list)" class="one-char-button add-button" :id="'list' + listIndex + '-addLine'">+</a></li>
           </ul>
@@ -48,7 +54,8 @@
       </div>
     </div>
     <div id="instructions">
-      <textarea v-model="recipe.instructions" placeholder="Juhised" ></textarea>
+      <div v-show="errors.has('instructions')" class="error">Palun sisestage retsepti juhised.</div>
+      <textarea v-validate="'required'" v-model="recipe.instructions" placeholder="Juhised" name="instructions" ></textarea>
     </div>
 
     <div id="pictureholder">
@@ -61,7 +68,7 @@
           <option v-for="category in autofill.categories" :value="category.name">{{ category.name }}</option>
         </datalist>
         <div v-for="(category, index) in recipe.categories">
-          <input type="text" list="category-data" v-focus v-model="category.name" :id= "'category' + index" placeholder="Kategooria" @keyup.enter="index === recipe.categories.length - 1 ? addCategoryRow() : ''" />
+          <input type="text" list="category-data" v-focus v-model="category.name" :id="'category' + index" placeholder="Kategooria" @keyup.enter="index === recipe.categories.length - 1 ? addCategoryRow() : ''" />
           <a @click="deleteCategoryRow(category)" class="one-char-button delete-button" :id="'category' + index + '-del'">-</a>
         </div>
         <div>
@@ -71,10 +78,9 @@
     </div>
 
     <div id="savebutton">
-      <a id="save" @click="saveRecipe()">Salvesta muudatused</a>
+      <a id="save" @click="validateBeforeSubmit() ? saveRecipe(): ''">Salvesta muudatused</a>
       <router-link id="cancel" v-if="recipe.id" v-bind:to="'/recipe/' + recipe.id">Katkesta</router-link>
     </div>
-
 
   </div>
 </template>
@@ -260,16 +266,22 @@
     text-decoration: none;
   }
   #save:active {
-      box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.6);
-      background: #2E5481;
-      border: solid 1px #203E5F;
+    box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.6);
+    background: #2E5481;
+    border: solid 1px #203E5F;
   }
-
+  .error {
+    color: red;
+  }
 
 </style>
 <script>
   import { store } from "../datastore.js";
   import { getAutoFillData } from "../api.js";
+  import Vue from "vue";
+  import VeeValidate from "vee-validate";
+
+  Vue.use(VeeValidate);
 
   export default {
     name: "addrecipe",
@@ -282,7 +294,10 @@
           listNames: [],
           categories: [],
           sources: []
-        }
+        },
+        saveButtonClicked: false,
+        error: false,
+        success: false
       };
       store.resetRecipe();
       return myData;
@@ -315,7 +330,19 @@
         }
       });
     },
+
     methods: {
+      validateBeforeSubmit () {
+        this.saveButtonClicked = true;
+        this.$validator.validateAll();
+        this.noListsCheck();
+        let listIndex = 0;
+        for (const list of this.recipe.ingredientLists) {
+          this.listCheck(list, listIndex);
+          listIndex++;
+        }
+        return !(this.errors.any() || this.error);
+      },
       routeToRecipe: function (recipeId) {
         this.$router.push("/recipe/" + recipeId);
       },
@@ -384,7 +411,43 @@
       },
       logData: function () {
         console.log(this.recipe);
+      },
+      updateInfo () {
+        this.$forceUpdate();
+      },
+      listCheck (list, listIndex) {
+        if (this.saveButtonClicked) {
+          this.errors.remove("list" + listIndex + "-name");
+          if (!list.name || !/\S/.test(list.name)) {
+            this.errors.add("list" + listIndex + "-name", "Palun sisestage jaotise nimi.");
+            return;
+          }
+          let emptyLines = 0;
+          for (const line of list.ingredientLines) {
+            if (!line.ingredient || !/\S/.test(line.ingredient)) {
+              emptyLines++;
+            }
+          }
+          if (emptyLines === list.ingredientLines.length) {
+            this.errors.add("list" + listIndex + "-name", "Siestage jaotisele vähemalt 1 koostisosa.");
+            return;
+          }
+          this.errors.remove("list" + listIndex + "-name");
+        }
+      },
+      noListsCheck () {
+        if (this.saveButtonClicked) {
+          if (this.recipe.ingredientLists.length === 0) {
+            this.error = true;
+            this.message = "Retseptil peab olema vähemalt 1 jaotis.";
+            return;
+          }
+          this.message = null;
+          this.error = false;
+        }
       }
     }
   };
 </script>
+
+

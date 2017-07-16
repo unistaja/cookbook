@@ -35,6 +35,7 @@ public class AddRecipeTest extends BaseSelenideTest {
     addRecipeTestRecipe = createRecipe(2);
     test=0;
     openAddRecipePage();
+    errorsTest();
     addRecipeValues(addRecipeTestRecipe);
     for(IngredientList list:addRecipeTestRecipe.ingredientLists) {
       removeAltLine(listsDeletedFrom, 2, 1, list.ingredientLines.get(2));
@@ -55,6 +56,7 @@ public class AddRecipeTest extends BaseSelenideTest {
     checkRecipe(addRecipeTestRecipe);
     changeRecipeTestRecipe = createRecipe(3);
     $(By.className("edit-button")).click();
+    errorsTest();
     addRecipeValues(changeRecipeTestRecipe);
     int listsDeletedFrom = 0;
     for(IngredientList list:changeRecipeTestRecipe.ingredientLists) {
@@ -69,7 +71,10 @@ public class AddRecipeTest extends BaseSelenideTest {
     $(By.id("save")).click();
     checkRecipe(changeRecipeTestRecipe);
   }
-
+  private void errorsTest() {
+    noTitleTest();
+    noInstructionsTest();
+  }
   //creating recipe's information
   private Recipe createRecipe(int listAmount) {
     Recipe recipe=new Recipe();
@@ -146,6 +151,7 @@ public class AddRecipeTest extends BaseSelenideTest {
       listField++;
       addList();
     }
+    selectByPlaceholder("Juhised").clear();
     selectByPlaceholder("Juhised").setValue(recipe.instructions);
     int categoryField=0;
     for(Category category:recipe.categories) {
@@ -154,6 +160,9 @@ public class AddRecipeTest extends BaseSelenideTest {
       categoryField++;
     }
     removeCategory(recipe, 2);
+    while ($$(Selectors.byAttribute("placeholder", "Jaotise nimi")).size() > recipe.ingredientLists.size()) {
+      $(By.id("list" + ($$(Selectors.byAttribute("placeholder", "Jaotise nimi")).size()-1) + "-del")).click();
+    }
   }
 
   //checking the shown information
@@ -303,4 +312,29 @@ public class AddRecipeTest extends BaseSelenideTest {
     categories.delete(categories.length()-2, categories.length());
     return categories.toString();
   }
+
+
+
+
+
+
+
+  private void noTitleTest() {
+    $(By.id("title")).setValue("    ");
+    $(Selectors.byText("Palun sisestage retsepti pealkiri.")).shouldBe(visible);
+    $(By.id("title")).clear();
+    $(Selectors.byText("Palun sisestage retsepti pealkiri.")).shouldBe(visible);
+    $(By.id("title")).setValue("title");
+    $(Selectors.byText("Palun sisestage retsepti pealkiri.")).shouldNotBe(visible);
+    $(By.id("title")).clear();
+  }
+  private void noInstructionsTest() {
+    selectByPlaceholder("Juhised").setValue("   ");
+    $(Selectors.byText("Palun sisestage retsepti juhised.")).shouldBe(visible);
+    selectByPlaceholder("Juhised").clear();
+    $(Selectors.byText("Palun sisestage retsepti juhised.")).shouldBe(visible);
+    selectByPlaceholder("Juhised").setValue("instructions");
+    $(Selectors.byText("Palun sisestage retsepti juhised.")).shouldNotBe(visible);
+  }
+
 }

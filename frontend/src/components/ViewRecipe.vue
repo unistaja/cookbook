@@ -25,11 +25,11 @@
               {{ line.amount }} {{ line.unit }} {{ line.ingredient }}
               <template v-if="line.alternateLines.length > 0">
                 või
-              <ul>
-                <li v-for="(altLine, index) in line.alternateLines">
-                  {{ altLine.amount }} {{ altLine.unit }} {{ altLine.ingredient }} <template v-if="index < line.alternateLines.length - 1">või</template>
-                </li>
-              </ul>
+                <ul>
+                  <li v-for="(altLine, index) in line.alternateLines">
+                    {{ altLine.amount }} {{ altLine.unit }} {{ altLine.ingredient }} <template v-if="index < line.alternateLines.length - 1">või</template>
+                  </li>
+                </ul>
               </template>
             </li>
           </ul>
