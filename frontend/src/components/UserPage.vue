@@ -69,12 +69,12 @@
     },
     methods: {
       savePassword: function () {
-        if (this.oldPassword === null || this.oldPassword.length <= 0) {
+        if (this.oldPassword === null || this.oldPassword.length === 0) {
           this.error = true;
           this.message = "Palun sisesta oma praegune parool.";
           return;
         }
-        if (this.newPassword === null || this.newPassword.length <= 0) {
+        if (this.newPassword === null || this.newPassword.length === 0) {
           this.error = true;
           this.message = "Palun sisesta uus parool.";
           return;

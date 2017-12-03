@@ -104,3 +104,48 @@ export function changePassword (oldPassword, newPassword, callback) {
   };
   xhr.send("oldPassword=" + oldPassword + "&newPassword=" + newPassword);
 }
+
+export function findRecipes (recipe, callback) {
+  const xhr = new XMLHttpRequest();
+  xhr.open("POST", "/api/recipe/search");
+  xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+  xhr.onload = function () {
+    if (this.status === 200) {
+      try {
+        callback(null, JSON.parse(this.responseText));
+      } catch (ex) {
+        callback({message: "Retseptide laadimine ebaõnnestus. Proovi lehekülge uuendada."});
+      }
+    } else {
+      callback({errorCode: this.status, message: this.responseText});
+    }
+  };
+  xhr.onerror = function () {
+    callback({message: "Retseptide laadimine ebaõnnestus. Proovi lehekülge uuendada."});
+  };
+  xhr.send(JSON.stringify(recipe));
+}
+
+export function uploadImage (image, callback) {
+  const formData = new FormData();
+  formData.append("file", image);
+  formData.append("name", image.name.slice((Math.max(0, image.name.lastIndexOf(".")) || Infinity) + 1));
+  let xhr = new XMLHttpRequest();
+  xhr.open("POST", "/api/recipe/images");
+  xhr.onload = function () {
+    if (this.status === 200) {
+      try {
+        callback(null, {result: this.responseText});
+      } catch (ex) {
+        callback({message: "Pildi üleslaadimine ebaõnnestus."});
+      }
+    } else {
+      callback({errorCode: this.status, message: this.responseText});
+    }
+  };
+  xhr.onerror = function () {
+    alert("Pildi salvestamine ebaõnnestus.");
+  };
+  xhr.send(formData);
+}
+

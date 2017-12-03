@@ -11,40 +11,39 @@ public class PasswordChangeTest extends BaseSelenideTest {
   private final String newPassword = "tester";
 
   @Test
-  public void changingPasswordWorks() {
+  public void testChangingPassword() {
     openUserPage();
-    emptyFormResponseTest();
-    nullNewPasswordResponseTest();
-    emptyNewPasswordResponseTest();
-    falseOldPasswordResponseTest();
-    successfulPasswordChangeTest();
+    testEmptyFormResponse();
+    testNullNewPasswordResponse();
+    testEmptyNewPasswordResponse();
+    testFalseOldPasswordResponse();
+    testSuccessfulPasswordChange();
   }
 
-  private void emptyFormResponseTest() {
+  private void testEmptyFormResponse() {
     submitPasswordForm();
     $(Selectors.byText("Palun sisesta oma praegune parool.")).shouldBe(visible);
   }
 
-  private void nullNewPasswordResponseTest() {
+  private void testNullNewPasswordResponse() {
     setOldPasswordValue("WrongPassword");
     submitPasswordForm();
     $(Selectors.byText("Palun sisesta uus parool.")).shouldBe(visible);
   }
 
-  private void emptyNewPasswordResponseTest() {
-    setNewPasswordValue("a");
-    getNewPasswordField().sendKeys("\b");
+  private void testEmptyNewPasswordResponse() {
+    getNewPasswordField().clear();
     submitPasswordForm();
     $(Selectors.byText("Palun sisesta uus parool.")).shouldBe(visible);
   }
 
-  private void falseOldPasswordResponseTest() {
+  private void testFalseOldPasswordResponse() {
     setNewPasswordValue(newPassword);
     submitPasswordForm();
     $(Selectors.byText("Parooli muutmine ebaõnnestus. Kontrolli vana parooli õigsust.")).shouldBe(visible);
   }
 
-  private void successfulPasswordChangeTest() {
+  private void testSuccessfulPasswordChange() {
     setOldPasswordValue(testPassword);
     submitPasswordForm();
     testPassword = newPassword;

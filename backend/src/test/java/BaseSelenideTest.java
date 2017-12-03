@@ -1,8 +1,12 @@
+import static com.codeborne.selenide.Condition.exist;
 import static com.codeborne.selenide.Selenide.*;
+import static com.codeborne.selenide.WebDriverRunner.url;
+
 import com.codeborne.selenide.Configuration;
 import com.codeborne.selenide.Selectors;
 import com.codeborne.selenide.SelenideElement;
 import ee.cookbook.CookbookApplication;
+import org.apache.commons.io.FileUtils;
 import org.flywaydb.test.annotation.FlywayTest;
 import org.flywaydb.test.junit.FlywayTestExecutionListener;
 import org.junit.After;
@@ -18,6 +22,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 import org.springframework.test.context.web.WebAppConfiguration;
+import java.io.File;
 import java.sql.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -51,16 +56,23 @@ public abstract class BaseSelenideTest {
     Configuration.timeout = 1500;
   }
 
+  public String baseUrl;
   //account details
   public final String testUsername = "Selenide";
   public String testPassword = "test";
   //creating a user account
   @Value ("${flyway.url}")
   public String flywayUrl;
+
   @Value ("${flyway.user}")
   public String flywayUser;
+
   @Value ("${flyway.password}")
   public String flywayPassword;
+
+  @Value("${imageFolder}")
+  public String imageFolder;
+
   @Before
   public void setUpTest() {
     try {
@@ -75,6 +87,7 @@ public abstract class BaseSelenideTest {
     }
     open("/login");
     login();
+    baseUrl = url().substring(0, url().length()-2);
   }
 
   //logging in
@@ -83,16 +96,28 @@ public abstract class BaseSelenideTest {
     $(By.name("password")).setValue(testPassword);
     $(By.name("submit")).click();
   }
+
   @After
   public void closePage() {
     close();
   }
+
+  @After
+  public void deleteTestImageFolder() {
+    try {
+      FileUtils.deleteDirectory(new File(imageFolder));
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
   public SelenideElement selectByPlaceholder(String placeholderValue) {
     return $(Selectors.byAttribute("placeholder", placeholderValue));
   }
 
   //going to a page
   public void openRecipeList() {
+    $(Selectors.byText("Retseptid")).scrollTo();
     $(Selectors.byText("Retseptid")).click();
   }
 
@@ -104,4 +129,25 @@ public abstract class BaseSelenideTest {
     $(By.className("logout")).click();
   }
 
+  public void openSearchPage() {
+    $(Selectors.byText("Otsing")).click();
+  }
+
+  public SelenideElement getTitleField() {
+    return $(By.id("title"));
+  }
+
+  public void addAltLine(int list, int line) {
+    $(By.id("list"+list+"-line"+line+"-addAlt")).click();
+  }
+
+  public void addLine(int list) {
+    $(By.id("list"+list+"-addLine")).should(exist);
+    $(By.id("list"+list+"-addLine")).scrollTo();
+    $(By.id("list"+list+"-addLine")).click();
+  }
+
+  public void setCategory(int field, String name) {
+    $(By.id("category"+field)).setValue(name);
+  }
 }

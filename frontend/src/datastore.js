@@ -5,6 +5,7 @@ export function getNewRecipe () {
     name: null,
     source: null,
     instructions: null,
+    pictureName: "",
     user: {},
     ingredientLists: [
       {name: "Koostis", ingredientLines: [{alternateLines: []}]}
@@ -13,9 +14,29 @@ export function getNewRecipe () {
   };
 }
 
+export function getNewSearch () {
+  return {
+    name: null,
+    source: null,
+    hasPicture: false,
+    resultsPerPage: 0,
+    resultPage: 0,
+    sortOrder: 0,
+    descending: false,
+    username: null,
+    withIngredients: [{alternateLines: []}],
+    withoutIngredients: [""],
+    categories: [""]
+  };
+}
+
 export const store = {
   user: {username: null, id: null},
   recipeToEdit: getNewRecipe(),
+  recipeToSearch: getNewSearch(),
+  resetSearch: function () {
+    this.recipeToSearch = getNewSearch();
+  },
   resetRecipe: function () {
     this.recipeToEdit = getNewRecipe();
   }

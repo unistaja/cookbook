@@ -3,10 +3,18 @@ package ee.cookbook.service;
 import ee.cookbook.dao.*;
 import ee.cookbook.protocol.AutoFillData;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
+
 
 @Service
 public class AutoFillDataService {
+  @Autowired
+  private JdbcTemplate jdbcTemplate;
+  @Autowired
+  private RecipeRepository recipeRepository;
+  @Autowired
+  private UserRepository userRepository;
   @Autowired
   private CategoryRepository categoryRepository;
   @Autowired
@@ -20,6 +28,8 @@ public class AutoFillDataService {
 
   public AutoFillData getAutoFillData() {
     AutoFillData data = new AutoFillData();
+    data.users = jdbcTemplate.queryForList("SELECT username FROM user", String.class);
+    data.names = jdbcTemplate.queryForList("SELECT DISTINCT name FROM recipe", String.class);
     data.categories = categoryRepository.findAll();
     data.ingredients = ingredientRepository.findAll();
     data.units = unitRepository.findAll();

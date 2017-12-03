@@ -11,7 +11,8 @@ const routes = [
   {path: "/addrecipe", component: resolve => require(["./components/AddRecipe.vue"], resolve)},
   {path: "/editrecipe", component: resolve => require(["./components/AddRecipe.vue"], resolve)},
   {path: "/recipe/:id", component: resolve => require(["./components/ViewRecipe.vue"], resolve)},
-  {path: "/user", component: resolve => require(["./components/UserPage.vue"], resolve)}
+  {path: "/user", component: resolve => require(["./components/UserPage.vue"], resolve)},
+  {path: "/search", component: resolve => require(["./components/SearchPage.vue"], resolve)}
 ];
 
 const router = new VueRouter({

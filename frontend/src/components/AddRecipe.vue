@@ -9,7 +9,6 @@
       </datalist>
     </div>
 
-
     <div id="ingredients">
       <datalist id="ingredient-data">
         <option v-for="ingredient in autofill.ingredients" :value="ingredient">{{ ingredient }}</option>
@@ -24,22 +23,22 @@
         <span v-if="message" :class="[error ? 'error' : 'success']">{{ message }}</span>
         <div v-for="(list, listIndex) in recipe.ingredientLists">
           <div v-show="errors.has('list' + listIndex + '-name')" class="error">{{errors.first('list' + listIndex + '-name')}}</div>
-          <input type="text" list="list-name-data" v-focus v-model="list.name" :name="'list' + listIndex + '-name'" :id="'list' + listIndex + '-name'" placeholder="Jaotise nimi" @keyup="listCheck(list, listIndex), noListsCheck()" @focusout="listCheck(list, listIndex)" @keyup.enter="list.ingredientLines.length === 0 ? addRow(list) : ''"/>
-          <a class="one-char-button delete-button" @click="deleteList(list)" :id="'list' + listIndex +'-del'">-</a>
+          <input type="text" list="list-name-data" v-focus v-model="list.name" :name="'list' + listIndex + '-name'" :id="'list' + listIndex + '-name'" placeholder="Jaotise nimi" @keyup="checkList(list, listIndex), checkListsExist()" @focusout="checkList(list, listIndex)" @keyup.enter="list.ingredientLines.length === 0 ? addRow(list) : ''"/>
+          <a class="one-char-button delete-button" @click="deleteList(list), checkListsExist()" :id="'list' + listIndex +'-del'">-</a>
           <ul>
             <li v-for="(line, lineIndex) in list.ingredientLines">
-              <div v-show="errors.has('list'+listIndex+'-line'+lineIndex+'-name')" class="error">Palun sisestage koostisosa nimi.</div>
+              <div v-if="errors.has('list'+listIndex+'-line'+lineIndex+'-name')" class="error">Palun sisestage koostisosa nimi.</div>
               <input v-focus class="amount-input" @keyup="updateInfo()" type="number" v-model.number="line.amount" :id="'list' + listIndex + '-line' + lineIndex + '-amt'" placeholder="Kogus" v-bind:ref="'list' + listIndex + 'line' + lineIndex + 'amt'"/>
               <input class="unit-input" @keyup="updateInfo()" :name="'list' + listIndex + '-line' + lineIndex + '-unit'" type="text" list="unit-data" v-model="line.unit" :id="'list' + listIndex + '-line' + lineIndex + '-unit'" placeholder="Ühik"/>
-              <input v-validate="line.unit || line.amount? 'required' : ''" @keyup="listCheck(list, listIndex), updateInfo()" @focusout="listCheck(list, listIndex), updateInfo()" :name="'list'+listIndex+'-line'+lineIndex+'-name'" class="ingredient-input" type="text" list="ingredient-data"  v-model="line.ingredient" :id="'list' + listIndex + '-line' + lineIndex + '-ingr'" placeholder="Koostisosa" @keyup.enter="lineIndex === list.ingredientLines.length - 1 ? addRow(list) : ''"/>
+              <input v-validate="(line.unit && /\S/.test(line.unit)) || line.amount? 'required' : ''" @keyup="checkList(list, listIndex), updateInfo()" @focusout="checkList(list, listIndex), updateInfo()" :name="'list'+listIndex+'-line'+lineIndex+'-name'" class="ingredient-input" type="text" list="ingredient-data"  v-model="line.ingredient" :id="'list' + listIndex + '-line' + lineIndex + '-ingr'" placeholder="Koostisosa" @keyup.enter="lineIndex === list.ingredientLines.length - 1 ? addRow(list) : ''"/>
               <a class="one-char-button add-button" :id="'list' + listIndex + '-line' + lineIndex + '-addAlt'" @click="addAltRow(line)">&or;</a>
               <a class="one-char-button delete-button" :id="'list' + listIndex + '-line' + lineIndex + '-del'" @click="deleteRow(line, list)">-</a>
               <ul v-if="line.alternateLines.length > 0">
                 <li v-for="(altLine, altLineIndex) in line.alternateLines">
-                  <div v-show="errors.has('list'+listIndex+'-line'+lineIndex+'-altLine'+altLineIndex+'-name')" class="error">Palun sisestage koostisosa nimi.</div>
+                  <div v-if="errors.has('list'+listIndex+'-line'+lineIndex+'-altLine'+altLineIndex+'-name')" class="error">Palun sisestage koostisosa nimi.</div>
                   <input class="amount-input" @keyup="updateInfo()" v-focus type="number" v-model.number="altLine.amount" :id="'list' + listIndex + '-line' + lineIndex + '-altLine' + altLineIndex + '-amt'" placeholder="Kogus"/>
                   <input class="unit-input" @keyup="updateInfo()" type="text" v-model="altLine.unit" :id="'list' + listIndex + '-line' + lineIndex + '-altLine' + altLineIndex + '-unit'" placeholder="Ühik"/>
-                  <input class="ingredient-input"  v-validate="altLine.unit || altLine.amount ? 'required' : ''" :name="'list'+listIndex+'-line'+lineIndex+'-altLine'+altLineIndex+'-name'" type="text" v-model="altLine.ingredient" placeholder="Alternatiivkoostisosa" :id="'list' + listIndex + '-line' + lineIndex + '-altLine' + altLineIndex + '-ingr'" @keyup.enter="altLineIndex === line.alternateLines.length - 1 ? addAltRow(line) : ''"/>
+                  <input class="ingredient-input"  v-validate="(altLine.unit && /\S/.test(altLine.unit)) || altLine.amount ? 'required' : ''" :name="'list'+listIndex+'-line'+lineIndex+'-altLine'+altLineIndex+'-name'" type="text" v-model="altLine.ingredient" placeholder="Alternatiivkoostisosa" :id="'list' + listIndex + '-line' + lineIndex + '-altLine' + altLineIndex + '-ingr'" @keyup.enter="altLineIndex === line.alternateLines.length - 1 ? addAltRow(line) : ''"/>
                   <a class="one-char-button delete-button" @click="remove(line.alternateLines, altLine)" :id="'list' + listIndex + '-line' + lineIndex + '-altLine' + altLineIndex + '-del'">-</a>
                 </li>
               </ul>
@@ -50,7 +49,7 @@
             <li><a @click="addRow(list)" class="one-char-button add-button" :id="'list' + listIndex + '-addLine'">+</a></li>
           </ul>
         </div>
-        <a @click="addList()" class="one-char-button add-button" id="addList">+</a>
+        <a @click="addList(), checkListsExist()" class="one-char-button add-button" id="addList">+</a>
       </div>
     </div>
     <div id="instructions">
@@ -60,9 +59,11 @@
 
     <div id="pictureholder">
       <div id="picture">
-        <img src="http://placehold.it/350x350"/>
+        <img v-if="image" id="recipeimage" :src="'images/temp/1' + image" />
+        <img v-else-if="recipe.pictureName" :src="'images/' + recipe.id + '/1RecipePicture.' + recipe.pictureName"/>
       </div>
-
+      <input id="image-input" type="file" name="file" formenctype="multipart/form-data" @change="onFileChange" accept="image/*">
+      <button v-if="recipe.pictureName || image" @click="deleteImage()">Kustuta pilt</button>
       <div id="categories">
         <datalist id="category-data">
           <option v-for="category in autofill.categories" :value="category.name">{{ category.name }}</option>
@@ -79,9 +80,8 @@
 
     <div id="savebutton">
       <a id="save" @click="validateBeforeSubmit() ? saveRecipe(): ''">Salvesta muudatused</a>
-      <router-link id="cancel" v-if="recipe.id" v-bind:to="'/recipe/' + recipe.id">Katkesta</router-link>
+      <router-link id="cancel" v-if="recipe.id" v-bind:to="'/recipe/' + recipe.id" >Katkesta</router-link>
     </div>
-
   </div>
 </template>
 <style scoped>
@@ -160,7 +160,7 @@
   }
 
   .unit-input {
-    width: 3em;
+    width: 4em;
   }
 
   .ingredient-input {
@@ -273,14 +273,17 @@
   .error {
     color: red;
   }
+  #recipeimage {
+    height: 350px;
+    width: 350px;
+  }
 
 </style>
 <script>
   import { store } from "../datastore.js";
-  import { getAutoFillData } from "../api.js";
+  import { getAutoFillData, loadUser, uploadImage } from "../api.js";
   import Vue from "vue";
   import VeeValidate from "vee-validate";
-
   Vue.use(VeeValidate);
 
   export default {
@@ -288,6 +291,11 @@
     data: function () {
       const myData = {
         recipe: store.recipeToEdit,
+        pictureTimeOut: null,
+        image: "",
+        user: loadUser(res => {
+          this.user = res.username;
+        }),
         autofill: {
           units: [],
           ingredients: [],
@@ -296,8 +304,7 @@
           sources: []
         },
         saveButtonClicked: false,
-        error: false,
-        success: false
+        error: false
       };
       store.resetRecipe();
       return myData;
@@ -318,6 +325,12 @@
     mounted: function () {
       document.getElementById("title").focus();
     },
+    beforeRouteLeave (to, from, next) {
+      if (this.image) {
+        this.deleteImage();
+      }
+      next();
+    },
     beforeRouteEnter (to, from, next) {
       getAutoFillData((err, res) => {
         if (err) {
@@ -332,13 +345,13 @@
     },
 
     methods: {
-      validateBeforeSubmit () {
+      validateBeforeSubmit: function () {
         this.saveButtonClicked = true;
+        this.checkListsExist();
         this.$validator.validateAll();
-        this.noListsCheck();
         let listIndex = 0;
         for (const list of this.recipe.ingredientLists) {
-          this.listCheck(list, listIndex);
+          this.checkList(list, listIndex);
           listIndex++;
         }
         return !(this.errors.any() || this.error);
@@ -347,6 +360,9 @@
         this.$router.push("/recipe/" + recipeId);
       },
       saveRecipe: function () {
+        if (this.image) {
+          this.recipe.pictureName = this.image;
+        }
         var xhr = new XMLHttpRequest();
         xhr.open("POST", "/api/recipe");
         xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
@@ -356,11 +372,19 @@
             try {
               routeToRecipe(JSON.parse(this.responseText).recipeId);
             } catch (ex) {
+              if (ex.message.includes("Unexpected token")) {
+                alert("Teie konto on tõenäoliselt välja logitud. Palun logige teises aknas sisse et vältida sisestatud info kaduma minekut.");
+              } else {
+                alert("Retsepti salvestamine ebaõnnestus. Palun proovige uuesti.");
+              }
               console.log(ex);
             }
+          } else {
+            alert("Retsepti salvestamine ebaõnnestus. Palun proovige uuesti.");
           }
         };
         xhr.send(JSON.stringify(this.filteredRecipe()));
+        this.image = "";
       },
       filteredRecipe: function () {
         const newRecipe = JSON.parse(JSON.stringify(this.recipe)); // do deep copy
@@ -412,10 +436,10 @@
       logData: function () {
         console.log(this.recipe);
       },
-      updateInfo () {
+      updateInfo: function () {
         this.$forceUpdate();
       },
-      listCheck (list, listIndex) {
+      checkList: function (list, listIndex) {
         if (this.saveButtonClicked) {
           this.errors.remove("list" + listIndex + "-name");
           if (!list.name || !/\S/.test(list.name)) {
@@ -435,17 +459,58 @@
           this.errors.remove("list" + listIndex + "-name");
         }
       },
-      noListsCheck () {
+      checkListsExist: function () {
         if (this.saveButtonClicked) {
           if (this.recipe.ingredientLists.length === 0) {
             this.error = true;
             this.message = "Retseptil peab olema vähemalt 1 jaotis.";
+            this.updateInfo();
             return;
           }
           this.message = null;
           this.error = false;
         }
+      },
+      onFileChange: function (e) {
+        let files = e.target.files || e.dataTransfer.files;
+        if (!files.length) {
+          return;
+        }
+        uploadImage(files[0], (err, res) => {
+          if (err) {
+            alert(err.message);
+          } else {
+            this.image = res.result;
+          }
+        });
+        if (this.pictureTimeOut) {
+          clearTimeout(this.pictureTimeOut);
+        }
+        this.pictureTimeOut = setTimeout(function () {
+          alert("Teie lisatud pilt kustutati. Palun lisage see uuesti.");
+          this.image = "";
+          document.getElementsByName("file")[0].value = "";
+        }, 86400000);
+      },
+      deleteImage: function () {
+        if (!this.image && this.recipe.pictureName && !confirm("Kas soovite eelnevalt salvestatud pilti jäädavalt kustutada?")) {
+          return;
+        }
+        document.getElementsByName("file")[0].value = "";
+        let xhr = new XMLHttpRequest();
+        xhr.open("POST", "/api/recipe/deleteimage");
+        xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+        xhr.onload = function () {
+        };
+        if (this.image) {
+          xhr.send(JSON.stringify(["temp", this.image]));
+          this.image = "";
+        } else if (this.recipe.pictureName) {
+          xhr.send(JSON.stringify([this.recipe.id.toString(), this.recipe.pictureName]));
+          this.recipe.pictureName = "";
+        }
       }
+
     }
   };
 </script>
