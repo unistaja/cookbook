@@ -11,9 +11,8 @@ import java.io.File;
 public class SchedulePeriodicImageDeletion {
   @Value("${imageFolder}")
   private String imageFolder;
-  @Scheduled(cron = "0 * 12 * * ?")
+  @Scheduled(cron = "0 0 3 * * ?")
   public void deleteImages() {
-    System.out.println("SCHEDULE!");
     final File dir = new File(imageFolder + "temp/");
     if (dir.exists()) {
       final File[] images = dir.listFiles();
