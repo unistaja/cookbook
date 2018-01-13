@@ -105,9 +105,9 @@ export function changePassword (oldPassword, newPassword, callback) {
   xhr.send("oldPassword=" + oldPassword + "&newPassword=" + newPassword);
 }
 
-export function findRecipes (recipe, callback) {
+export function findRecipes (query, callback) {
   const xhr = new XMLHttpRequest();
-  xhr.open("POST", "/api/recipe/search");
+  xhr.open("POST", "/api/search");
   xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
   xhr.onload = function () {
     if (this.status === 200) {
@@ -123,15 +123,15 @@ export function findRecipes (recipe, callback) {
   xhr.onerror = function () {
     callback({message: "Retseptide laadimine ebaõnnestus. Proovi lehekülge uuendada."});
   };
-  xhr.send(JSON.stringify(recipe));
+  xhr.send(JSON.stringify(query));
 }
 
-export function uploadImage (image, callback) {
+export function uploadImage (image, id, callback) {
   const formData = new FormData();
   formData.append("file", image);
-  formData.append("name", image.name.slice((Math.max(0, image.name.lastIndexOf(".")) || Infinity) + 1));
+  formData.append("id", id);
   let xhr = new XMLHttpRequest();
-  xhr.open("POST", "/api/recipe/images");
+  xhr.open("POST", "/api/image/upload");
   xhr.onload = function () {
     if (this.status === 200) {
       try {
@@ -149,3 +149,60 @@ export function uploadImage (image, callback) {
   xhr.send(formData);
 }
 
+export function saveImage (id, extension, callback) {
+  const formData = new FormData();
+  formData.append("id", id);
+  formData.append("extension", extension);
+  let xhr = new XMLHttpRequest();
+  xhr.open("POST", "/api/image/save");
+  xhr.onload = function () {
+    if (this.status === 200) {
+      try {
+        callback(null, {result: this.responseText});
+      } catch (ex) {
+        callback({message: "Pildi salvestamine ebaõnnestus."});
+      }
+    } else {
+      callback({errorCode: this.status, message: this.responseText});
+    }
+  };
+  xhr.send(formData);
+}
+
+export function deleteTempImage (name, callback) {
+  const formData = new FormData();
+  formData.append("name", name);
+  let xhr = new XMLHttpRequest();
+  xhr.open("POST", "/api/image/deletetempimage");
+  xhr.onload = function () {
+    if (this.status === 200) {
+      try {
+        callback(null, {result: this.responseText});
+      } catch (ex) {
+        callback({message: "Pildi kustutamine ebaõnnestus."});
+      }
+    } else {
+      callback({errorCode: this.status, message: this.responseText});
+    }
+  };
+  xhr.send(formData);
+}
+
+export function deleteSavedImage (id, callback) {
+  const formData = new FormData();
+  formData.append("id", id);
+  let xhr = new XMLHttpRequest();
+  xhr.open("POST", "/api/image/deletesavedimage");
+  xhr.onload = function () {
+    if (this.status === 200) {
+      try {
+        callback(null);
+      } catch (ex) {
+        callback({message: "Pildi kustutamine ebaõnnestus."});
+      }
+    } else {
+      callback({errorCode: this.status, message: this.responseText});
+    }
+  };
+  xhr.send(formData);
+}

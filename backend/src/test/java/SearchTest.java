@@ -20,27 +20,13 @@ import static com.codeborne.selenide.Selenide.*;
 public class SearchTest extends BaseSelenideTest {
   private List<String> recipeTitles = new ArrayList<>();
 
-  @Value("${flyway.url}")
-  public String flywayUrl;
-
-  @Value ("${flyway.user}")
-  public String flywayUser;
-
-  @Value ("${flyway.password}")
-  public String flywayPassword;
-
   @Before
-  public void createSecondUser() {
-    try {
-      Connection conn = DriverManager.getConnection(flywayUrl, flywayUser, flywayPassword);
-      String query = "INSERT INTO `cookbooktest`.`user` (`username`, `passwordHash`, `active`) VALUES ('testAdder', '', 1);";
-      PreparedStatement preparedStmt = conn.prepareStatement(query);
-      preparedStmt.execute();
-      conn.close();
-    } catch (Exception e) {
-      System.err.println("Got an exception! ");
-      System.err.println(e.getMessage());
-    }
+  public void createSecondUser() throws Exception {
+    Connection conn = DriverManager.getConnection(flywayUrl, flywayUser, flywayPassword);
+    String query = "INSERT INTO `cookbooktest`.`user` (`username`, `passwordHash`, `active`) VALUES ('testAdder', '', 1);";
+    PreparedStatement preparedStmt = conn.prepareStatement(query);
+    preparedStmt.execute();
+    conn.close();
   }
 
   @Autowired
@@ -319,7 +305,7 @@ public class SearchTest extends BaseSelenideTest {
   }
 
   private void addAltIngredient(int line, int altLine, int ingredient) {
-    String altLineId = "list0"+"-line"+line+"-altLine"+altLine;
+    String altLineId = "list0-line"+line+"-altLine"+altLine;
     $(By.id(altLineId+"-ingr")).setValue("Ingredient" + ingredient);
   }
 

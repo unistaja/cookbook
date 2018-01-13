@@ -7,7 +7,7 @@ import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.WebDriverRunner.url;
 
-public class OfflineAccessTest extends BaseSelenideTest {
+public class UnauthorizedAccessTest extends BaseSelenideTest {
   @Test
   public void testOfflineAccess() {
     $(Selectors.byText("Logi välja")).click();

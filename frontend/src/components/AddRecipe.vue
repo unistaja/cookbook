@@ -281,7 +281,7 @@
 </style>
 <script>
   import { store } from "../datastore.js";
-  import { getAutoFillData, loadUser, uploadImage } from "../api.js";
+  import { getAutoFillData, loadUser, uploadImage, deleteTempImage, deleteSavedImage } from "../api.js";
   import Vue from "vue";
   import VeeValidate from "vee-validate";
   Vue.use(VeeValidate);
@@ -363,7 +363,7 @@
         if (this.image) {
           this.recipe.pictureName = this.image;
         }
-        var xhr = new XMLHttpRequest();
+        let xhr = new XMLHttpRequest();
         xhr.open("POST", "/api/recipe");
         xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
         let routeToRecipe = this.routeToRecipe;
@@ -399,7 +399,7 @@
         return newRecipe;
       },
       remove: function (arr, el) {
-        var index = arr.indexOf(el);
+        let index = arr.indexOf(el);
         if (index > -1) {
           arr.splice(index, 1);
         }
@@ -476,38 +476,38 @@
         if (!files.length) {
           return;
         }
-        uploadImage(files[0], (err, res) => {
+        uploadImage(files[0], 0, (err, res) => {
           if (err) {
             alert(err.message);
           } else {
             this.image = res.result;
           }
         });
-        if (this.pictureTimeOut) {
-          clearTimeout(this.pictureTimeOut);
-        }
-        this.pictureTimeOut = setTimeout(function () {
-          alert("Teie lisatud pilt kustutati. Palun lisage see uuesti.");
-          this.image = "";
-          document.getElementsByName("file")[0].value = "";
-        }, 86400000);
       },
       deleteImage: function () {
         if (!this.image && this.recipe.pictureName && !confirm("Kas soovite eelnevalt salvestatud pilti jäädavalt kustutada?")) {
           return;
         }
-        document.getElementsByName("file")[0].value = "";
-        let xhr = new XMLHttpRequest();
-        xhr.open("POST", "/api/recipe/deleteimage");
-        xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-        xhr.onload = function () {
-        };
+
         if (this.image) {
-          xhr.send(JSON.stringify(["temp", this.image]));
+          deleteTempImage(this.image, (err) => {
+            if (err) {
+              alert(err.message);
+            } else {
+              this.image = "";
+              document.getElementsByName("file")[0].value = "";
+            }
+          });
           this.image = "";
         } else if (this.recipe.pictureName) {
-          xhr.send(JSON.stringify([this.recipe.id.toString(), this.recipe.pictureName]));
-          this.recipe.pictureName = "";
+          deleteSavedImage(this.recipe.id, (err) => {
+            if (err) {
+              alert(err.message);
+            } else {
+              this.recipe.pictureName = "";
+              document.getElementsByName("file")[0].value = "";
+            }
+          });
         }
       }
 

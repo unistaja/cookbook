@@ -26,14 +26,4 @@
 		<module>frontend</module>
 		<module>backend</module>
 	</modules>
-	<dependencies>
-		<dependency>
-			<groupId>com.codeborne</groupId>
-			<artifactId>selenide</artifactId>
-			<version>4.4.3</version>
-			<scope>test</scope>
-		</dependency>
-	</dependencies>
-
-
 </project>

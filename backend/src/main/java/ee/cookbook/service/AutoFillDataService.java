@@ -12,10 +12,6 @@ public class AutoFillDataService {
   @Autowired
   private JdbcTemplate jdbcTemplate;
   @Autowired
-  private RecipeRepository recipeRepository;
-  @Autowired
-  private UserRepository userRepository;
-  @Autowired
   private CategoryRepository categoryRepository;
   @Autowired
   private IngredientListNameRepository ingredientListNameRepository;

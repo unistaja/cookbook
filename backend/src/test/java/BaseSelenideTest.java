@@ -1,7 +1,6 @@
 import static com.codeborne.selenide.Condition.exist;
 import static com.codeborne.selenide.Selenide.*;
 import static com.codeborne.selenide.WebDriverRunner.url;
-
 import com.codeborne.selenide.Configuration;
 import com.codeborne.selenide.Selectors;
 import com.codeborne.selenide.SelenideElement;
