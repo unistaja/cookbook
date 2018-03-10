@@ -46,7 +46,7 @@ public class AddRecipeTest extends BaseSelenideTest {
       listsDeletedFrom++;
     }
     addImage();
-    $(By.id("recipeimage")).shouldHave(attribute("src", baseUrl + "images/temp/1-0.jpeg"));
+    assert($(By.id("recipeimage")).getAttribute("src").matches(baseUrl + "images/temp/1-(.*).jpeg"));
     assert(checkTemporaryImagesExist());
     deleteImage();
     $(By.id("recipeimage")).shouldNotBe(visible);
@@ -84,7 +84,7 @@ public class AddRecipeTest extends BaseSelenideTest {
     dismiss();
     assert(checkSavedImagesExist());
     addImage();
-    $(By.id("recipeimage")).shouldHave(attribute("src", baseUrl + "images/temp/1-0.jpeg"));
+    assert($(By.id("recipeimage")).getAttribute("src").matches(baseUrl + "images/temp/1-(.*).jpeg"));
     assert(checkTemporaryImagesExist());
     deleteImage();
     assert(checkSavedImagesExist());
@@ -474,7 +474,8 @@ public class AddRecipeTest extends BaseSelenideTest {
     return (new File(imageFolder + "1/1RecipePicture.jpeg").exists()) && (new File(imageFolder + "1/2RecipePicture.jpeg")).exists() && (new File(imageFolder + "1/3RecipePicture.jpeg")).exists();
   }
 
-  private boolean checkTemporaryImagesExist() {
-    return (new File(imageFolder + "temp/1-0.jpeg").exists()) && (new File(imageFolder + "temp/2-0.jpeg")).exists() && (new File(imageFolder + "temp/3-0.jpeg")).exists();
+  private boolean checkTemporaryImagesExist() throws NullPointerException {
+    File tempImageDirectory =new File(imageFolder + "temp/");
+    return (tempImageDirectory.listFiles().length == 3);
   }
 }

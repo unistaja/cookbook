@@ -129,7 +129,9 @@ export function findRecipes (query, callback) {
 export function uploadImage (image, id, callback) {
   const formData = new FormData();
   formData.append("file", image);
-  formData.append("id", id);
+  if (id) {
+    formData.append("id", id);
+  }
   let xhr = new XMLHttpRequest();
   xhr.open("POST", "/api/image/upload");
   xhr.onload = function () {

@@ -30,7 +30,7 @@ import java.sql.*;
 @SpringApplicationConfiguration(classes = CookbookApplication.class)
 @WebAppConfiguration
 @IntegrationTest
-@TestPropertySource(locations= "classpath:application-test.properties")
+@TestPropertySource(locations= "classpath:application.properties")
 @FlywayTest(invokeCleanDB = true)
 
 
@@ -55,10 +55,10 @@ public abstract class BaseSelenideTest {
     Configuration.timeout = 1500;
   }
 
-  public String baseUrl;
+  String baseUrl;
   //account details
-  public final String testUsername = "Selenide";
-  public String testPassword = "test";
+  final String testUsername = "Selenide";
+  String testPassword = "test";
   //creating a user account
   @Value ("${flyway.url}")
   public String flywayUrl;

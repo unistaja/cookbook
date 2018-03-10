@@ -476,7 +476,7 @@
         if (!files.length) {
           return;
         }
-        uploadImage(files[0], 0, (err, res) => {
+        uploadImage(files[0], null, (err, res) => {
           if (err) {
             alert(err.message);
           } else {

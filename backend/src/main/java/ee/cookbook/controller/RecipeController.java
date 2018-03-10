@@ -59,10 +59,13 @@ public class RecipeController {
     recipe.user = user;
     Recipe savedRecipe = recipeRepository.save(recipe);
     if (!StringUtils.isBlank(imageName)) {
-      imageService.saveImages(imageName, recipe.pictureName, savedRecipe.id);
+      try {
+        imageService.saveImages(imageName, recipe.pictureName, savedRecipe.id);
+      } catch(Exception e) {
+        return "{\"recipeId\": " + savedRecipe.id + "}";
+      }
     }
     return "{\"recipeId\": " + savedRecipe.id + "}";
-
   }
 
   @RequestMapping(value = "/find", method = RequestMethod.GET)

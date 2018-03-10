@@ -1,15 +1,12 @@
 package ee.cookbook.service;
 
-import ee.cookbook.dao.RecipeRepository;
-import ee.cookbook.model.User;
 import net.coobird.thumbnailator.Thumbnails;
 import org.apache.tika.Tika;
+import org.apache.tika.exception.UnsupportedFormatException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -20,133 +17,125 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static java.nio.file.Files.delete;
-import static java.nio.file.Files.exists;
 import static java.nio.file.Files.move;
 import static java.nio.file.Paths.get;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+import static java.util.UUID.randomUUID;
 
 @Service
 public class ImageService {
 
-  @Autowired
-  private JdbcTemplate template;
+  private final static Logger logger = LoggerFactory.getLogger(ImageService.class);
 
   @Autowired
-  private RecipeRepository recipeRepository;
+  private JdbcTemplate template;
 
   @Value("${imageFolder}")
   private String imageFolder;
 
-  public ResponseEntity createTemporaryImages(MultipartFile file, Long id, Authentication auth) {
-    User user = (User) auth.getPrincipal();
-    if (id != 0 && recipeRepository.countByIdAndUserId(id, user.id) == 0) {
-      throw new IllegalStateException("User " + user.username + " is not allowed to modify recipe with id " + id);
+  ImageService(@Value("${imageFolder}") String imageFolder) {
+    File dir = new File(imageFolder + "temp");
+    if (!dir.exists()) {
+      if (!dir.mkdirs()) {
+        logger.error("Creating new image folder (" + dir.getAbsolutePath() + ") failed.");
+      }
     }
+  }
+  public String createTemporaryImages(MultipartFile file, Long recipeId, Long userId) throws IllegalArgumentException, IOException, UnsupportedFormatException {
     if (!file.isEmpty()) {
-      try {
-        String name;
-        Tika tika = new Tika();
-        byte[] bytes = file.getBytes();
-        String[] detected = tika.detect(bytes).split("[/]");
-        String mimeType = detected[0];
-        String type = detected[1];
-        if( !mimeType.equals("image") || !(type.equals("jpg") || type.equals("jpeg") || type.equals("png"))) {
-          return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE).body("Pildi salvestamine ebaõnnestus, sest saadetud fail ei olnud formaadis png, jpg või jpeg.");
-        }
-        File dir = new File(imageFolder + "temp");
-        if (!dir.exists()) {
-          dir.mkdirs();
-        }
-        // Create the file on server
+      String name;
+      byte[] bytes = file.getBytes();
+      String type = getImageType(bytes);
 
-        if (id > 0) {
-          name = "-" + id + "-" + user.id + "." + type;
-        } else {
-          int i = 0;
-          while (exists(Paths.get(imageFolder + "temp/3-" + i + "." + type))) {
-            i++;
-          }
-          name = "-" + i + "." + type;
-        }
-        File serverFile = new File(imageFolder + "temp/3" + name);
-        BufferedOutputStream stream = new BufferedOutputStream(
-                new FileOutputStream(serverFile));
-        stream.write(bytes);
-        stream.close();
-        BufferedImage shownImage =
-                Thumbnails.of(serverFile)
-                        .width(350)
-                        .asBufferedImage();
+      // Create the file on server
 
-        ImageIO.write(shownImage, type, new File(imageFolder + "temp/1" + name));
-        BufferedImage thumbnail =
-                Thumbnails.of(serverFile)
-                        .height(100)
-                        .asBufferedImage();
-        ImageIO.write(thumbnail, type, new File(imageFolder + "temp/2" + name));
+      if (recipeId != null) {
+        name = "-" + recipeId + "-" + userId + "." + type;
+      } else {
+        name = "-" + randomUUID() + "." + type;
+      }
+      File serverFile = new File(imageFolder + "temp/3" + name);
+      BufferedOutputStream stream = new BufferedOutputStream(
+              new FileOutputStream(serverFile));
+      stream.write(bytes);
+      stream.close();
+      BufferedImage shownImage =
+              Thumbnails.of(serverFile)
+                      .width(350)
+                      .asBufferedImage();
 
-        return ResponseEntity.ok(name);
-      } catch (Exception e) {
-        return ResponseEntity.status(500).body("Pildi salvestamine ebaõnnestus.");
+      ImageIO.write(shownImage, type, new File(imageFolder + "temp/1" + name));
+      BufferedImage thumbnail =
+              Thumbnails.of(serverFile)
+                      .height(100)
+                      .asBufferedImage();
+      ImageIO.write(thumbnail, type, new File(imageFolder + "temp/2" + name));
+
+      return name;
+    } else {
+      throw new IllegalArgumentException("Saadetud fail on tühi");
+    }
+  }
+
+  public String saveImages(String name, String extension, Long recipeId) throws IOException, DataAccessException {
+    prepareImageDirectory(recipeId);
+    for (int i = 1; i < 4; i++) {
+      move(get(imageFolder + "temp/" + i + name + "." + extension), get(imageFolder + recipeId + "/" + i + "RecipePicture." + extension), REPLACE_EXISTING);
+    }
+    template.update("UPDATE recipe SET pictureName = ? WHERE id = ?", extension, recipeId);
+    return extension;
+  }
+
+  public void deleteSavedImage(Long recipeId) throws DataAccessException {
+    String fileExtension = template.queryForObject("SELECT pictureName FROM recipe WHERE id = ?", String.class, recipeId);
+    try {
+      template.update("UPDATE recipe SET pictureName = NULL WHERE id = ?", recipeId);
+      delete(Paths.get(imageFolder + recipeId + "/1RecipePicture." + fileExtension));
+      delete(Paths.get(imageFolder + recipeId + "/2RecipePicture." + fileExtension));
+      delete(Paths.get(imageFolder + recipeId + "/3RecipePicture." + fileExtension));
+    } catch (IOException e) {
+      logger.error("Deleting images from folder " + imageFolder + recipeId + " failed. (" + e.getMessage() + ")");
+    }
+  }
+
+  public void deleteTempImage(String name) throws IOException {
+    delete(Paths.get(imageFolder + "temp/1" + name));
+    delete(Paths.get(imageFolder + "temp/2" + name));
+    delete(Paths.get(imageFolder + "temp/3" + name));
+  }
+
+  private String getImageType(byte[] bytes) throws UnsupportedFormatException {
+    Tika tika = new Tika();
+    String[] detected = tika.detect(bytes).split("[/]");
+    String mimeType = detected[0];
+    String type = detected[1];
+    if( !mimeType.equals("image") || !(type.equals("jpg") || type.equals("jpeg") || type.equals("png"))) {
+      throw new UnsupportedFormatException("Pildifail peab olema jpg, jpeg või png tüüpi.");
+    }
+    return type;
+  }
+
+  private void prepareImageDirectory(Long recipeId) throws IOException {
+    File dir = new File(imageFolder + recipeId);
+    if (!dir.exists()) {
+      if (!dir.mkdirs()) {
+        logger.error("Creating image folder for recipe " + recipeId + " failed.");
+        throw new IOException();
       }
     } else {
-      return ResponseEntity.status(400).body("Saadetud fail on tühi.");
-    }
-  }
-
-  public ResponseEntity saveImages(String name, String extension, Long id) {
-    try {
-      File dir = new File(imageFolder + id);
-      if (!dir.exists()) {
-        dir.mkdirs();
-      } else {
-        File[] images = dir.listFiles();
-        if (images != null) {
-          for(File f: images) {
-            f.delete();
+      File[] images = dir.listFiles();
+      if (images != null) {
+        for(File f: images) {
+          if (!f.delete()) {
+            logger.error("Deleting existing images from " + dir.getAbsolutePath() + " failed.");
           }
         }
       }
-      move(get(imageFolder + "temp/1" + name + "." + extension), get(imageFolder + id + "/" + 1 + "RecipePicture." + extension), REPLACE_EXISTING);
-      move(get(imageFolder + "temp/2" + name + "."  + extension), get(imageFolder + id + "/" + 2 + "RecipePicture." + extension), REPLACE_EXISTING);
-      move(get(imageFolder + "temp/3" + name + "." + extension), get(imageFolder + id + "/" + 3 + "RecipePicture." + extension), REPLACE_EXISTING);
-      List<String> parameters = new ArrayList<>();
-      parameters.add(extension);
-      parameters.add(id.toString());
-      template.update("UPDATE recipe SET pictureName = ? WHERE id = ?", parameters.toArray());
-      return ResponseEntity.ok(extension);
-    } catch (IOException e) {
-      return ResponseEntity.status(500).body("Pildi salvestamine ebaõnnestus");
-    }
-  }
-
-  public ResponseEntity deleteSavedImage(Long id) {
-    List<Long> parameters = new ArrayList<>();
-    parameters.add(id);
-    String fileExtension = template.queryForObject("SELECT pictureName FROM recipe WHERE id = ?", parameters.toArray(), String.class);
-    try {
-      delete(Paths.get(imageFolder + id + "/1RecipePicture." + fileExtension));
-      delete(Paths.get(imageFolder + id + "/2RecipePicture." + fileExtension));
-      delete(Paths.get(imageFolder + id + "/3RecipePicture." + fileExtension));
-      template.update("UPDATE recipe SET pictureName = '' WHERE id = ?", parameters.toArray());
-      return ResponseEntity.ok("");
-    } catch (IOException e) {
-      return ResponseEntity.status(500).body("Pildi kustutamine ebaõnnestus.");
-    }
-  }
-
-  public ResponseEntity deleteTempImage(String name) {
-    try {
-      delete(Paths.get(imageFolder + "temp/1" + name));
-      delete(Paths.get(imageFolder + "temp/2" + name));
-      delete(Paths.get(imageFolder + "temp/3" + name));
-      return ResponseEntity.ok("");
-    } catch (IOException e) {
-      return ResponseEntity.status(500).body("Pildi kustutamine ebaõnnestus.");
     }
   }
 }
+
