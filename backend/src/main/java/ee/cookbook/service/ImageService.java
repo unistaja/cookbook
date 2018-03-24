@@ -31,17 +31,18 @@ public class ImageService {
 
   private final static Logger logger = LoggerFactory.getLogger(ImageService.class);
 
+  private Tika tika = new Tika();
+
   @Autowired
   private JdbcTemplate template;
 
-  @Value("${imageFolder}")
-  private String imageFolder;
-
+  private final String imageFolder;
   ImageService(@Value("${imageFolder}") String imageFolder) {
+    this.imageFolder = imageFolder;
     File dir = new File(imageFolder + "temp");
     if (!dir.exists()) {
       if (!dir.mkdirs()) {
-        logger.error("Creating new image folder (" + dir.getAbsolutePath() + ") failed.");
+        logger.error("Creating new image folder ({}) failed.", dir.getAbsolutePath());
       }
     }
   }
@@ -98,7 +99,7 @@ public class ImageService {
       delete(Paths.get(imageFolder + recipeId + "/2RecipePicture." + fileExtension));
       delete(Paths.get(imageFolder + recipeId + "/3RecipePicture." + fileExtension));
     } catch (IOException e) {
-      logger.error("Deleting images from folder " + imageFolder + recipeId + " failed. (" + e.getMessage() + ")");
+      logger.error("Deleting images from folder {}{} failed. ", imageFolder, recipeId, e);
     }
   }
 
@@ -109,7 +110,6 @@ public class ImageService {
   }
 
   private String getImageType(byte[] bytes) throws UnsupportedFormatException {
-    Tika tika = new Tika();
     String[] detected = tika.detect(bytes).split("[/]");
     String mimeType = detected[0];
     String type = detected[1];
@@ -123,7 +123,7 @@ public class ImageService {
     File dir = new File(imageFolder + recipeId);
     if (!dir.exists()) {
       if (!dir.mkdirs()) {
-        logger.error("Creating image folder for recipe " + recipeId + " failed.");
+        logger.error("Creating image folder for recipe {} failed.", recipeId);
         throw new IOException();
       }
     } else {
@@ -131,7 +131,7 @@ public class ImageService {
       if (images != null) {
         for(File f: images) {
           if (!f.delete()) {
-            logger.error("Deleting existing images from " + dir.getAbsolutePath() + " failed.");
+            logger.error("Deleting existing images from {} failed.", dir.getAbsolutePath());
           }
         }
       }

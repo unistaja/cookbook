@@ -164,8 +164,8 @@
           if (err) {
             console.log("Search failed");
           } else {
-            this.shownRecipes = res[0];
-            this.pages = res[1];
+            this.shownRecipes = res.recipes;
+            this.pages = res.pages;
           }
         });
       },

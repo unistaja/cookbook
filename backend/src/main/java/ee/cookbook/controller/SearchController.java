@@ -16,7 +16,7 @@ public class SearchController {
   @Autowired
   private SearchService searchService;
   @RequestMapping(method = RequestMethod.POST)
-  public List<Object> search(@RequestBody SearchForm recipe) {
-    return searchService.searchRecipes(recipe);
+  public SearchResult search(@RequestBody SearchForm searchParameters) {
+    return searchService.findRecipes(searchParameters);
   }
 }

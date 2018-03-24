@@ -42,12 +42,12 @@ public class ImageController {
     try {
       return ResponseEntity.ok(imageService.createTemporaryImages(file, id, user.id));
     } catch(IOException e) {
-      logger.error("Creating temporary image failed. (" + e.getMessage() + ")");
+      logger.error("Creating temporary image failed. ", e);
       return ResponseEntity.status(500).body("Pildi salvestamine ebaõnnestus");
     } catch (IllegalArgumentException e) {
       return ResponseEntity.status(400).body(e.getMessage());
     } catch (UnsupportedFormatException e) {
-      logger.error("Creating temporary image failed. (" + e.getMessage() + ")");
+      logger.error("Creating temporary image failed. ", e);
       return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE).body(e.getMessage());
     }
   }
@@ -59,10 +59,10 @@ public class ImageController {
     try {
       return ResponseEntity.ok(imageService.saveImages(name, fileExtension, recipeId));
     } catch (IOException e) {
-      logger.error("Saving image to folder " + imageFolder + recipeId + " failed. (" + e.getMessage() + ")");
+      logger.error("Saving image to folder {}{} failed. ", imageFolder, recipeId, e);
       return ResponseEntity.status(500).body("Pildi salvestamine ebaõnnestus");
     } catch (DataAccessException e) {
-      logger.error("Saving recipe " + recipeId + " image information to database failed. (" + e.getMessage() + ")");
+      logger.error("Saving recipe {} image information to database failed. ", recipeId, e);
       return ResponseEntity.status(500).body("Pildi salvestamine ebaõnnestus.");
     }
   }
@@ -73,7 +73,7 @@ public class ImageController {
       imageService.deleteTempImage(name);
       return ResponseEntity.ok("");
     } catch (IOException e) {
-      logger.error("Deleting images from temp folder failed. (" + e.getMessage() + ")");
+      logger.error("Deleting images from temp folder failed. ", e);
       return ResponseEntity.status(500).body("Pildi kustutamine ebaõnnestus.");
     }
   }
@@ -87,7 +87,7 @@ public class ImageController {
       imageService.deleteSavedImage(recipeId);
       return ResponseEntity.ok("");
     } catch (DataAccessException e) {
-      logger.error("Deleting recipe " + recipeId + " image information from database failed. (" + e.getMessage() + ")");
+      logger.error("Deleting recipe {} image information from database failed. ", recipeId, e);
       return ResponseEntity.status(500).body("Pildi kustutamine ebaõnnestus.");
     }
 
