@@ -380,7 +380,7 @@
               console.log(ex);
             }
           } else {
-            alert("Retsepti salvestamine ebaõnnestus. Palun proovige uuesti.");
+            alert(JSON.parse(this.responseText).message);
           }
         };
         xhr.send(JSON.stringify(this.filteredRecipe()));

@@ -6,8 +6,11 @@ import ee.cookbook.protocol.AutoFillData;
 import ee.cookbook.service.AutoFillDataService;
 import ee.cookbook.service.ImageService;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,6 +22,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/recipe")
 public class RecipeController {
+  private final static Logger logger = LoggerFactory.getLogger(RecipeController.class);
+
   @Value("${imageFolder}")
   private String imageFolder;
 
@@ -40,11 +45,12 @@ public class RecipeController {
   }
 
   @RequestMapping(method = RequestMethod.POST)
-  String add(@RequestBody Recipe recipe, Authentication auth) {
+  ResponseEntity add(@RequestBody Recipe recipe, Authentication auth) {
     User user = (User) auth.getPrincipal();
     String imageName = "";
     if (recipe.id != 0 && recipeRepository.countByIdAndUserId(recipe.id, user.id) == 0) {
-      throw new IllegalStateException("User " + user.username + " is not allowed to modify recipe with id " + recipe.id);
+      logger.error("User " + user.username + " is not allowed to modify recipe with id " + recipe.id);
+      throw new IllegalStateException("Teil pole lubatud seda retsepti muuta.");
     }
     recipe.added = new Date(System.currentTimeMillis() + 10800000);
     if (!StringUtils.isBlank(recipe.pictureName)) {
@@ -62,10 +68,11 @@ public class RecipeController {
       try {
         imageService.saveImages(imageName, recipe.pictureName, savedRecipe.id);
       } catch(Exception e) {
-        return "{\"recipeId\": " + savedRecipe.id + "}";
+        logger.error("Saving image to recipe {} failed.", savedRecipe.id, e);
+        return ResponseEntity.status(500).body("{\"message\": \"Pildi salvestamine ebaõnnestus, kuid retsept on salvestatud.\"}");
       }
     }
-    return "{\"recipeId\": " + savedRecipe.id + "}";
+    return ResponseEntity.ok("{\"recipeId\": " + savedRecipe.id + "}");
   }
 
   @RequestMapping(value = "/find", method = RequestMethod.GET)
