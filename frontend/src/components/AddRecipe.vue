@@ -418,6 +418,7 @@
       },
       deleteList: function (list) {
         this.remove(this.recipe.ingredientLists, list);
+        this.errors.clear();
       },
       deleteRow: function (row, list) {
         if (row.alternateLines.length > 0 && row.alternateLines[0].ingredient) {

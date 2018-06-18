@@ -5,6 +5,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 import com.codeborne.selenide.Configuration;
 import com.codeborne.selenide.Selectors;
 import com.codeborne.selenide.SelenideElement;
+import com.codeborne.selenide.WebDriverRunner;
 import ee.cookbook.CookbookApplication;
 import org.apache.commons.io.FileUtils;
 import org.flywaydb.test.annotation.FlywayTest;
@@ -93,6 +94,9 @@ public abstract class BaseSelenideTest {
     $(By.name("submit")).click();
   }
 
+  public void refresh() {
+    WebDriverRunner.getWebDriver().navigate().refresh();
+  }
   @After
   public void closePage() {
     close();
@@ -144,6 +148,7 @@ public abstract class BaseSelenideTest {
   }
 
   public void setCategory(int field, String name) {
+    $(By.id("category"+field)).click();
     $(By.id("category"+field)).setValue(name);
   }
 }

@@ -1,5 +1,7 @@
 import com.codeborne.selenide.CollectionCondition;
 import com.google.common.collect.Lists;
+import ee.cookbook.dao.PreparedHistoryRepository;
+import ee.cookbook.dao.RatingRepository;
 import ee.cookbook.dao.RecipeRepository;
 import ee.cookbook.model.*;
 import org.junit.Before;
@@ -31,10 +33,16 @@ public class SearchTest extends BaseSelenideTest {
 
   @Autowired
   private RecipeRepository recipeRepository;
+  @Autowired
+  private RatingRepository ratingRepository;
+  @Autowired
+  private PreparedHistoryRepository preparedHistoryRepository;
 
   @Test
   public void testSearch() {
     addRecipes();
+    addRatings();
+    addPreparedTime();
     openSearchPage();
     testSingleFields();
     testMultipleFields();
@@ -55,7 +63,9 @@ public class SearchTest extends BaseSelenideTest {
     addIngredient(0, 0, 7);
     search();
     $$(By.id("Result")).shouldHave(CollectionCondition.texts("Title13", "Title14", "Title15", "Title16", "Title17", "Title23", "Title24", "Title25", "Title26", "Title27", "Title3", "Title33", "Title34", "Title35", "Title36", "Title37", "Title4", "Title43", "Title44", "Title45", "Title46", "Title47", "Title5", "Title6", "Title7"));
-    $(By.id("recipe16")).shouldHave(attribute("src", baseUrl + "images/16/2RecipePicture.15"));
+    $(By.id("recipe16image")).shouldHave(attribute("src", baseUrl + "images/16/2RecipePicture.15"));
+    $(By.id("recipe15rating")).shouldNotBe(visible);
+    $(By.id("recipe15averagerating")).shouldHave(text("4.0"));
     addLine(0);
     addIngredient(0, 1, 0);
     search();
@@ -66,6 +76,8 @@ public class SearchTest extends BaseSelenideTest {
     addAltIngredient(0, 0, 4);
     search();
     $$(By.id("Result")).shouldHave(CollectionCondition.texts("Title0", "Title1", "Title10", "Title11", "Title12", "Title13", "Title14", "Title19", "Title2", "Title20", "Title21", "Title22", "Title23", "Title24", "Title29", "Title3", "Title30", "Title31", "Title32", "Title33", "Title34", "Title39", "Title4", "Title40", "Title41", "Title42", "Title43", "Title44", "Title49", "Title9"));
+    $(By.id("recipe20rating")).shouldHave(text("2"));
+    $(By.id("recipe20averagerating")).shouldHave(text("3.5"));
     refresh();
     setCategory(0, "Category4");
     search();
@@ -78,6 +90,8 @@ public class SearchTest extends BaseSelenideTest {
     $(By.id("creator")).setValue("Selenide");
     search();
     $$(By.id("Result")).shouldHave(CollectionCondition.texts("A", "O", "Title0", "Title10", "Title12", "Title14", "Title16", "Title18", "Title2", "Title20", "Title22", "Title24", "Title26", "Title28", "Title30", "Title32", "Title34", "Title36", "Title38", "Title4", "Title40", "Title42", "Title44", "Title46", "Title48", "Title6", "Title8", "U", "Õ", "Ä", "Ö", "Ü"));
+    $(By.id("recipe41preparedtime")).shouldHave(text(".1970"));
+    $(By.id("recipe31preparedtime")).shouldNotBe(visible);
     refresh();
     $(By.id("source")).setValue("Source2");
     search();
@@ -330,6 +344,33 @@ public class SearchTest extends BaseSelenideTest {
     recipe.categories = new ArrayList<>();
     recipe.categories.add(new Category(letter));
     Recipe savedRecipe = recipeRepository.save(recipe);
+  }
+
+  private void addRatings() {
+    for (int i = 5; i < 51; i=i+5) {
+      if (i % 10 == 0) {
+        Rating rating1 = new Rating();
+        rating1.recipeId = new Long(i);
+        rating1.userId = new Long(1);
+        rating1.rating = i/10;
+        ratingRepository.save(rating1);
+      }
+      Rating rating2 = new Rating();
+      rating2.recipeId = new Long(i);
+      rating2.userId = new Long(2);
+      rating2.rating = i/5 % 5 + 1;
+      ratingRepository.save(rating2);
+    }
+  }
+
+  private void addPreparedTime() {
+    for (int i = 1; i < 51; i=i+10) {
+      PreparedHistory lastPrepared = new PreparedHistory();
+      lastPrepared.recipeId = new Long(i);
+      lastPrepared.userId = new Long(i/10 % 2 + 1);
+      lastPrepared.preparedTime = new Timestamp(2100000000*i);
+      preparedHistoryRepository.save(lastPrepared);
+    }
   }
 
   private void search() {

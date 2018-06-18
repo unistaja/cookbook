@@ -10,7 +10,10 @@ export function getNewRecipe () {
     ingredientLists: [
       {name: "Koostis", ingredientLines: [{alternateLines: []}]}
     ],
-    categories: [{}]
+    categories: [{}],
+    preparedHistory: [null],
+    rating: [null],
+    averageRating: null
   };
 }
 
@@ -26,7 +29,9 @@ export function getNewSearch () {
     username: null,
     withIngredients: [{alternateLines: []}],
     withoutIngredients: [""],
-    categories: [""]
+    categories: [""],
+    userId: null,
+    hasPrepared: 0
   };
 }
 

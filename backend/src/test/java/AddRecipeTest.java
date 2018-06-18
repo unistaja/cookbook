@@ -165,6 +165,7 @@ public class AddRecipeTest extends BaseSelenideTest {
     deletedCategories = new ArrayList<>();
     getTitleField().setValue("");
     getTitleField().setValue(recipe.name);
+    $(By.id("source")).click();
     $(By.id("source")).setValue(recipe.source.name);
     int listField = 0;
     for(IngredientList list : recipe.ingredientLists) {
@@ -226,6 +227,20 @@ public class AddRecipeTest extends BaseSelenideTest {
     $(By.className("close")).click();
     $(By.id("image2")).shouldNotBe(visible);
     assert(checkSavedImagesExist());
+    for (int i = 1; i < 6; i++) {
+      $(By.id("ratingInput")).selectOptionByValue(Integer.toString(i));
+      $(By.id("saveRating")).click();
+      refresh();
+      assert($(By.id("ratingInput")).getValue().equals(Integer.toString(i)));
+      $(By.id("averageRating")).shouldHave(exactTextCaseSensitive("Keskmine hinnang: " + Integer.toString(i) + ".0"));
+    }
+    for (int i = 1; i < 3; i++) {
+      $(By.id("newpreparedtime")).sendKeys("0" + i + "022018");
+      $(By.id("savedate")).click();
+      refresh();
+      $(By.id("lastprepared")).shouldHave(text(i + ".2.2018"));
+    }
+
   }
 
   private int getNumberOfLists() {

@@ -22,7 +22,9 @@ public class SearchService {
     List<String> parameters = new ArrayList<>();
     StringBuilder query = new StringBuilder();
     SearchResult result = new SearchResult();
-    query.append("SELECT SQL_CALC_FOUND_ROWS recipe.id, username, recipe.name, added, pictureName FROM recipe JOIN user ON recipe.userId = user.id WHERE");
+    query.append("SELECT SQL_CALC_FOUND_ROWS recipe.id, username, recipe.name, added, pictureName, preparedTime, preparedhistory.userid, rating, averageRating FROM recipe JOIN user ON recipe.userId = user.id LEFT JOIN preparedhistory ON recipe.id = preparedhistory.recipeId AND preparedhistory.userId = ? LEFT JOIN rating ON recipe.id = rating.recipeId AND rating.userId = ? LEFT JOIN average_rating ON recipe.id = average_rating.recipeId WHERE");
+    parameters.add(String.valueOf(searchParameters.userId));
+    parameters.add(String.valueOf(searchParameters.userId));
     if (!StringUtils.isBlank(searchParameters.name)) {
       query.append(" name = ? AND ");
       parameters.add(searchParameters.name);
@@ -73,6 +75,12 @@ public class SearchService {
     if (searchParameters.hasPicture) {
       query.append(" pictureName IS NOT NULL AND ");
     }
+    if (searchParameters.hasPrepared == 1) {
+      query.append(" preparedhistory.userId = ? AND ");
+      parameters.add(String.valueOf(searchParameters.userId));
+    } else if (searchParameters.hasPrepared == 2) {
+      query.append(" preparedhistory.userId IS NULL AND ");
+    }
     query.delete(query.length() - 5, query.length());
     if (searchParameters.sortOrder == 0) {
       query.append(" ORDER BY name");
@@ -103,12 +111,23 @@ public class SearchService {
       @Override
       public Recipe mapRow(ResultSet resultSet, int i) throws SQLException {
         Recipe result = new Recipe();
+        PreparedHistory preparedHistory = new PreparedHistory();
+        List<PreparedHistory> preparedHistoryList = new ArrayList<PreparedHistory>();
+        Rating rating = new Rating();
+        List<Rating> ratingList = new ArrayList<Rating>();
         result.id = resultSet.getLong("id");
         result.name = resultSet.getString("name");
         result.user = new User();
         result.user.username = resultSet.getString("username");
         result.added = resultSet.getTimestamp("added");
         result.pictureName = resultSet.getString("pictureName");
+        preparedHistory.preparedTime = resultSet.getDate("preparedTime");
+        preparedHistoryList.add(preparedHistory);
+        result.preparedHistory = preparedHistoryList;
+        rating.rating = resultSet.getInt("rating");
+        ratingList.add(rating);
+        result.rating = ratingList;
+        result.averageRating = resultSet.getDouble("averageRating");
         return result;
       }
     }, parameters.toArray());

@@ -26,4 +26,8 @@ public class SearchForm {
   public int resultsPerPage;
 
   public long resultPage;
+
+  public long userId;
+
+  public int hasPrepared = 0;
 }

@@ -171,6 +171,48 @@ export function saveImage (id, extension, callback) {
   xhr.send(formData);
 }
 
+export function saveDate (date, id, recipeId, callback) {
+  const formData = new FormData();
+  formData.append("id", id);
+  formData.append("recipeId", recipeId);
+  formData.append("date", date);
+  let xhr = new XMLHttpRequest();
+  xhr.open("POST", "/api/recipe/savedate");
+  xhr.onload = function () {
+    if (this.status === 200) {
+      try {
+        callback(null, {result: this.responseText});
+      } catch (ex) {
+        callback({message: "Kuupäeva salvestamine ebaõnnestus."});
+      }
+    } else {
+      callback({errorCode: this.status, message: this.responseText});
+    }
+  };
+  xhr.send(formData);
+}
+
+export function saveRating (rating, id, recipeId, callback) {
+  const formData = new FormData();
+  formData.append("id", id);
+  formData.append("recipeId", recipeId);
+  formData.append("rating", rating);
+  let xhr = new XMLHttpRequest();
+  xhr.open("POST", "/api/recipe/saverating");
+  xhr.onload = function () {
+    if (this.status === 200) {
+      try {
+        callback(null, {result: this.responseText});
+      } catch (ex) {
+        callback({message: "Hinnangu salvestamine ebaõnnestus."});
+      }
+    } else {
+      callback({errorCode: this.status, message: this.responseText});
+    }
+  };
+  xhr.send(formData);
+}
+
 export function deleteTempImage (name, callback) {
   const formData = new FormData();
   formData.append("name", name);

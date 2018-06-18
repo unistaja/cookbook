@@ -7,7 +7,7 @@
 
     <div id="pictureholder">
       <div id="picture">
-        <img v-show="recipe.pictureName || tempPictureName"  id="image1" :src="'images/' + recipe.id + '/1RecipePicture.' + recipe.pictureName" onclick="document.getElementById('myModal').style.display='block'">
+        <img v-show="recipe.pictureName || tempPictureName"  id="image1" :src="'images/' + recipe.id + '/1RecipePicture.' + recipe.pictureName" onclick="document.getElementById('mymodal').style.display='block'">
       </div>
       <p v-if="!recipe.pictureName">Lisa retseptile pilt:</p>
       <input type="file" name="file" formenctype="multipart/form-data" v-if="!recipe.pictureName" accept="image/*" @change="upload">
@@ -17,8 +17,8 @@
         <h2>Kategooriad: </h2> {{ recipe.categories.map(x => x.name).join(", ") }}
       </div>
     </div>
-    <div id="myModal" class="modal">
-      <span class="close" onclick="document.getElementById('myModal').style.display='none'">&times;</span>
+    <div id="mymodal" class="modal">
+      <span class="close" onclick="document.getElementById('mymodal').style.display='none'">&times;</span>
       <img id="image2" :src="'images/' + recipe.id + '/3RecipePicture.' + recipe.pictureName">
     </div>
 
@@ -41,6 +41,28 @@
           </ul>
         </div>
       </div>
+    </div>
+    <div id="preparedtime">
+      Viimati valmistatud:
+        <ul v-if = "lastPrepared.preparedTime" >
+          <li id="lastprepared"> {{new Date(lastPrepared.preparedTime).toLocaleDateString("et-ET")}} </li>
+        </ul>
+      <input name="today" :value="new Date().getFullYear() + '-' + ('0' + (new Date().getMonth()+1)).slice(-2) + '-' + ('0' + new Date().getDate()).slice(-2)" type="hidden">
+      <input name="newpreparedtime" type="date" id="newpreparedtime" v-model="newDate" v-validate="'before:today,true|date_format:YYYY-MM-DD|required'"/>
+      <div v-show="errors.has('newpreparedtime')" class="error">Palun sisestage kehtiv? kuupäev</div>
+      <button id="savedate" @click="saveDate()">Salvesta uus kuupäev</button>
+    </div>
+    <div id="rating">
+      Hinnang:
+      <select id="ratingInput" v-model="newRating">
+        <option :value="1">1: Ei taha enam kunagi süüa</option>
+        <option :value="2">2: Võimalusel seda ei sööks</option>
+        <option :value="3">3: Kõlbab süüa, aga tihti ei tahaks</option>
+        <option :value="4">4: Üsna hea, aga iga päev ei sööks</option>
+        <option :value="5">5: Väga hea, võiks kogu aeg süüa</option>
+      </select>
+      <button id="saveRating" @click="saveRating()">Salvesta hinnang</button>
+      <p id="averageRating" v-if="recipe.averageRating">Keskmine hinnang: {{recipe.averageRating.toFixed(1)}}</p>
     </div>
 
     <div id="instructions">
@@ -200,12 +222,19 @@
     transition: 0.3s;
   }
 
+  .error {
+    color: red;
+  }
+
 
 
 </style>
 <script>
-  import { getRecipe, uploadImage, saveImage, deleteTempImage } from "../api.js";
+  import { getRecipe, uploadImage, saveImage, deleteTempImage, saveDate, saveRating } from "../api.js";
   import { store, getNewRecipe } from "../datastore.js";
+  import Vue from "vue";
+  import VeeValidate from "vee-validate";
+  Vue.use(VeeValidate);
 
   export default{
     name: "viewrecipe",
@@ -213,7 +242,11 @@
       return {
         recipe: getNewRecipe(),
         user: store.user,
-        tempPictureName: ""
+        tempPictureName: "",
+        newDate: null,
+        lastPrepared: [],
+        newRating: null,
+        ratingId: 0
       };
     },
     beforeRouteEnter (to, from, next) {
@@ -239,6 +272,21 @@
           }
         });
       }
+    },
+    mounted: function () {
+      this.$nextTick(function () {
+        for (let i = 0; i < this.recipe.preparedHistory.length; i++) {
+          if (this.recipe.preparedHistory[i].userId === this.user.id) {
+            this.lastPrepared = this.recipe.preparedHistory[i];
+          }
+        }
+        for (let i = 0; i < this.recipe.rating.length; i++) {
+          if (this.recipe.rating[i].userId === this.user.id) {
+            this.newRating = this.recipe.rating[i].rating;
+            this.ratingId = this.recipe.rating[i].id;
+          }
+        }
+      });
     },
     methods: {
       edit: function () {
@@ -270,6 +318,35 @@
             document.getElementById("image1").src = "images/" + id + "/1RecipePicture." + this.recipe.pictureName;
             document.getElementById("image2").src = "images/" + id + "/3RecipePicture." + this.recipe.pictureName;
             this.tempPictureName = "";
+          }
+        });
+      },
+      saveDate: function () {
+        this.$validator.validateAll();
+        if (this.errors.any()) {
+          return;
+        }
+        if (this.lastPrepared.id) {
+          saveDate(this.newDate, this.lastPrepared.id, this.recipe.id, (err, res) => {
+            if (err) {
+              alert(err.message);
+            } else {
+            }
+          });
+        } else {
+          saveDate(this.newDate, 0, this.recipe.id, (err, res) => {
+            if (err) {
+              alert(err.message);
+            } else {
+            }
+          });
+        }
+      },
+      saveRating: function () {
+        saveRating(this.newRating, this.ratingId, this.recipe.id, (err, res) => {
+          if (err) {
+            alert(err.message);
+          } else {
           }
         });
       },

@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.List;
 
 @Entity
+@SecondaryTable(name = "average_rating", pkJoinColumns = @PrimaryKeyJoinColumn(name = "recipeId"))
 public class Recipe implements Persistable<Long>{
 
   @Id
@@ -27,10 +28,21 @@ public class Recipe implements Persistable<Long>{
   @JoinColumn(name = "source")
   public RecipeSource source;
 
+  @Column(table = "average_rating")
+  public Double averageRating;
+
   @NotNull
   public String name;
 
   public Date added;
+
+  @OneToMany(cascade = {CascadeType.ALL}, orphanRemoval = true)
+  @JoinColumn(name = "recipeId", nullable = false, updatable = false, insertable = false)
+  public List<PreparedHistory> preparedHistory;
+
+  @OneToMany(cascade = {CascadeType.ALL}, orphanRemoval = true)
+  @JoinColumn(name = "recipeId", nullable = false, updatable = false, insertable = false)
+  public List<Rating> rating;
 
   @OneToMany(cascade = {CascadeType.ALL}, orphanRemoval = true)
   @JoinColumn(name = "recipeId", nullable = false)
