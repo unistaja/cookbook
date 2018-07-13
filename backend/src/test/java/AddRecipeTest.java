@@ -40,6 +40,11 @@ public class AddRecipeTest extends BaseSelenideTest {
     currentTest++;
     addRecipeTestRecipe = createRecipe(2);
     openAddRecipePage();
+    $(By.id("helpbutton")).click();
+    $(By.id("helpbutton")).click();
+    $(Selectors.byText("Otsingukoostisosa lahtrisse käib selle rea koostisosa ainsuse nimetavas käändes.")).shouldBe(visible);
+    $(By.id("closemodal")).click();
+    $(Selectors.byText("Otsingukoostisosa lahtrisse käib selle rea koostisosa ainsuse nimetavas käändes.")).shouldNotBe(visible);
     testErrors();
     addRecipeValues(addRecipeTestRecipe);
     for(IngredientList list : addRecipeTestRecipe.ingredientLists) {
