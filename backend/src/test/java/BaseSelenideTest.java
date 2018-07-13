@@ -115,12 +115,6 @@ public abstract class BaseSelenideTest {
     return $(Selectors.byAttribute("placeholder", placeholderValue));
   }
 
-  //going to a page
-  public void openRecipeList() {
-    $(Selectors.byText("Retseptid")).scrollTo();
-    $(Selectors.byText("Retseptid")).click();
-  }
-
   public void openAddRecipePage() {
     $(Selectors.byText("Lisa retsept")).click();
   }
@@ -130,6 +124,7 @@ public abstract class BaseSelenideTest {
   }
 
   public void openSearchPage() {
+    zoom(0.5);
     $(Selectors.byText("Otsing")).click();
   }
 

@@ -20,6 +20,9 @@ public class AddRecipeTest extends BaseSelenideTest {
   private Recipe addRecipeTestRecipe;
   private final String emptyListError = "Siestage jaotisele vähemalt 1 koostisosa.";
   private final String invalidLineError = "Palun sisestage koostisosa nimi.";
+  private final String missingSearchIngredientError = "Palun sisestage otsingukoostisosa nimi.";
+  private final String invalidAmountFormatError = "Palun sisestage koostisosa kogus sobivas vormingus.";
+  private final String invalidPreparedTimeError = "Valmistamiskorda ei saa lisada tulevikku.";
 
 
   @Test
@@ -54,7 +57,8 @@ public class AddRecipeTest extends BaseSelenideTest {
     assert(!checkTemporaryImagesExist());
     addImage();
     $(By.id("save")).click();
-    $(By.id("save")).shouldNotBe(visible);
+    Thread.sleep(1000);
+    $(By.id("save")).shouldNot(exist);
     checkRecipe(addRecipeTestRecipe);
   }
 
@@ -96,7 +100,10 @@ public class AddRecipeTest extends BaseSelenideTest {
     Thread.sleep(1000);
     assert(!checkTemporaryImagesExist());
     addImage();
+   // $(By.id("save")).click();
     $(By.id("save")).click();
+    Thread.sleep(1000);
+    currentTest++;
     checkRecipe(changeRecipeTestRecipe);
   }
 
@@ -104,7 +111,7 @@ public class AddRecipeTest extends BaseSelenideTest {
     testTitleErrors();
     testInstructionsErrors();
     testIngredientlistErrors();
-  }
+}
 
   //creating recipe's information
   private Recipe createRecipe(int listAmount) {
@@ -140,9 +147,10 @@ public class AddRecipeTest extends BaseSelenideTest {
 
   private IngredientLine createLineValues(int list, int lines) {
     IngredientLine line = new IngredientLine();
-    line.amount = Double.parseDouble(currentTest + "." +  list + lines);
+    line.amount = currentTest + "." +  list + lines;
     line.unit = new IngredientUnit(currentTest + "." + "List" + list + "-Line" + lines + "Unit");
     line.ingredient = new Ingredient(currentTest + "." + "List" + list + "-Line" + lines + "Ingredient");
+    line.searchIngredient = new Ingredient(currentTest + "." + "List" + list + "-Line" + lines + "-Searchingredient");
     line.alternateLines = new ArrayList<>();
     for(int altLine = 1; altLine <= altLinesPerLine; altLine++) {
       line.alternateLines.add(createAltLineValues(list, lines, altLine));
@@ -152,9 +160,10 @@ public class AddRecipeTest extends BaseSelenideTest {
 
   private AlternateIngredientLine createAltLineValues(int list, int line, int altLineNumber) {
     AlternateIngredientLine altLine = new AlternateIngredientLine();
-    altLine.amount = Double.parseDouble(currentTest + "." +  list + line + altLineNumber);
+    altLine.amount = currentTest + "." +  list + line + altLineNumber;
     altLine.unit = new IngredientUnit(currentTest + ".List" + list + "-Line" + line + "-AltLine" + altLineNumber + "-Unit");
     altLine.ingredient = new Ingredient(currentTest + ".List" + list + "-Line" + line + "-AltLine" + altLineNumber + "Ingredient");
+    altLine.searchIngredient = new Ingredient(currentTest + ".List" + list + "-Line" + line + "-AltLine" + altLineNumber + "-Searchingredient");
     return altLine;
   }
 
@@ -173,11 +182,11 @@ public class AddRecipeTest extends BaseSelenideTest {
       int lineField = 0;
       for (IngredientLine line : list.ingredientLines) {
         addLine(listField);
-        addLineValues(listField, lineField, line.amount, line.unit.name, line.ingredient.name);
+        addLineValues(listField, lineField, line.amount, line.unit.name, line.ingredient.name, line.searchIngredient.name);
         int altLineField = 0;
         for(AlternateIngredientLine altLine : line.alternateLines) {
           addAltLine(listField, lineField);
-          addAltLineValues(listField, lineField, altLineField, altLine.amount, altLine.unit.name, altLine.ingredient.name);
+          addAltLineValues(listField, lineField, altLineField, altLine.amount, altLine.unit.name, altLine.ingredient.name, altLine.searchIngredient.name);
           altLineField++;
         }
         lineField++;
@@ -204,13 +213,14 @@ public class AddRecipeTest extends BaseSelenideTest {
   }
 
   //checking the shown information
-  private void checkRecipe(Recipe recipe) {
-    openRecipeList();
-    $(Selectors.byText(recipe.name)).click();
+  private void checkRecipe(Recipe recipe) throws InterruptedException {
+    openSearchPage();
+    $(By.id("recipe1")).click();
     $(By.id("recipeheader")).shouldHave(exactTextCaseSensitive(createRecipeHeaderInfo(recipe)));
     $(By.id("instructions")).shouldHave(exactTextCaseSensitive(recipe.instructions));
     $(By.id("categories")).shouldHave(textCaseSensitive(createCategoryInfo(recipe)));
     $(By.id("ingredient-list")).shouldHave(exactTextCaseSensitive(createRecipeIngredientInfo(recipe)));
+    $(Selectors.withText("SearchIngredient")).shouldNot(exist);
     for(IngredientLine deletedLine : deletedLines) {
       $(Selectors.withText(createLineInfo(deletedLine).toString())).shouldNotBe(visible);
     }
@@ -228,19 +238,26 @@ public class AddRecipeTest extends BaseSelenideTest {
     $(By.id("image2")).shouldNotBe(visible);
     assert(checkSavedImagesExist());
     for (int i = 1; i < 6; i++) {
-      $(By.id("ratingInput")).selectOptionByValue(Integer.toString(i));
-      $(By.id("saveRating")).click();
+      $(By.id("rating"+i)).click();
+      $(Selectors.byText("Hinnang salvestatud.")).shouldBe(visible);
       refresh();
-      assert($(By.id("ratingInput")).getValue().equals(Integer.toString(i)));
+      $(By.id("ratinginput"+i)).shouldBe(checked);
       $(By.id("averageRating")).shouldHave(exactTextCaseSensitive("Keskmine hinnang: " + Integer.toString(i) + ".0"));
     }
     for (int i = 1; i < 3; i++) {
-      $(By.id("newpreparedtime")).sendKeys("0" + i + "022018");
+      $(By.id("newpreparedtime0")).sendKeys("0" + i + "022018");
       $(By.id("savedate")).click();
+      $(Selectors.byText("Valmistamiskord salvestatud.")).shouldBe(visible);
       refresh();
-      $(By.id("lastprepared")).shouldHave(text(i + ".2.2018"));
+      $(By.id("prepared"+(i+(currentTest-1)*2))).shouldHave(text("0" + i + ".02.2018"));
     }
-
+    testPreparedTimeError();
+    $(By.id("newpreparedtime"+(2+(currentTest-1)*2))).shouldNotBe(visible);
+    $(By.id("changebutton"+(2+(currentTest-1)*2))).click();
+    $(By.id("newpreparedtime"+(2+(currentTest-1)*2))).sendKeys("04052018");
+    $(By.id("savepreparedtime"+(2+(currentTest-1)*2))).click();
+    refresh();
+    $(By.id("prepared"+(2+(currentTest-1)*2))).shouldHave(text("04.05.2018"));
   }
 
   private int getNumberOfLists() {
@@ -287,14 +304,17 @@ public class AddRecipeTest extends BaseSelenideTest {
     }
   }
 
-  private void addLineValues(int list, int line, double amount, String unit, String ingredient) {
+  private void addLineValues(int list, int line, String amount, String unit, String ingredient, String searchIngredient) {
     String lineId = "list"+list+"-line"+line;
     $(By.id(lineId+"-amt")).click();
-    $(By.id(lineId+"-amt")).setValue(Double.toString(amount));
+    $(By.id(lineId+"-amt")).sendKeys("\b");
+    $(By.id(lineId+"-amt")).setValue(amount);
     $(By.id(lineId+"-unit")).click();
     $(By.id(lineId+"-unit")).setValue(unit);
     $(By.id(lineId+"-ingr")).click();
     $(By.id(lineId+"-ingr")).setValue(ingredient);
+    $(By.id(lineId+"-searchingr")).click();
+    $(By.id(lineId+"-searchingr")).setValue(searchIngredient);
   }
 
 
@@ -306,15 +326,18 @@ public class AddRecipeTest extends BaseSelenideTest {
     $(By.id("list"+list+"-line"+line+"-altLine"+altLine+"-del")).click();
   }
 
-  private void addAltLineValues(int list, int line, int altLine, double amount, String unit, String ingredient) {
+  private void addAltLineValues(int list, int line, int altLine, String amount, String unit, String ingredient, String searchIngredient) {
     String altLineId = "list"+list+"-line"+line+"-altLine"+altLine;
     $(By.id(altLineId+"-amt")).should(exist);
     $(By.id(altLineId+"-amt")).click();
-    $(By.id(altLineId+"-amt")).setValue(Double.toString(amount));
+    $(By.id(altLineId+"-amt")).sendKeys("\b");
+    $(By.id(altLineId+"-amt")).setValue(amount);
     $(By.id(altLineId+"-unit")).click();
     $(By.id(altLineId+"-unit")).setValue(unit);
     $(By.id(altLineId+"-ingr")).click();
     $(By.id(altLineId+"-ingr")).setValue(ingredient);
+    $(By.id(altLineId+"-searchingr")).click();
+    $(By.id(altLineId+"-searchingr")).setValue(searchIngredient);
   }
 
   private void removeCategory (Recipe recipe, int category) {
@@ -433,42 +456,48 @@ public class AddRecipeTest extends BaseSelenideTest {
   }
 
   private void testIngredientLineErrors() {
-    testLineError(0, ""," ", true, false);
-    testLineError(1, ""," ", true, true);
-    testLineError(0, ""," ", true, false);
-    testLineError(0, "unit"," ", true, true);
-    testLineError(0, " "," ", true, false);
-    testLineError(1, "unit"," ", true, true);
-    testLineError(1, "unit","ingredient", false, false);
+    testLineError("", ""," ", " ", true, false, false, false);
+    testLineError("1", ""," ", " ", true, true, false, false);
+    testLineError("a", ""," ", " ", true, true, false, true);
+    testLineError("", "unit"," ", " ", true, true, false, false);
+    testLineError("", " "," ", " ", true, false, false, false);
+    testLineError("1", "unit"," ", " ", true, true, false, false);
+    testLineError("", "","ingredient", "", false, false, true, false);
+    testLineError("1", "unit","ingredient", "ingredient", false, false, false, false);
   }
 
   private void testAltlineErrors() {
-    testAltlineError(0, ""," ", false);
-    testAltlineError(1, ""," ", true);
-    testAltlineError(0, ""," ", false);
-    testAltlineError(0, "unit"," ", true);
-    testAltlineError(0, " "," ", false);
-    testAltlineError(1, "unit"," ",true);
-    testAltlineError(1, "unit","ingredient",false);
+    testAltlineError("", ""," ", " ", false, false, false);
+    testAltlineError("1", ""," ", " ", true, false, false);
+    testAltlineError("a", ""," ", " ", true, false, false);
+    testAltlineError("", "unit"," ", " ", true, false, false);
+    testAltlineError("", " "," ", " ", false, false, false);
+    testAltlineError("1", "unit"," ", " ",true, false, false);
+    testAltlineError("", "","ingredient", "",false, true, false);
+    testAltlineError("1", "unit","ingredient", "ingredient",false, false, false);
   }
 
    private void checkTextVisibility(String text, Boolean visible) {
     if (visible) {
-      $(Selectors.byText(text)).shouldBe(Condition.visible);
+      $(Selectors.byText(text)).shouldHave(Condition.visible);
     } else {
       $(Selectors.byText(text)).shouldNotBe(Condition.visible);
     }
   }
 
-  private void testLineError(double amount, String unit, String ingredient, Boolean emptyListErrorVisible, Boolean invalidLineErrorVisible) {
-    addLineValues(0, 0, amount, unit, ingredient);
+  private void testLineError(String amount, String unit, String ingredient, String searchIngredient, Boolean emptyListErrorVisible, Boolean invalidLineErrorVisible, Boolean missingSearchIngredientErrorVisible, Boolean invalidAmountFormatErrorVisible) {
+    addLineValues(0, 0, amount, unit, ingredient, searchIngredient);
     checkTextVisibility(emptyListError, emptyListErrorVisible);
     checkTextVisibility(invalidLineError, invalidLineErrorVisible);
+    checkTextVisibility(missingSearchIngredientError, missingSearchIngredientErrorVisible);
+    checkTextVisibility(invalidAmountFormatError, invalidAmountFormatErrorVisible);
   }
 
-  private void testAltlineError(double amount, String unit, String ingredient, Boolean invalidLineErrorVisible) {
-    addAltLineValues(0, 0, 0, amount, unit, ingredient);
+  private void testAltlineError(String amount, String unit, String ingredient, String searchIngredient, Boolean invalidLineErrorVisible, Boolean missingSearchIngredientErrorVisible, Boolean invalidAmountFormatErrorVisible) {
+    addAltLineValues(0, 0, 0, amount, unit, ingredient, searchIngredient);
     checkTextVisibility(invalidLineError, invalidLineErrorVisible);
+    checkTextVisibility(missingSearchIngredientError, missingSearchIngredientErrorVisible);
+    checkTextVisibility(invalidAmountFormatError, invalidAmountFormatErrorVisible);
   }
 
   private void testTitleError(String value, Boolean errorVisible) {
@@ -483,6 +512,23 @@ public class AddRecipeTest extends BaseSelenideTest {
     getInstructionsField().sendKeys("\b");
     getInstructionsField().setValue(value);
     checkTextVisibility(noInstructionsError, errorVisible);
+  }
+
+  private void testPreparedTimeError() {
+    checkTextVisibility(invalidPreparedTimeError, false);
+    $(By.id("newpreparedtime0")).sendKeys("01019999");
+    $(By.id("savedate")).click();
+    $(Selectors.byText("Valmistamiskord salvestatud.")).shouldNotBe(visible);
+    checkTextVisibility(invalidPreparedTimeError, true);
+    $(By.id("newpreparedtime0")).sendKeys("01012018");
+    checkTextVisibility(invalidPreparedTimeError, false);
+    $(By.id("changebutton1")).click();
+    $(By.id("newpreparedtime1")).sendKeys("01019999");
+    $(By.id("savepreparedtime1")).click();
+    $(Selectors.byText("Valmistamiskord salvestatud.")).shouldNotBe(visible);
+    checkTextVisibility(invalidPreparedTimeError, true);
+    $(By.id("newpreparedtime1")).sendKeys("01012018");
+    checkTextVisibility(invalidPreparedTimeError, false);
   }
 
   private boolean checkSavedImagesExist() {

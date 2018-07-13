@@ -28,7 +28,7 @@ public class Recipe implements Persistable<Long>{
   @JoinColumn(name = "source")
   public RecipeSource source;
 
-  @Column(table = "average_rating")
+  @Column(table = "average_rating", updatable = false)
   public Double averageRating;
 
   @NotNull

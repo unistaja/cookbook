@@ -98,7 +98,7 @@
         <button v-if="pages>1" :disabled="search.resultPage + 1 >= pages" id="lastpage" @click="startSearch(pages-1)">&#8658</button>
       </div>
       <ul >
-        <li id = "Result" v-for="recipe in shownRecipes"><img v-if="recipe.pictureName" :id="'recipe' + recipe.id + 'image'" :src="'images/' + recipe.id + '/2RecipePicture.' + recipe.pictureName"><router-link v-bind:to="'/recipe/' + recipe.id">{{ recipe.name }}</router-link> ({{ recipe.user.username }} {{ new Date(recipe.added).toLocaleDateString("et-ET") }} <span v-if="recipe.preparedHistory[0].preparedTime" :id="'recipe' + recipe.id + 'preparedtime'">{{ new Date(recipe.preparedHistory[0].preparedTime).toLocaleDateString("et-ET")}}</span> <span v-if="recipe.rating[0].rating" :id="'recipe' + recipe.id + 'rating'">{{ recipe.rating[0].rating}}</span> <span v-if="recipe.averageRating" :id="'recipe' + recipe.id + 'averagerating'">{{ recipe.averageRating.toFixed(1)}}</span>)</li>
+        <li id = "Result" v-for="recipe in shownRecipes"><img v-if="recipe.pictureName" :id="'recipe' + recipe.id + 'image'" :src="'images/' + recipe.id + '/2RecipePicture.' + recipe.pictureName"><router-link :id="'recipe'+recipe.id" v-bind:to="'/recipe/' + recipe.id">{{ recipe.name }}</router-link> ({{ recipe.user.username }} {{ new Date(recipe.added).toLocaleDateString("et-ET") }} <span v-if="recipe.preparedHistory[0].preparedTime" :id="'recipe' + recipe.id + 'preparedtime'">{{ new Date(recipe.preparedHistory[0].preparedTime).toLocaleDateString("et-ET")}}</span> <span v-if="recipe.rating[0].rating" :id="'recipe' + recipe.id + 'rating'">{{ recipe.rating[0].rating}}</span> <span v-if="recipe.averageRating" :id="'recipe' + recipe.id + 'averagerating'">{{ recipe.averageRating.toFixed(1)}}</span>)</li>
       </ul>
     </div>
 
@@ -164,6 +164,15 @@
           next(vm => {
             vm.autofill = res;
           });
+        }
+      });
+    },
+    mounted: function () {
+      findRecipes(this.filteredRecipe(this.recipeToSearch), (err, res) => {
+        if (err) {
+          console.log("Search failed");
+        } else {
+          this.shownRecipes = res.recipes;
         }
       });
     },

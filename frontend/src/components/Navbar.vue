@@ -1,7 +1,6 @@
 <template>
   <div id="navbar">
 
-    <router-link to="/recipelist">Retseptid</router-link>
     <router-link to="/addrecipe">Lisa retsept</router-link>
     <router-link to="/search">Otsing</router-link>
     <span>

@@ -3,13 +3,12 @@ package ee.cookbook.protocol;
 import ee.cookbook.model.*;
 
 import java.util.List;
+import java.util.Map;
 
 public class AutoFillData {
   public List<String> names;
 
   public List<String> users;
-
-  public List<Ingredient> ingredients;
 
   public List<Category> categories;
 
@@ -18,4 +17,6 @@ public class AutoFillData {
   public List<IngredientUnit> units;
 
   public List<RecipeSource> sources;
+
+  public Map<String, String> ingredients;
 }

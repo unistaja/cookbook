@@ -43,28 +43,50 @@
       </div>
     </div>
     <div id="preparedtime">
-      Viimati valmistatud:
-        <ul v-if = "lastPrepared.preparedTime" >
-          <li id="lastprepared"> {{new Date(lastPrepared.preparedTime).toLocaleDateString("et-ET")}} </li>
+      Valmistatud:
+        <ul v-for = "preparedDate in lastPrepared" >
+          <li :id="'prepared'+preparedDate.id"> {{new Date(preparedDate.preparedTime).toLocaleDateString("et-ET", {day: "2-digit", month: "2-digit", year: "numeric"})}} <button :id="'changebutton'+preparedDate.id" @click="this.document.getElementById('newpreparedtime'+preparedDate.id).style.display='block', this.document.getElementById('savepreparedtime'+preparedDate.id).style.display='block'">Muuda</button><div v-if="errors.has('newpreparedtime'+preparedDate.id)" class="error">Valmistamiskorda ei saa lisada tulevikku.</div> <input :name="'newpreparedtime'+preparedDate.id" type="date" :id="'newpreparedtime'+preparedDate.id" v-validate="'before:today,true|date_format:YYYY-MM-DD|required'" class="editpreparedtime"/> <button class="editpreparedtime" :id="'savepreparedtime'+preparedDate.id" @click="saveDate(this.document.getElementById('newpreparedtime'+preparedDate.id).value, preparedDate.id)">Muuda kuupäeva</button> </li>
         </ul>
       <input name="today" :value="new Date().getFullYear() + '-' + ('0' + (new Date().getMonth()+1)).slice(-2) + '-' + ('0' + new Date().getDate()).slice(-2)" type="hidden">
-      <input name="newpreparedtime" type="date" id="newpreparedtime" v-model="newDate" v-validate="'before:today,true|date_format:YYYY-MM-DD|required'"/>
-      <div v-show="errors.has('newpreparedtime')" class="error">Palun sisestage kehtiv? kuupäev</div>
-      <button id="savedate" @click="saveDate()">Salvesta uus kuupäev</button>
+      <input name="newpreparedtime0" type="date" id="newpreparedtime0" v-model="newDate" v-validate="'before:today,true|date_format:YYYY-MM-DD|required'"/>
+      <div v-if="errors.has('newpreparedtime0')" class="error">Valmistamiskorda ei saa lisada tulevikku.</div>
+      <button id="savedate" @click="saveDate(newDate, 0)">Salvesta uus kuupäev</button>
+      <div v-show="preparedTimeSaved === true">Valmistamiskord salvestatud.</div>
     </div>
-    <div id="rating">
-      Hinnang:
-      <select id="ratingInput" v-model="newRating">
-        <option :value="1">1: Ei taha enam kunagi süüa</option>
-        <option :value="2">2: Võimalusel seda ei sööks</option>
-        <option :value="3">3: Kõlbab süüa, aga tihti ei tahaks</option>
-        <option :value="4">4: Üsna hea, aga iga päev ei sööks</option>
-        <option :value="5">5: Väga hea, võiks kogu aeg süüa</option>
-      </select>
-      <button id="saveRating" @click="saveRating()">Salvesta hinnang</button>
-      <p id="averageRating" v-if="recipe.averageRating">Keskmine hinnang: {{recipe.averageRating.toFixed(1)}}</p>
+    <div id="rating" class="rating">
+      <label>
+        <input type="radio" id="ratinginput1" name="stars" v-model="newRating" @click="saveRating()" value="1" />
+        <span class="icon" id="rating1" title="Ei taha enam kunagi süüa">★</span>
+      </label>
+      <label>
+        <input type="radio" id="ratinginput2" name="stars" v-model="newRating" @click="saveRating()" value="2" />
+        <span class="icon">★</span>
+        <span class="icon" id="rating2" title="Kui on võimalik midagi muud süüa, siis seda ei sööks">★</span>
+      </label>
+      <label>
+        <input type="radio" id="ratinginput3" name="stars" v-model="newRating" @click="saveRating()" value="3" />
+        <span class="icon">★</span>
+        <span class="icon">★</span>
+        <span class="icon" id="rating3" title="Kõlbab süüa, aga väga tihti ei tahaks">★</span>
+      </label>
+      <label>
+        <input type="radio" id="ratinginput4" name="stars" v-model="newRating" @click="saveRating()" value="4" />
+        <span class="icon">★</span>
+        <span class="icon">★</span>
+        <span class="icon">★</span>
+        <span class="icon" id="rating4" title="Üsna hea, päris iga päev ei sööks">★</span>
+      </label>
+      <label>
+        <input type="radio" id="ratinginput5" name="stars" v-model="newRating" @click="saveRating()" value="5" />
+        <span class="icon">★</span>
+        <span class="icon">★</span>
+        <span class="icon">★</span>
+        <span class="icon">★</span>
+        <span class="icon" id="rating5" title="Super hea, võiks kogu aeg süüa">★</span>
+      </label>
     </div>
-
+    <div v-show="ratingSaved === true">Hinnang salvestatud.</div>
+    <p id="averageRating" v-if="recipe.averageRating">Keskmine hinnang: {{recipe.averageRating.toFixed(1)}}</p>
     <div id="instructions">
       {{ recipe.instructions }}
     </div>
@@ -226,6 +248,75 @@
     color: red;
   }
 
+  .rating {
+    display: inline-block;
+    position: relative;
+    height: 50px;
+    line-height: 50px;
+    font-size: 50px;
+  }
+
+  .rating label {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    cursor: pointer;
+  }
+
+  .rating label:last-child {
+    position: static;
+  }
+
+  .rating label:nth-child(1) {
+    z-index: 5;
+  }
+
+  .rating label:nth-child(2) {
+    z-index: 4;
+  }
+
+  .rating label:nth-child(3) {
+    z-index: 3;
+  }
+
+  .rating label:nth-child(4) {
+    z-index: 2;
+  }
+
+  .rating label:nth-child(5) {
+    z-index: 1;
+  }
+
+  .rating label input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 0;
+  }
+
+  .rating label .icon {
+    float: left;
+    color: transparent;
+  }
+
+  .rating label:last-child .icon {
+    color: #000;
+  }
+
+  .rating:not(:hover) label input:checked ~ .icon,
+  .rating:hover label:hover input ~ .icon {
+    color: #09f;
+  }
+
+  .rating label input:focus:not(:checked) ~ .icon:last-child {
+    color: #000;
+    text-shadow: 0 0 5px #09f;
+  }
+
+  .editpreparedtime {
+    display: none;
+  }
 
 
 </style>
@@ -246,7 +337,9 @@
         newDate: null,
         lastPrepared: [],
         newRating: null,
-        ratingId: 0
+        ratingId: 0,
+        ratingSaved: false,
+        preparedTimeSaved: false
       };
     },
     beforeRouteEnter (to, from, next) {
@@ -277,7 +370,7 @@
       this.$nextTick(function () {
         for (let i = 0; i < this.recipe.preparedHistory.length; i++) {
           if (this.recipe.preparedHistory[i].userId === this.user.id) {
-            this.lastPrepared = this.recipe.preparedHistory[i];
+            this.lastPrepared.push(this.recipe.preparedHistory[i]);
           }
         }
         for (let i = 0; i < this.recipe.rating.length; i++) {
@@ -321,32 +414,33 @@
           }
         });
       },
-      saveDate: function () {
-        this.$validator.validateAll();
-        if (this.errors.any()) {
+      saveDate: function (date, id) {
+        this.$validator.validate("newpreparedtime" + id);
+        if (this.errors.has("newpreparedtime" + id)) {
           return;
         }
-        if (this.lastPrepared.id) {
-          saveDate(this.newDate, this.lastPrepared.id, this.recipe.id, (err, res) => {
-            if (err) {
-              alert(err.message);
-            } else {
-            }
-          });
-        } else {
-          saveDate(this.newDate, 0, this.recipe.id, (err, res) => {
-            if (err) {
-              alert(err.message);
-            } else {
-            }
-          });
-        }
+        saveDate(date, id, this.recipe.id, (err, res) => {
+          if (err) {
+            alert(err.message);
+          } else {
+            this.preparedTimeSaved = true;
+            let that = this;
+            setTimeout(function () {
+              that.preparedTimeSaved = false;
+            }, 5000);
+          }
+        });
       },
       saveRating: function () {
         saveRating(this.newRating, this.ratingId, this.recipe.id, (err, res) => {
           if (err) {
             alert(err.message);
           } else {
+            this.ratingSaved = true;
+            let that = this;
+            setTimeout(function () {
+              that.ratingSaved = false;
+            }, 5000);
           }
         });
       },

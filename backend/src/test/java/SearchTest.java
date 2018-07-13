@@ -287,13 +287,16 @@ public class SearchTest extends BaseSelenideTest {
       recipe.ingredientLists.add(list);
       for (int n=0; n < 5; n++) {IngredientLine ingredientLine = new IngredientLine();
         ingredientLine.ingredient = new Ingredient("Ingredient" + ((i + n) % 10));
+        ingredientLine.searchIngredient = new Ingredient("Ingredient"+((i+n)%10));
         recipe.ingredientLists.get(0).ingredientLines.add(ingredientLine);
       }
       for (int n=0; n < 5; n++) {IngredientLine ingredientLine = new IngredientLine();
-        ingredientLine.ingredient = new Ingredient("Ingredient" + ((i + n) % 10 + 10));
+        ingredientLine.ingredient = new Ingredient("Ingredient" + ((i + n) % 10 + 11));
+        ingredientLine.searchIngredient = new Ingredient("Ingredient" + ((i + n) % 10 + 10));
         ingredientLine.alternateLines = new ArrayList<>();
         AlternateIngredientLine altLine = new AlternateIngredientLine();
         altLine.ingredient = new Ingredient("Ingredient" + ((((i + n) % 10) * 3 + n) % 10 + 10));
+        altLine.searchIngredient = new Ingredient("Ingredient" + ((((i + n) % 10) * 3 + n) % 10 + 10));
         ingredientLine.alternateLines.add(altLine);
         recipe.ingredientLists.get(1).ingredientLines.add(ingredientLine);
       }
@@ -339,6 +342,7 @@ public class SearchTest extends BaseSelenideTest {
     list.ingredientLines = new ArrayList<>();
     IngredientLine line = new IngredientLine();
     line.ingredient = new Ingredient(letter);
+    line.searchIngredient = new Ingredient(letter);
     list.ingredientLines.add(line);
     recipe.ingredientLists.add(list);
     recipe.categories = new ArrayList<>();

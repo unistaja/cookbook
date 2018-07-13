@@ -62,26 +62,6 @@ export function loadUser (callback) {
   xhr.send();
 }
 
-export function getRecipes (callback) {
-  const xhr = new XMLHttpRequest();
-  xhr.open("GET", "/api/recipe/find");
-  xhr.onload = function () {
-    if (this.status === 200) {
-      try {
-        callback(null, JSON.parse(this.responseText));
-      } catch (ex) {
-        callback({message: "Retseptide laadimine ebaõnnestus. Proovi lehekülge uuendada."});
-      }
-    } else {
-      callback({errorCode: this.status, message: this.responseText});
-    }
-  };
-  xhr.onerror = function () {
-    callback({message: "Retseptide laadimine ebaõnnestus. Proovi lehekülge uuendada."});
-  };
-  xhr.send();
-}
-
 export function changePassword (oldPassword, newPassword, callback) {
   const xhr = new XMLHttpRequest();
   xhr.open("POST", "/api/user");
