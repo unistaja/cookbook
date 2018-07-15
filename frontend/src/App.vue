@@ -1,8 +1,11 @@
 <template>
-  <div id="app">
-    <navbar></navbar>
-    <router-view></router-view>
-  </div>
+    <md-app md-mode="fixed">
+
+      <navbar slot="md-app-toolbar"></navbar>
+      <md-app-content>
+        <router-view></router-view>
+      </md-app-content>
+    </md-app>
 </template>
 
 <script>
@@ -16,20 +19,17 @@ export default {
 };
 </script>
 
-<style scoped>
-#app {
-  font-family: "Avenir", Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
 
-}
-</style>
+<style lang="scss">
+  @import "~vue-material/dist/theme/engine";
+  @include md-register-theme("default", (
+    primary: md-get-palette-color(green, 500),
+    accent: md-get-palette-color(lightgreen, A100)
+  ));
+  @import "~vue-material/dist/theme/all";
 
-<style>
-  body {
-    background-color: #ffffcc;
+  .md-app {
+    max-height: 100vh;
   }
 
 </style>

@@ -347,7 +347,8 @@
           sources: []
         },
         saveButtonClicked: false,
-        error: false
+        error: false,
+        message: null
       };
       store.resetRecipe();
       return myData;
@@ -356,13 +357,6 @@
       $route () {
         this.recipe = store.recipeToEdit;
         store.resetRecipe();
-      }
-    },
-    directives: {
-      focus: {
-        inserted: function (el) {
-          el.focus();
-        }
       }
     },
     mounted: function () {

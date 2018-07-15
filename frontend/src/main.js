@@ -3,7 +3,10 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
 import App from "./App";
+import VueMaterial from "vue-material";
+import "vue-material/dist/vue-material.min.css";
 
+Vue.use(VueMaterial);
 Vue.use(VueRouter);
 
 const routes = [
@@ -18,6 +21,11 @@ const router = new VueRouter({
   routes: routes
 });
 
+Vue.directive("focus", {
+  inserted: function (el) {
+    el.focus();
+  }
+});
 /* eslint-disable no-new */
 new Vue({
   el: "#app",
