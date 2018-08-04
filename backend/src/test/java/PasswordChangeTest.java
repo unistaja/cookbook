@@ -2,8 +2,6 @@ import com.codeborne.selenide.Selectors;
 import com.codeborne.selenide.SelenideElement;
 import org.junit.Test;
 import org.openqa.selenium.By;
-
-import static com.codeborne.selenide.Condition.exactTextCaseSensitive;
 import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
 
@@ -12,7 +10,7 @@ public class PasswordChangeTest extends BaseSelenideTest {
 
   @Test
   public void testChangingPassword() {
-    openUserPage();
+    openPasswordChange();
     testEmptyFormResponse();
     testNullNewPasswordResponse();
     testEmptyNewPasswordResponse();
@@ -48,9 +46,10 @@ public class PasswordChangeTest extends BaseSelenideTest {
     submitPasswordForm();
     testPassword = newPassword;
     $(Selectors.byText("Parool edukalt muudetud!")).shouldBe(visible);
+    $(Selectors.byText(testUsername)).click();
     $(Selectors.byText("Logi välja")).click();
     login();
-    $(By.className("logout")).shouldHave(exactTextCaseSensitive(testUsername));
+    $(Selectors.byText(testUsername)).shouldBe(visible);
   }
 
   private void setOldPasswordValue(String value) {

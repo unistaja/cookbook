@@ -35,16 +35,17 @@ public class AutoFillDataService {
     data.units = unitRepository.findAll();
     data.listNames = ingredientListNameRepository.findAll();
     data.sources = sourceRepository.findAll();
-    data.ingredients = jdbcTemplate.query("SELECT searchIngredient, ingredient FROM ingredientline", new ResultSetExtractor<Map<String, String>>(){
+    data.ingredients = jdbcTemplate.query("SELECT searchName, displayName FROM ingredientautosuggest", new ResultSetExtractor<Map<String, String>>(){
       @Override
       public Map<String, String> extractData(ResultSet rs) throws SQLException,DataAccessException {
         HashMap<String,String> searchIngredients = new HashMap<String,String>();
         while(rs.next()){
-          searchIngredients.put(rs.getString("ingredient"),rs.getString("searchIngredient"));
+          searchIngredients.put(rs.getString("displayName"),rs.getString("searchName"));
         }
          return searchIngredients;
       }
     });
+    data.searchIngredients = jdbcTemplate.queryForList("SELECT DISTINCT searchName FROM ingredientautosuggest", String.class);
     return data;
   }
 }

@@ -7,18 +7,18 @@
 
     <div id="pictureholder">
       <div id="picture">
-        <img v-show="recipe.pictureName || tempPictureName"  id="image1" :src="'images/' + recipe.id + '/1RecipePicture.' + recipe.pictureName" onclick="document.getElementById('mymodal').style.display='block'">
+        <img v-show="recipe.pictureName || tempPictureName"  id="image1" :src="'images/' + recipe.id + '/1RecipePicture.' + recipe.pictureName" onclick="document.getElementById('myModal').style.display='block'">
       </div>
       <p v-if="!recipe.pictureName">Lisa retseptile pilt:</p>
       <input type="file" name="file" formenctype="multipart/form-data" v-if="!recipe.pictureName" accept="image/*" @change="upload">
       <button v-if="tempPictureName" @click="savePicture">Salvesta pilt</button>
       <button v-if="tempPictureName" @click="deleteImage">Kustuta pilt</button>
       <div id="categories" v-if="recipe.categories && recipe.categories.length != 0">
-        <h2>Kategooriad: </h2> {{ recipe.categories.map(x => x.name).join(", ") }}
+        <h2>Kategooriad: </h2> {{ recipe.categories.join(", ") }}
       </div>
     </div>
-    <div id="mymodal" class="modal">
-      <span class="close" onclick="document.getElementById('mymodal').style.display='none'">&times;</span>
+    <div id="myModal" class="modal">
+      <span class="close" onclick="document.getElementById('myModal').style.display='none'">&times;</span>
       <img id="image2" :src="'images/' + recipe.id + '/3RecipePicture.' + recipe.pictureName">
     </div>
 
@@ -44,40 +44,41 @@
     </div>
     <div id="preparedtime">
       Valmistatud:
-        <ul v-for = "preparedDate in lastPrepared" >
-          <li :id="'prepared'+preparedDate.id"> {{new Date(preparedDate.preparedTime).toLocaleDateString("et-ET", {day: "2-digit", month: "2-digit", year: "numeric"})}} <button :id="'changebutton'+preparedDate.id" @click="this.document.getElementById('newpreparedtime'+preparedDate.id).style.display='block', this.document.getElementById('savepreparedtime'+preparedDate.id).style.display='block'">Muuda</button><div v-if="errors.has('newpreparedtime'+preparedDate.id)" class="error">Valmistamiskorda ei saa lisada tulevikku.</div> <input :name="'newpreparedtime'+preparedDate.id" type="date" :id="'newpreparedtime'+preparedDate.id" v-validate="'before:today,true|date_format:YYYY-MM-DD|required'" class="editpreparedtime"/> <button class="editpreparedtime" :id="'savepreparedtime'+preparedDate.id" @click="saveDate(this.document.getElementById('newpreparedtime'+preparedDate.id).value, preparedDate.id)">Muuda kuupäeva</button> </li>
+        <ul v-for = "preparedDate in recipe.preparedHistory" >
+          <li :id="'prepared'+preparedDate.id"> {{new Date(preparedDate.preparedTime).toLocaleDateString("et-ET", {day: "2-digit", month: "2-digit", year: "numeric"})}} <button :id="'changebutton'+preparedDate.id" @click="this.document.getElementById('editpreparedtime'+preparedDate.id).style.display='block'">Muuda</button><div v-if="errors.has('newpreparedtime'+preparedDate.id)" class="error">Valmistamiskorda ei saa lisada tulevikku.</div> <div class="editpreparedtime" :id="'editpreparedtime' + preparedDate.id"><input :name="'newpreparedtime'+preparedDate.id" type="date" :id="'newpreparedtime'+preparedDate.id" v-validate="'before:today,true|date_format:YYYY-MM-DD|required'"/> <button :id="'savepreparedtime'+preparedDate.id" @click="saveDate(this.document.getElementById('newpreparedtime'+preparedDate.id).value, preparedDate.id)">Muuda kuupäeva</button><button :id="'deleteprepapredtime'+preparedDate.id" @click="deletePreparedTime(preparedDate.id)">Kustuta</button></div></li>
         </ul>
       <input name="today" :value="new Date().getFullYear() + '-' + ('0' + (new Date().getMonth()+1)).slice(-2) + '-' + ('0' + new Date().getDate()).slice(-2)" type="hidden">
       <input name="newpreparedtime0" type="date" id="newpreparedtime0" v-model="newDate" v-validate="'before:today,true|date_format:YYYY-MM-DD|required'"/>
       <div v-if="errors.has('newpreparedtime0')" class="error">Valmistamiskorda ei saa lisada tulevikku.</div>
       <button id="savedate" @click="saveDate(newDate, 0)">Salvesta uus kuupäev</button>
       <div v-show="preparedTimeSaved === true">Valmistamiskord salvestatud.</div>
+      <button @click="findPreparedTimes()" id="showpreparedtimes">Näika kõiki valmistuskordi</button>
     </div>
     <div id="rating" class="rating">
       <label>
-        <input type="radio" id="ratinginput1" name="stars" v-model="newRating" @click="saveRating()" value="1" />
+        <input type="radio" id="ratinginput1" name="stars" v-model="rating" @click="saveRating(1)" value="1" />
         <span class="icon" id="rating1" title="Ei taha enam kunagi süüa">★</span>
       </label>
       <label>
-        <input type="radio" id="ratinginput2" name="stars" v-model="newRating" @click="saveRating()" value="2" />
+        <input type="radio" id="ratinginput2" name="stars" v-model="rating" @click="saveRating(2)" value="2" />
         <span class="icon">★</span>
         <span class="icon" id="rating2" title="Kui on võimalik midagi muud süüa, siis seda ei sööks">★</span>
       </label>
       <label>
-        <input type="radio" id="ratinginput3" name="stars" v-model="newRating" @click="saveRating()" value="3" />
+        <input type="radio" id="ratinginput3" name="stars" v-model="rating" @click="saveRating(3)" value="3" />
         <span class="icon">★</span>
         <span class="icon">★</span>
         <span class="icon" id="rating3" title="Kõlbab süüa, aga väga tihti ei tahaks">★</span>
       </label>
       <label>
-        <input type="radio" id="ratinginput4" name="stars" v-model="newRating" @click="saveRating()" value="4" />
+        <input type="radio" id="ratinginput4" name="stars" v-model="rating" @click="saveRating(4)" value="4" />
         <span class="icon">★</span>
         <span class="icon">★</span>
         <span class="icon">★</span>
         <span class="icon" id="rating4" title="Üsna hea, päris iga päev ei sööks">★</span>
       </label>
       <label>
-        <input type="radio" id="ratinginput5" name="stars" v-model="newRating" @click="saveRating()" value="5" />
+        <input type="radio" id="ratinginput5" name="stars" v-model="rating" @click="saveRating(5)" value="5" />
         <span class="icon">★</span>
         <span class="icon">★</span>
         <span class="icon">★</span>
@@ -236,7 +237,7 @@
 
   .close {
     position: absolute;
-    top: 15px;
+    top: 55px;
     right: 35px;
     color: #f1f1f1;
     font-size: 40px;
@@ -321,7 +322,7 @@
 
 </style>
 <script>
-  import { getRecipe, uploadImage, saveImage, deleteTempImage, saveDate, saveRating } from "../api.js";
+  import { getRecipe, uploadImage, saveImage, deleteTempImage, saveDate, saveRating, findPreparedTimes } from "../api.js";
   import { store, getNewRecipe } from "../datastore.js";
   import Vue from "vue";
   import VeeValidate from "vee-validate";
@@ -335,9 +336,7 @@
         user: store.user,
         tempPictureName: "",
         newDate: null,
-        lastPrepared: [],
-        newRating: null,
-        ratingId: 0,
+        rating: null,
         ratingSaved: false,
         preparedTimeSaved: false
       };
@@ -368,16 +367,9 @@
     },
     mounted: function () {
       this.$nextTick(function () {
-        for (let i = 0; i < this.recipe.preparedHistory.length; i++) {
-          if (this.recipe.preparedHistory[i].userId === this.user.id) {
-            this.lastPrepared.push(this.recipe.preparedHistory[i]);
-          }
-        }
-        for (let i = 0; i < this.recipe.rating.length; i++) {
-          if (this.recipe.rating[i].userId === this.user.id) {
-            this.newRating = this.recipe.rating[i].rating;
-            this.ratingId = this.recipe.rating[i].id;
-          }
+        if (this.recipe.rating[0].userId) {
+          this.rating = this.recipe.rating[0].rating;
+          this.ratingId = this.recipe.rating[0].id;
         }
       });
     },
@@ -431,8 +423,8 @@
           }
         });
       },
-      saveRating: function () {
-        saveRating(this.newRating, this.ratingId, this.recipe.id, (err, res) => {
+      saveRating: function (rating) {
+        saveRating(rating, this.recipe.id, (err, res) => {
           if (err) {
             alert(err.message);
           } else {
@@ -453,6 +445,35 @@
             this.tempPictureName = "";
           }
         });
+      },
+      findPreparedTimes: function () {
+        this.recipe.preparedHistory.splice(0, this.recipe.preparedHistory.length);
+        findPreparedTimes(this.recipe.id, (err, res) => {
+          if (err) {
+            alert(err.message);
+          } else {
+            for (let i = 0; i < res.length; i++) {
+              this.recipe.preparedHistory.push(res[i]);
+            }
+          }
+        })
+      },
+      deletePreparedTime: function(id) {
+        let xhr = new XMLHttpRequest();
+        const formData = new FormData();
+        formData.append("id", id);
+        xhr.open("POST", "api/recipe/deletedate");
+        xhr.onload = function () {
+          if (this.status === 200) {
+            try {
+            } catch (ex) {
+              alert("Valmistamiskorra kustutamine ebaõnnestus."); //?
+            }
+          } else {
+            alert(this.responseText);
+          }
+        };
+        xhr.send(formData);
       }
     }
   };

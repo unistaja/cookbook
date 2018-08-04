@@ -11,7 +11,7 @@
 
     <div id="ingredients">
       <datalist id="ingredient-data">
-        <option v-for="ingredient in Array.from(new Set(Object.keys(autofill.ingredients).concat(Object.values(autofill.ingredients))))" :value="ingredient">{{ ingredient }}</option>
+        <option v-for="ingredient in Object.keys(autofill.ingredients)" :value="ingredient">{{ ingredient }}</option>
       </datalist>
       <datalist id="unit-data">
         <option v-for="unit in autofill.units" :value="unit">{{ unit }}</option>
@@ -20,26 +20,26 @@
         <option v-for="name in autofill.listNames" :value="name">{{ name }}</option>
       </datalist>
       <datalist id="searchingredient-data">
-        <option v-for="searchIngredient in Array.from(new Set(Object.values(autofill.ingredients)))" :value="searchIngredient">{{ searchIngredient }}</option>
+        <option v-for="searchIngredient in autofill.searchIngredients" :value="searchIngredient">{{ searchIngredient }}</option>
       </datalist>
       <div id="ingredient-list">
         <span v-if="message" :class="[error ? 'error' : 'success']">{{ message }}</span>
         <div v-for="(list, listIndex) in recipe.ingredientLists">
           <div v-show="errors.has('list' + listIndex + '-name')" class="error">{{errors.first('list' + listIndex + '-name')}}</div>
           <input type="text" list="list-name-data" v-focus v-model="list.name" :name="'list' + listIndex + '-name'" :id="'list' + listIndex + '-name'" placeholder="Jaotise nimi" @keyup="checkList(list, listIndex), checkListsExist()" @focusout="checkList(list, listIndex)" @keyup.enter="list.ingredientLines.length === 0 ? addRow(list) : ''"/>
-          <a class="one-char-button delete-button" @click="deleteList(list), checkListsExist()" :id="'list' + listIndex +'-del'">-</a>
+          <a class="one-char-button delete-button" @click="deleteList(list, listIndex), checkListsExist()" :id="'list' + listIndex +'-del'">-</a>
           <ul>
             <li v-for="(line, lineIndex) in list.ingredientLines">
               <div> <span v-if="errors.has('list'+listIndex+'-line'+lineIndex+'-amt')" class="error"> Palun sisestage koostisosa kogus sobivas vormingus.</span><span v-if="errors.has('list'+listIndex+'-line'+lineIndex+'-ingredient')" class="error">Palun sisestage koostisosa nimi. </span><span v-if="errors.has('list'+listIndex+'-line'+lineIndex+'-searchingredient')" class="error">Palun sisestage otsingukoostisosa nimi. </span></div>
               <input v-focus class="amount-input" @keyup="updateInfo()" type="text" v-validate = "{regex : /\d+[.,]*\d*-*\d*[.,]*\d*/}" v-model="line.amount" :id="'list' + listIndex + '-line' + lineIndex + '-amt'" placeholder="Kogus" v-bind:ref="'list' + listIndex + 'line' + lineIndex + 'amt'" :name="'list'+listIndex+'-line'+lineIndex+'-amt'"/>
               <input class="unit-input" @keyup="updateInfo()" :name="'list' + listIndex + '-line' + lineIndex + '-unit'" type="text" list="unit-data" v-model="line.unit" :id="'list' + listIndex + '-line' + lineIndex + '-unit'" placeholder="Ühik"/>
               <input v-validate="(line.unit && /\S/.test(line.unit)) || (line.amount && /\S/.test(line.amount))? 'required' : ''" @keyup="checkList(list, listIndex), updateInfo(), checkSearchIngredient(line, line.ingredient)" @focusout="checkList(list, listIndex), updateInfo()" :name="'list'+listIndex+'-line'+lineIndex+'-ingredient'" class="ingredient-input" type="text" list="ingredient-data"  v-model="line.ingredient" :id="'list' + listIndex + '-line' + lineIndex + '-ingr'" placeholder="Koostisosa"/>
-              <input v-validate="line.ingredient && /\S/.test(line.ingredient)? 'required' : ''" @keyup="checkList(list, listIndex), updateInfo()" @focusout="checkList(list, listIndex), updateInfo()" :name="'list'+listIndex+'-line'+lineIndex+'-searchingredient'" class="ingredient-input" type="text" list="searchingredient-data"  v-model="line.searchIngredient" :id="'list' + listIndex + '-line' + lineIndex + '-searchingr'" placeholder="Otsingukoostisosa" @keyup.enter="lineIndex === list.ingredientLines.length - 1 ? addRow(list) : ''"/>
-              <button v-if="listIndex == 0" @click="this.document.getElementById('modal').style.display = 'block'">?</button>
+              <input v-validate="line.ingredient && /\S/.test(line.ingredient)? 'required' : ''" @keyup="checkList(list, listIndex), updateInfo()" @focusout="checkList(list, listIndex), updateInfo()" :name="'list'+listIndex+'-line'+lineIndex+'-searchingredient'" class="ingredient-input" type="text" list="searchingredient-data" v-model="line.searchIngredient" :id="'list' + listIndex + '-line' + lineIndex + '-searchingr'" placeholder="Otsingukoostisosa" @keyup.enter="lineIndex === list.ingredientLines.length - 1 ? addRow(list) : ''"/>
+              <button v-if="listIndex == 0" id="helpbutton" @click="this.document.getElementById('modal').style.display = 'block'">?</button>
               <div id="modal" class="modal">
                 <div class="modal-content">
-                  <span class="close" @click="this.document.getElementById('modal').style.display = 'none'">&times;</span>
-                  <p>Otsingukoostisosa lahtrisse käib selle rea koostisosa ainsuse nimetavas käändes.</p>
+                  <span class="close" id="closemodal" @click="this.document.getElementById('modal').style.display = 'none'">&times;</span>
+                  <p>Otsingukoostisosa lahtrisse käib selle rea koostisosa nimetavas käändes.</p>
                 </div>
               </div>
               <a class="one-char-button add-button" :id="'list' + listIndex + '-line' + lineIndex + '-addAlt'" @click="addAltRow(line)">&or;</a>
@@ -49,7 +49,7 @@
                   <div><span v-if="errors.has('list'+listIndex+'-line'+lineIndex+'-altLine'+altLineIndex+'-ingredient')" class="error">Palun sisestage koostisosa nimi.</span><span v-if="errors.has('list'+listIndex+'-line'+lineIndex+'-altLine'+altLineIndex+'-searchingredient')" class="error"> Palun sisestage otsingukoostisosa nimi.</span></div>
                   <input class="amount-input" @keyup="updateInfo()" v-validate = "{regex : /\d+[.,]*\d*-*\d*[.,]*\d*/}" v-focus type="text" v-model="altLine.amount" :id="'list' + listIndex + '-line' + lineIndex + '-altLine' + altLineIndex + '-amt'" placeholder="Kogus"/>
                   <input class="unit-input" @keyup="updateInfo()" type="text" v-model="altLine.unit" :id="'list' + listIndex + '-line' + lineIndex + '-altLine' + altLineIndex + '-unit'" placeholder="Ühik"/>
-                  <input class="ingredient-input" list="ingredient-data" v-validate="(altLine.unit && /\S/.test(altLine.unit)) || (altLine.amount && /\S/.test(altLine.amount)) ? 'required' : ''" :name="'list'+listIndex+'-line'+lineIndex+'-altLine'+altLineIndex+'-ingredient'" type="text" v-model="altLine.ingredient" placeholder="Alternatiivkoostisosa" :id="'list' + listIndex + '-line' + lineIndex + '-altLine' + altLineIndex + '-ingr'" @keyup="checkSearchIngredient(altLine, line.ingredient)"/>
+                  <input class="ingredient-input" list="ingredient-data" v-validate="(altLine.unit && /\S/.test(altLine.unit)) || (altLine.amount && /\S/.test(altLine.amount)) ? 'required' : ''" :name="'list'+listIndex+'-line'+lineIndex+'-altLine'+altLineIndex+'-ingredient'" type="text" v-model="altLine.ingredient" placeholder="Alternatiivkoostisosa" :id="'list' + listIndex + '-line' + lineIndex + '-altLine' + altLineIndex + '-ingr'" @keyup="checkSearchIngredient(altLine, altLine.ingredient)"/>
                   <input class="ingredient-input" list="searchingredient-data" v-validate="altLine.ingredient && /\S/.test(altLine.ingredient)? 'required' : ''" :name="'list'+listIndex+'-line'+lineIndex+'-altLine'+altLineIndex+'-searchingredient'" type="text" v-model="altLine.searchIngredient" placeholder="Otsingukoostisosa" :id="'list' + listIndex + '-line' + lineIndex + '-altLine' + altLineIndex + '-searchingr'" @keyup.enter="altLineIndex === line.alternateLines.length - 1 ? addAltRow(line) : ''"/>
                   <a class="one-char-button delete-button" @click="remove(line.alternateLines, altLine)" :id="'list' + listIndex + '-line' + lineIndex + '-altLine' + altLineIndex + '-del'">-</a>
                 </li>
@@ -78,10 +78,10 @@
       <button v-if="recipe.pictureName || image" @click="deleteImage()">Kustuta pilt</button>
       <div id="categories">
         <datalist id="category-data">
-          <option v-for="category in autofill.categories" :value="category.name">{{ category.name }}</option>
+          <option v-for="category in autofill.categories" :value="category">{{ category }}</option>
         </datalist>
         <div v-for="(category, index) in recipe.categories">
-          <input type="text" list="category-data" v-focus v-model="category.name" :id="'category' + index" placeholder="Kategooria" @keyup.enter="index === recipe.categories.length - 1 ? addCategoryRow() : ''" />
+          <input type="text" list="category-data" v-focus v-model="recipe.categories[index]" :id="'category' + index" placeholder="Kategooria" @keyup.enter="index === recipe.categories.length - 1 ? addCategoryRow() : ''" />
           <a @click="deleteCategoryRow(category)" class="one-char-button delete-button" :id="'category' + index + '-del'">-</a>
         </div>
         <div>
@@ -344,7 +344,8 @@
           ingredients: [],
           listNames: [],
           categories: [],
-          sources: []
+          sources: [],
+          searchIngredients: []
         },
         saveButtonClicked: false,
         error: false,
@@ -410,6 +411,9 @@
         xhr.onload = function () {
           if (this.status === 200) {
             try {
+              if (JSON.parse(this.responseText).message) {
+                alert("Pildi salvestamine ebaõnnestus.");
+              }
               routeToRecipe(JSON.parse(this.responseText).recipeId);
             } catch (ex) {
               if (ex.message.includes("Unexpected token")) {
@@ -435,7 +439,7 @@
             line.alternateLines = line.alternateLines.filter(x => x.ingredient);
           });
         });
-        newRecipe.categories = newRecipe.categories.filter(x => x.name);
+        newRecipe.categories = newRecipe.categories.filter(x => x);
         return newRecipe;
       },
       remove: function (arr, el) {
@@ -451,12 +455,12 @@
         list.ingredientLines.push({alternateLines: []});
       },
       addCategoryRow: function () {
-        this.recipe.categories.push({});
+        this.recipe.categories.push("");
       },
       addAltRow: function (line) {
         line.alternateLines.push({});
       },
-      deleteList: function (list) {
+      deleteList: function (list, listIndex) {
         this.remove(this.recipe.ingredientLists, list);
         this.errors.clear();
       },
@@ -554,7 +558,7 @@
       checkSearchIngredient: function (line, value) {
         if (this.autofill.ingredients[value]) {
           line.searchIngredient = this.autofill.ingredients[value];
-        } else if (Object.values(this.autofill.ingredients).includes(value)) {
+        } else if (this.autofill.searchIngredients.includes(value)) {
           line.searchIngredient = value;
         }
       }

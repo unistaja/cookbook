@@ -14,9 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 
 
@@ -41,8 +41,21 @@ public class RecipeController {
   private RatingRepository ratingRepository;
 
   @RequestMapping(value = "/{recipeId}", method = RequestMethod.GET)
-  Recipe getRecipe(@PathVariable long recipeId) {
-    return recipeRepository.findOne(recipeId);
+  Recipe getRecipe(@PathVariable long recipeId, Authentication auth) {
+    User user = (User) auth.getPrincipal();
+    Recipe recipe = recipeRepository.findOne(recipeId);
+    PreparedHistory preparedHistory = preparedHistoryRepository.findTopByRecipeIdAndUserIdOrderByPreparedTimeDesc(recipeId, user.id);
+    recipe.preparedHistory.clear();
+    if (preparedHistory != null) {
+      recipe.preparedHistory.add(preparedHistory);
+    }
+    Rating rating = ratingRepository.findByRecipeIdAndUserId(recipeId, user.id);
+    recipe.rating.clear();
+    if (rating != null) {
+      recipe.rating.add(rating);
+    }
+
+    return recipe;
   }
 
   @RequestMapping(value = "/autofill", method = RequestMethod.GET)
@@ -55,10 +68,9 @@ public class RecipeController {
     User user = (User) auth.getPrincipal();
     String imageName = "";
     if (recipe.id != 0 && recipeRepository.countByIdAndUserId(recipe.id, user.id) == 0) {
-      logger.error("User " + user.username + " is not allowed to modify recipe with id " + recipe.id);
+      logger.error("User {} is not allowed to modify recipe with id {}", user.username, recipe.id);
       throw new IllegalStateException("Teil pole lubatud seda retsepti muuta.");
     }
-    recipe.added = new Date(System.currentTimeMillis() + 1000*60*60*3);
     if (!StringUtils.isBlank(recipe.pictureName)) {
       String[] nameParts = recipe.pictureName.split("[.]");
       if (nameParts.length > 1) {
@@ -68,6 +80,10 @@ public class RecipeController {
         recipe.pictureName = nameParts[0];
       }
     }
+    if (recipe.id != 0) {
+      recipe.preparedHistory = preparedHistoryRepository.findAllByRecipeId(recipe.id);
+      recipe.rating = ratingRepository.findAllByRecipeId(recipe.id);
+    }
     recipe.user = user;
     Recipe savedRecipe = recipeRepository.save(recipe);
     if (!StringUtils.isBlank(imageName)) {
@@ -75,7 +91,7 @@ public class RecipeController {
         imageService.saveImages(imageName, recipe.pictureName, savedRecipe.id);
       } catch(Exception e) {
         logger.error("Saving image to recipe {} failed.", savedRecipe.id, e);
-        return ResponseEntity.status(500).body("{\"message\": \"Pildi salvestamine ebaõnnestus, kuid retsept on salvestatud.\"}");
+        return ResponseEntity.ok("{\"message\": \"Pildi salvestamine ebaõnnestus, kuid retsept on salvestatud.\", \"recipeId\": " + savedRecipe.id + "}");
       }
     }
     return ResponseEntity.ok("{\"recipeId\": " + savedRecipe.id + "}");
@@ -92,7 +108,9 @@ public class RecipeController {
     newDate.userId = ((User) auth.getPrincipal()).id;
     try {
       newDate.preparedTime = new SimpleDateFormat("yyyy-MM-dd").parse(date);
-    } catch (Exception e) {}
+    } catch (Exception e) {
+      logger.error("Saving prepared time {} to recipe {} failed. ", date, recipeId, e);
+    }
     newDate.recipeId = recipeId;
     if (id > 0) {
       newDate.id = id;
@@ -101,16 +119,29 @@ public class RecipeController {
     return ResponseEntity.ok("");
   }
 
+  @Transactional
+  @RequestMapping(value = "/deletedate", method = RequestMethod.POST)
+  ResponseEntity deleteDate(@RequestParam("id") Long id, Authentication auth) {
+    User user = (User) auth.getPrincipal();
+    if (preparedHistoryRepository.findById(id).userId == user.id) {
+      preparedHistoryRepository.deleteById(id);
+    }
+    return ResponseEntity.ok("");
+  }
+
   @RequestMapping(value = "/saverating", method = RequestMethod.POST)
-  ResponseEntity saveRating(@RequestParam("rating") int rating, @RequestParam("id") Long id, @RequestParam("recipeId") Long recipeId, Authentication auth) {
+  ResponseEntity saveRating(@RequestParam("rating") int rating, @RequestParam("recipeId") Long recipeId, Authentication auth) {
     Rating newRating = new Rating();
     newRating.userId = ((User) auth.getPrincipal()).id;
     newRating.rating = rating;
     newRating.recipeId = recipeId;
-    if (id > 0) {
-     newRating.id = id;
-    }
     ratingRepository.save(newRating);
     return ResponseEntity.ok("");
+  }
+
+  @RequestMapping(value = "/findpreparedtimes", method = RequestMethod.POST)
+  List<PreparedHistory> findPreparedTimes (@RequestParam("recipeId") Long recipeId, Authentication auth) {
+    User user = (User) auth.getPrincipal();
+    return preparedHistoryRepository.findAllByRecipeIdAndUserId(recipeId, user.id);
   }
 }

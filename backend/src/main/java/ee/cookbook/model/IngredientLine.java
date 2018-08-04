@@ -10,13 +10,9 @@ public class IngredientLine {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   public long id;
 
-  @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
-  @JoinColumn(name = "ingredient")
-  public Ingredient ingredient;
+  public String ingredient;
 
-  @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
-  @JoinColumn(name = "searchIngredient")
-  public Ingredient searchIngredient;
+  public String searchIngredient;
 
   @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
   @JoinColumn(name = "unit")

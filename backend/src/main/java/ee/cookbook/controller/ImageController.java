@@ -36,7 +36,7 @@ public class ImageController {
   @RequestMapping(value = "/upload", method = RequestMethod.POST)
   public ResponseEntity image(@RequestParam("file") MultipartFile file, @Param("id") Long id, Authentication auth) {
     User user = (User) auth.getPrincipal();
-    if (id != null && recipeRepository.countByIdAndUserId(id, user.id) == 0) {
+    if (!(id == null || recipeRepository.findOne(id).pictureName == null || recipeRepository.findOne(id).pictureName.equals("")) && recipeRepository.countByIdAndUserId(id, user.id) == 0) {
       throw new IllegalStateException("User " + user.username + " is not allowed to modify recipe with id " + id);
     }
     try {

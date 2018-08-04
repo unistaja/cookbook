@@ -19,4 +19,6 @@ public class AutoFillData {
   public List<RecipeSource> sources;
 
   public Map<String, String> ingredients;
+
+  public List<String> searchIngredients;
 }

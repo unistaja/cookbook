@@ -9,7 +9,7 @@
             <div class="md-title">Otsing
               <md-card-expand-trigger>
 
-              <md-button class="md-icon-button">
+              <md-button class="md-icon-button" id="toggleSearch">
                 <md-icon md-src="/static/icons/baseline-keyboard_arrow_down-24px.svg"/>
               </md-button>
             </md-card-expand-trigger></div>
@@ -43,9 +43,9 @@
                   <div class="md-layout-item md-size-25 md-medium-size-33 md-small-size-100">
                     <fieldset>
                       <legend>Valmistanud:</legend>
-                      <md-radio v-model="recipeToSearch.hasPrepared" :value="0">Kõik</md-radio>
-                      <md-radio v-model="recipeToSearch.hasPrepared" :value="1">Jah</md-radio>
-                      <md-radio v-model="recipeToSearch.hasPrepared" :value="2">Ei</md-radio>
+                      <md-radio v-model="recipeToSearch.hasPrepared" :value="null">Kõik</md-radio>
+                      <md-radio v-model="recipeToSearch.hasPrepared" :value="true">Jah</md-radio>
+                      <md-radio v-model="recipeToSearch.hasPrepared" :value="false">Ei</md-radio>
                     </fieldset>
                   </div>
                 </div>
@@ -61,7 +61,7 @@
                       <div class="md-layout-item md-size-80">
                         <md-autocomplete class="md-dense" v-model="line.ingredient"
                                          :id="'list0-line' + lineIndex + '-ingr'"
-                                         :md-options="autofill.ingredients">
+                                         :md-options="autofill.searchIngredients">
                           <label>Koostisosa</label>
                           <md-button v-if="recipeToSearch.withIngredients.length > 1"
                                      :id="'list0-line' + lineIndex + '-del'"
@@ -88,7 +88,7 @@
                         </md-button>
                         <md-autocomplete class="md-dense" v-model="altLine.ingredient"
                                          :id="'list0-line' + lineIndex + '-altLine' + altLineIndex + '-ingr'"
-                                         :md-options="autofill.ingredients">
+                                         :md-options="autofill.searchIngredients">
                           <label>Alternatiiv</label>
                           <md-button :id="'list0-line' + lineIndex + '-altLine' + altLineIndex + '-del'"
                                      @click="remove(line.alternateLines, altLine)"
@@ -117,7 +117,7 @@
                       <div class="md-layout-item md-size-80">
                         <md-autocomplete class="md-dense" v-model="recipeToSearch.withoutIngredients[lineIndex]"
                                          :id="'list1-line' + lineIndex + '-ingr'"
-                                         :md-options="autofill.ingredients">
+                                         :md-options="autofill.searchIngredients">
                           <label>Koostisosa</label>
                           <md-button v-if="recipeToSearch.withoutIngredients.length > 1"
                                      :id="'list1-line' + lineIndex + '-del'"
@@ -268,13 +268,13 @@
               <img v-else src="/static/icons/baseline-photo-24px.svg" class="recipe-list-image">
               </div>
               <div class="md-list-item-text">
-                <span class="md-title">{{ recipe.name }}</span>
+                <span class="md-title" :id="'recipe' + recipe.id">{{ recipe.name }}</span>
                 <div>Lisatud: {{ new Date(recipe.added).toLocaleDateString("et-ET") }} ({{ recipe.user.username }})
                   <div v-if="recipe.preparedHistory[0].preparedTime" :id="'recipe' + recipe.id + 'preparedtime'">Viimati valmistasin: {{ new Date(recipe.preparedHistory[0].preparedTime).toLocaleDateString("et-ET")}} </div>
                 </div>
 
               </div>
-              <rating-display :userRating="recipe.rating[0].rating" :avgRating="recipe.averageRating"></rating-display>
+              <rating-display :id="'recipe' + recipe.id + 'rating'" :userRating="recipe.rating[0].rating" :avgRating="recipe.averageRating"></rating-display>
             </md-list-item>
           </md-list>
         </md-card>
@@ -382,7 +382,7 @@
         autofill: {
           names: [],
           users: [],
-          ingredients: [],
+          searchIngredients: [],
           categories: [],
           sources: []
         }

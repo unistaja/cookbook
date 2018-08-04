@@ -10,8 +10,9 @@ import static com.codeborne.selenide.WebDriverRunner.url;
 public class UnauthorizedAccessTest extends BaseSelenideTest {
   @Test
   public void testOfflineAccess() {
+    $(Selectors.byText(testUsername)).click();
     $(Selectors.byText("Logi välja")).click();
-    $(Selectors.byText("Logi välja")).shouldNotBe(visible);
+    $(Selectors.byText(testUsername)).shouldNotBe(visible);
     $(By.id("navbar")).shouldNotBe(visible);
     testPage("recipelist");
     testPage("addrecipe");

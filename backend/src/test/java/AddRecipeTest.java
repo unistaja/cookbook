@@ -29,6 +29,8 @@ public class AddRecipeTest extends BaseSelenideTest {
   public void testAddingRecipes() throws InterruptedException {
     testRecipeCreating();
     testEditingRecipes();
+    testHistory();
+    testRating();
   }
 
   //test methods
@@ -42,9 +44,9 @@ public class AddRecipeTest extends BaseSelenideTest {
     openAddRecipePage();
     $(By.id("helpbutton")).click();
     $(By.id("helpbutton")).click();
-    $(Selectors.byText("Otsingukoostisosa lahtrisse käib selle rea koostisosa ainsuse nimetavas käändes.")).shouldBe(visible);
+    $(Selectors.byText("Otsingukoostisosa lahtrisse käib selle rea koostisosa nimetavas käändes.")).shouldBe(visible);
     $(By.id("closemodal")).click();
-    $(Selectors.byText("Otsingukoostisosa lahtrisse käib selle rea koostisosa ainsuse nimetavas käändes.")).shouldNotBe(visible);
+    $(Selectors.byText("Otsingukoostisosa lahtrisse käib selle rea koostisosa nimetavas käändes.")).shouldNotBe(visible);
     testErrors();
     addRecipeValues(addRecipeTestRecipe);
     for(IngredientList list : addRecipeTestRecipe.ingredientLists) {
@@ -105,7 +107,6 @@ public class AddRecipeTest extends BaseSelenideTest {
     Thread.sleep(1000);
     assert(!checkTemporaryImagesExist());
     addImage();
-   // $(By.id("save")).click();
     $(By.id("save")).click();
     Thread.sleep(1000);
     currentTest++;
@@ -154,8 +155,8 @@ public class AddRecipeTest extends BaseSelenideTest {
     IngredientLine line = new IngredientLine();
     line.amount = currentTest + "." +  list + lines;
     line.unit = new IngredientUnit(currentTest + "." + "List" + list + "-Line" + lines + "Unit");
-    line.ingredient = new Ingredient(currentTest + "." + "List" + list + "-Line" + lines + "Ingredient");
-    line.searchIngredient = new Ingredient(currentTest + "." + "List" + list + "-Line" + lines + "-Searchingredient");
+    line.ingredient = currentTest + "." + "List" + list + "-Line" + lines + "Ingredient";
+    line.searchIngredient = currentTest + "." + "List" + list + "-Line" + lines + "-Searchingredient";
     line.alternateLines = new ArrayList<>();
     for(int altLine = 1; altLine <= altLinesPerLine; altLine++) {
       line.alternateLines.add(createAltLineValues(list, lines, altLine));
@@ -167,8 +168,8 @@ public class AddRecipeTest extends BaseSelenideTest {
     AlternateIngredientLine altLine = new AlternateIngredientLine();
     altLine.amount = currentTest + "." +  list + line + altLineNumber;
     altLine.unit = new IngredientUnit(currentTest + ".List" + list + "-Line" + line + "-AltLine" + altLineNumber + "-Unit");
-    altLine.ingredient = new Ingredient(currentTest + ".List" + list + "-Line" + line + "-AltLine" + altLineNumber + "Ingredient");
-    altLine.searchIngredient = new Ingredient(currentTest + ".List" + list + "-Line" + line + "-AltLine" + altLineNumber + "-Searchingredient");
+    altLine.ingredient = currentTest + ".List" + list + "-Line" + line + "-AltLine" + altLineNumber + "Ingredient";
+    altLine.searchIngredient = currentTest + ".List" + list + "-Line" + line + "-AltLine" + altLineNumber + "-Searchingredient";
     return altLine;
   }
 
@@ -187,11 +188,11 @@ public class AddRecipeTest extends BaseSelenideTest {
       int lineField = 0;
       for (IngredientLine line : list.ingredientLines) {
         addLine(listField);
-        addLineValues(listField, lineField, line.amount, line.unit.name, line.ingredient.name, line.searchIngredient.name);
+        addLineValues(listField, lineField, line.amount, line.unit.name, line.ingredient, line.searchIngredient);
         int altLineField = 0;
         for(AlternateIngredientLine altLine : line.alternateLines) {
           addAltLine(listField, lineField);
-          addAltLineValues(listField, lineField, altLineField, altLine.amount, altLine.unit.name, altLine.ingredient.name, altLine.searchIngredient.name);
+          addAltLineValues(listField, lineField, altLineField, altLine.amount, altLine.unit.name, altLine.ingredient, altLine.searchIngredient);
           altLineField++;
         }
         lineField++;
@@ -242,27 +243,6 @@ public class AddRecipeTest extends BaseSelenideTest {
     $(By.className("close")).click();
     $(By.id("image2")).shouldNotBe(visible);
     assert(checkSavedImagesExist());
-    for (int i = 1; i < 6; i++) {
-      $(By.id("rating"+i)).click();
-      $(Selectors.byText("Hinnang salvestatud.")).shouldBe(visible);
-      refresh();
-      $(By.id("ratinginput"+i)).shouldBe(checked);
-      $(By.id("averageRating")).shouldHave(exactTextCaseSensitive("Keskmine hinnang: " + Integer.toString(i) + ".0"));
-    }
-    for (int i = 1; i < 3; i++) {
-      $(By.id("newpreparedtime0")).sendKeys("0" + i + "022018");
-      $(By.id("savedate")).click();
-      $(Selectors.byText("Valmistamiskord salvestatud.")).shouldBe(visible);
-      refresh();
-      $(By.id("prepared"+(i+(currentTest-1)*2))).shouldHave(text("0" + i + ".02.2018"));
-    }
-    testPreparedTimeError();
-    $(By.id("newpreparedtime"+(2+(currentTest-1)*2))).shouldNotBe(visible);
-    $(By.id("changebutton"+(2+(currentTest-1)*2))).click();
-    $(By.id("newpreparedtime"+(2+(currentTest-1)*2))).sendKeys("04052018");
-    $(By.id("savepreparedtime"+(2+(currentTest-1)*2))).click();
-    refresh();
-    $(By.id("prepared"+(2+(currentTest-1)*2))).shouldHave(text("04.05.2018"));
   }
 
   private int getNumberOfLists() {
@@ -282,8 +262,8 @@ public class AddRecipeTest extends BaseSelenideTest {
   }
 
   private void setListName(int list, String value) {
-    $(By.id("list"+list+"-name")).click();
-    $(By.id("list"+list+"-name")).setValue(value);
+    $(By.id("list" + list + "-name")).click();
+    $(By.id("list" + list + "-name")).setValue(value);
   }
 
 
@@ -294,32 +274,32 @@ public class AddRecipeTest extends BaseSelenideTest {
       IngredientLine deletedLine = new IngredientLine();
       deletedLine.amount = ingredientLine.amount;
       deletedLine.unit = new IngredientUnit(ingredientLine.unit.name);
-      deletedLine.ingredient = new Ingredient(ingredientLine.ingredient.name);
+      deletedLine.ingredient = ingredientLine.ingredient;
       deletedLine.alternateLines = new ArrayList<>();
       deletedLines.add(deletedLine);
       ingredientLine.amount = altLine.amount;
       ingredientLine.unit.name = altLine.unit.name;
-      ingredientLine.ingredient.name = altLine.ingredient.name;
+      ingredientLine.ingredient = altLine.ingredient;
       ingredientLine.alternateLines.remove(0);
-      $(By.id("list"+list+"-line"+line+"-del")).click();
+      $(By.id("list" + list + "-line" + line + "-del")).click();
     } else {
       deletedLines.add(ingredientLine);
       recipe.ingredientLists.get(list).ingredientLines.remove(line);
-      $(By.id("list"+list+"-line"+line+"-del")).click();
+      $(By.id("list" + list + "-line" + line + "-del")).click();
     }
   }
 
   private void addLineValues(int list, int line, String amount, String unit, String ingredient, String searchIngredient) {
-    String lineId = "list"+list+"-line"+line;
-    $(By.id(lineId+"-amt")).click();
-    $(By.id(lineId+"-amt")).sendKeys("\b");
-    $(By.id(lineId+"-amt")).setValue(amount);
-    $(By.id(lineId+"-unit")).click();
-    $(By.id(lineId+"-unit")).setValue(unit);
-    $(By.id(lineId+"-ingr")).click();
-    $(By.id(lineId+"-ingr")).setValue(ingredient);
-    $(By.id(lineId+"-searchingr")).click();
-    $(By.id(lineId+"-searchingr")).setValue(searchIngredient);
+    String lineId = "list" + list + "-line" + line;
+    $(By.id(lineId + "-amt")).click();
+    $(By.id(lineId + "-amt")).sendKeys("\b");
+    $(By.id(lineId + "-amt")).setValue(amount);
+    $(By.id(lineId + "-unit")).click();
+    $(By.id(lineId + "-unit")).setValue(unit);
+    $(By.id(lineId + "-ingr")).click();
+    $(By.id(lineId + "-ingr")).setValue(ingredient);
+    $(By.id(lineId + "-searchingr")).click();
+    $(By.id(lineId + "-searchingr")).setValue(searchIngredient);
   }
 
 
@@ -327,27 +307,27 @@ public class AddRecipeTest extends BaseSelenideTest {
   private void removeAltLine(int list, int line, int altLine, IngredientLine ingrLine) {
     deletedAltLines.add(ingrLine.alternateLines.get(altLine));
     ingrLine.alternateLines.remove(altLine);
-    $(By.id("list"+list+"-line"+line+"-altLine"+altLine+"-del")).scrollTo();
-    $(By.id("list"+list+"-line"+line+"-altLine"+altLine+"-del")).click();
+    $(By.id("list" + list + "-line" + line + "-altLine" + altLine + "-del")).scrollTo();
+    $(By.id("list" + list + "-line" + line + "-altLine" + altLine + "-del")).click();
   }
 
   private void addAltLineValues(int list, int line, int altLine, String amount, String unit, String ingredient, String searchIngredient) {
-    String altLineId = "list"+list+"-line"+line+"-altLine"+altLine;
-    $(By.id(altLineId+"-amt")).should(exist);
-    $(By.id(altLineId+"-amt")).click();
-    $(By.id(altLineId+"-amt")).sendKeys("\b");
-    $(By.id(altLineId+"-amt")).setValue(amount);
-    $(By.id(altLineId+"-unit")).click();
-    $(By.id(altLineId+"-unit")).setValue(unit);
-    $(By.id(altLineId+"-ingr")).click();
-    $(By.id(altLineId+"-ingr")).setValue(ingredient);
-    $(By.id(altLineId+"-searchingr")).click();
-    $(By.id(altLineId+"-searchingr")).setValue(searchIngredient);
+    String altLineId = "list" + list + "-line" + line + "-altLine" + altLine;
+    $(By.id(altLineId + "-amt")).should(exist);
+    $(By.id(altLineId + "-amt")).click();
+    $(By.id(altLineId + "-amt")).sendKeys("\b");
+    $(By.id(altLineId + "-amt")).setValue(amount);
+    $(By.id(altLineId + "-unit")).click();
+    $(By.id(altLineId + "-unit")).setValue(unit);
+    $(By.id(altLineId + "-ingr")).click();
+    $(By.id(altLineId + "-ingr")).setValue(ingredient);
+    $(By.id(altLineId + "-searchingr")).click();
+    $(By.id(altLineId + "-searchingr")).setValue(searchIngredient);
   }
 
   private void removeCategory (Recipe recipe, int category) {
     deletedCategories.add(recipe.categories.get(category));
-    $(By.id("category"+category+"-del")).click();
+    $(By.id("category" + category + "-del")).click();
     recipe.categories.remove(category);
   }
 
@@ -380,7 +360,7 @@ public class AddRecipeTest extends BaseSelenideTest {
     lineInfo.append(" ");
     lineInfo.append(line.unit.name);
     lineInfo.append(" ");
-    lineInfo.append(line.ingredient.name);
+    lineInfo.append(line.ingredient);
     for (AlternateIngredientLine altLine : line.alternateLines) {
       lineInfo.append(" või");
       lineInfo.append('\n');
@@ -395,7 +375,7 @@ public class AddRecipeTest extends BaseSelenideTest {
     altLineInfo.append(" ");
     altLineInfo.append(altLine.unit.name);
     altLineInfo.append(" ");
-    altLineInfo.append(altLine.ingredient.name);
+    altLineInfo.append(altLine.ingredient);
     return altLineInfo;
   }
 
@@ -520,6 +500,7 @@ public class AddRecipeTest extends BaseSelenideTest {
   }
 
   private void testPreparedTimeError() {
+    $(By.id("showpreparedtimes")).click();
     checkTextVisibility(invalidPreparedTimeError, false);
     $(By.id("newpreparedtime0")).sendKeys("01019999");
     $(By.id("savedate")).click();
@@ -534,6 +515,38 @@ public class AddRecipeTest extends BaseSelenideTest {
     checkTextVisibility(invalidPreparedTimeError, true);
     $(By.id("newpreparedtime1")).sendKeys("01012018");
     checkTextVisibility(invalidPreparedTimeError, false);
+  }
+
+  private void testHistory() throws InterruptedException {
+    openSearchPage();
+    $(By.id("recipe1")).click();
+    for (int i = 1; i < 3; i++) {
+      $(By.id("newpreparedtime0")).sendKeys("0" + (i) + "022018");
+      $(By.id("savedate")).click();
+      $(Selectors.byText("Valmistamiskord salvestatud.")).shouldBe(visible);
+      refresh();
+      $(By.id("showpreparedtimes")).click();
+      $(By.id("prepared" + (i))).shouldHave(text("0" + ".02.2018"));
+    }
+    $(By.id("newpreparedtime" + (2+(currentTest-1)*2))).shouldNotBe(visible);
+    $(By.id("changebutton" + (2+(currentTest-1)*2))).click();
+    $(By.id("newpreparedtime" + (2+(currentTest-1)*2))).sendKeys("04052018");
+    $(By.id("savepreparedtime" + (2+(currentTest-1)*2))).click();
+    refresh();
+    $(By.id("prepared" + (2+(currentTest-1)*2))).shouldHave(text("04.05.2018"));
+    testPreparedTimeError();
+  }
+
+  private void testRating() throws InterruptedException {
+    openSearchPage();
+    $(By.id("recipe1")).click();
+    for (int i = 1; i < 6; i++) {
+      $(By.id("rating" + i)).click();
+      $(Selectors.byText("Hinnang salvestatud.")).shouldBe(visible);
+      refresh();
+      $(By.id("ratinginput" + i)).shouldBe(checked);
+      $(By.id("averageRating")).shouldHave(exactTextCaseSensitive("Keskmine hinnang: " + Integer.toString(i) + ".0"));
+    }
   }
 
   private boolean checkSavedImagesExist() {

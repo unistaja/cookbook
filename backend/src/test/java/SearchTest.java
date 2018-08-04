@@ -1,4 +1,5 @@
 import com.codeborne.selenide.CollectionCondition;
+import com.codeborne.selenide.Selectors;
 import com.google.common.collect.Lists;
 import ee.cookbook.dao.PreparedHistoryRepository;
 import ee.cookbook.dao.RatingRepository;
@@ -8,7 +9,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -18,6 +18,10 @@ import java.util.ArrayList;
 import java.util.List;
 import static com.codeborne.selenide.Condition.*;
 import static com.codeborne.selenide.Selenide.*;
+import static org.openqa.selenium.Keys.DOWN;
+import static org.openqa.selenium.Keys.ENTER;
+import static org.openqa.selenium.Keys.ESCAPE;
+
 
 public class SearchTest extends BaseSelenideTest {
   private List<String> recipeTitles = new ArrayList<>();
@@ -39,11 +43,13 @@ public class SearchTest extends BaseSelenideTest {
   private PreparedHistoryRepository preparedHistoryRepository;
 
   @Test
-  public void testSearch() {
+  public void testSearch() throws InterruptedException {
     addRecipes();
     addRatings();
     addPreparedTime();
     openSearchPage();
+    $(By.id("toggleSearch")).click();
+    Thread.sleep(1000);
     testSingleFields();
     testMultipleFields();
     testEstonianLetters();
@@ -56,208 +62,232 @@ public class SearchTest extends BaseSelenideTest {
   }
 
   private void testSingleFields() {
-    getTitleField().setValue("Title3");
+    getTitleField().$(By.className("md-input")).setValue("Title3");
     search();
     $(By.id("recipelist")).shouldHave(text("Title3"));
-    refresh();
+    refreshPage();
     addIngredient(0, 0, 7);
     search();
-    $$(By.id("Result")).shouldHave(CollectionCondition.texts("Title13", "Title14", "Title15", "Title16", "Title17", "Title23", "Title24", "Title25", "Title26", "Title27", "Title3", "Title33", "Title34", "Title35", "Title36", "Title37", "Title4", "Title43", "Title44", "Title45", "Title46", "Title47", "Title5", "Title6", "Title7"));
+    $(By.id("recipelist")).$$(By.className("md-title")).shouldHave(CollectionCondition.texts("Title13", "Title14", "Title15", "Title16", "Title17", "Title23", "Title24", "Title25", "Title26", "Title27", "Title3", "Title33", "Title34", "Title35", "Title36", "Title37", "Title4", "Title43", "Title44", "Title45", "Title46", "Title47", "Title5", "Title6", "Title7"));
     $(By.id("recipe16image")).shouldHave(attribute("src", baseUrl + "images/16/2RecipePicture.15"));
-    $(By.id("recipe15rating")).shouldNotBe(visible);
-    $(By.id("recipe15averagerating")).shouldHave(text("4.0"));
+    $(By.id("recipe15rating")).hover();
+    $(Selectors.withText("Keskmine hinnang: 4")).should(visible);
     addLine(0);
     addIngredient(0, 1, 0);
     search();
-    $$(By.id("Result")).shouldHave(CollectionCondition.texts("Title16", "Title17", "Title26", "Title27", "Title36", "Title37", "Title46", "Title47", "Title6", "Title7"));
-    refresh();
+    $(By.id("recipelist")).$$(By.className("md-title")).shouldHave(CollectionCondition.texts("Title16", "Title17", "Title26", "Title27", "Title36", "Title37", "Title46", "Title47", "Title6", "Title7"));
+    refreshPage();
     addIngredient(0, 0, 3);
-    addAltLine(0, 0);
+    $(By.id("list0-line0-ingr")).$(By.className("md-input")).sendKeys(ESCAPE);
+    addSearchAltLine(0, 0);
     addAltIngredient(0, 0, 4);
     search();
-    $$(By.id("Result")).shouldHave(CollectionCondition.texts("Title0", "Title1", "Title10", "Title11", "Title12", "Title13", "Title14", "Title19", "Title2", "Title20", "Title21", "Title22", "Title23", "Title24", "Title29", "Title3", "Title30", "Title31", "Title32", "Title33", "Title34", "Title39", "Title4", "Title40", "Title41", "Title42", "Title43", "Title44", "Title49", "Title9"));
-    $(By.id("recipe20rating")).shouldHave(text("2"));
-    $(By.id("recipe20averagerating")).shouldHave(text("3.5"));
-    refresh();
-    setCategory(0, "Category4");
+    $(By.id("recipelist")).$$(By.className("md-title")).shouldHave(CollectionCondition.texts("Title0", "Title1", "Title10", "Title11", "Title12", "Title13", "Title14", "Title19", "Title2", "Title20", "Title21", "Title22", "Title23", "Title24", "Title29", "Title3", "Title30", "Title31", "Title32", "Title33", "Title34", "Title39", "Title4", "Title40", "Title41", "Title42", "Title43", "Title44", "Title49", "Title9"));
+    $(By.id("recipe20rating")).hover();
+    $(Selectors.withText("Minu hinnang: 2")).should(exist);
+    $(Selectors.withText("Keskmine hinnang: 3.5")).should(exist);
+    refreshPage();
+    addSearchCategory(0, "Category4");
     search();
-    $$(By.id("Result")).shouldHave(CollectionCondition.texts("Title12", "Title13", "Title14", "Title17", "Title18", "Title19", "Title2", "Title22", "Title23", "Title24", "Title27", "Title28", "Title29", "Title3", "Title32", "Title33", "Title34", "Title37", "Title38", "Title39", "Title4", "Title42", "Title43", "Title44", "Title47", "Title48", "Title49", "Title7", "Title8", "Title9"));
+    $(By.id("recipelist")).$$(By.className("md-title")).shouldHave(CollectionCondition.texts("Title12", "Title13", "Title14", "Title17", "Title18", "Title19", "Title2", "Title22", "Title23", "Title24", "Title27", "Title28", "Title29", "Title3", "Title32", "Title33", "Title34", "Title37", "Title38", "Title39", "Title4", "Title42", "Title43", "Title44", "Title47", "Title48", "Title49", "Title7", "Title8", "Title9"));
     $(By.id("addCategory")).click();
-    setCategory(1, "Category1");
+    addSearchCategory(1, "Category1");
     search();
-    $$(By.id("Result")).shouldHave(CollectionCondition.texts("Title14", "Title19", "Title24", "Title29", "Title34", "Title39", "Title4", "Title44", "Title49", "Title9"));
-    refresh();
-    $(By.id("creator")).setValue("Selenide");
+    $(By.id("recipelist")).$$(By.className("md-title")).shouldHave(CollectionCondition.texts("Title14", "Title19", "Title24", "Title29", "Title34", "Title39", "Title4", "Title44", "Title49", "Title9"));
+    refreshPage();
+    $(By.id("creator")).$(By.className("md-input")).setValue("Selenide");
     search();
-    $$(By.id("Result")).shouldHave(CollectionCondition.texts("A", "O", "Title0", "Title10", "Title12", "Title14", "Title16", "Title18", "Title2", "Title20", "Title22", "Title24", "Title26", "Title28", "Title30", "Title32", "Title34", "Title36", "Title38", "Title4", "Title40", "Title42", "Title44", "Title46", "Title48", "Title6", "Title8", "U", "Õ", "Ä", "Ö", "Ü"));
+    $(By.id("recipelist")).$$(By.className("md-title")).shouldHave(CollectionCondition.texts("A", "O", "Title0", "Title10", "Title12", "Title14", "Title16", "Title18", "Title2", "Title20", "Title22", "Title24", "Title26", "Title28", "Title30", "Title32", "Title34", "Title36", "Title38", "Title4", "Title40", "Title42", "Title44", "Title46", "Title48", "Title6", "Title8", "U", "Õ", "Ä", "Ö", "Ü"));
     $(By.id("recipe41preparedtime")).shouldHave(text(".1970"));
     $(By.id("recipe31preparedtime")).shouldNotBe(visible);
-    refresh();
-    $(By.id("source")).setValue("Source2");
+    refreshPage();
+    $(By.id("source")).$(By.className("md-input")).setValue("Source2");
     search();
-    $$(By.id("Result")).shouldHave(CollectionCondition.texts("Title17", "Title2", "Title32", "Title47"));
-    refresh();
+    $(By.id("recipelist")).$$(By.className("md-title")).shouldHave(CollectionCondition.texts("Title17", "Title2", "Title32", "Title47"));
+    refreshPage();
     addLine(1);
     addIngredient(1, 1, 6);
     search();
-    $$(By.id("Result")).shouldHave(CollectionCondition.texts("A", "O", "Title0", "Title1", "Title10", "Title11", "Title17", "Title18", "Title19", "Title20", "Title21", "Title27", "Title28", "Title29", "Title30", "Title31", "Title37", "Title38", "Title39", "Title40", "Title41", "Title47", "Title48", "Title49", "Title7", "Title8", "Title9", "U", "Õ", "Ä", "Ö", "Ü"));
+    $(By.id("recipelist")).$$(By.className("md-title")).shouldHave(CollectionCondition.texts("A", "O", "Title0", "Title1", "Title10", "Title11", "Title17", "Title18", "Title19", "Title20", "Title21", "Title27", "Title28", "Title29", "Title30", "Title31", "Title37", "Title38", "Title39", "Title40", "Title41", "Title47", "Title48", "Title49", "Title7", "Title8", "Title9", "U", "Õ", "Ä", "Ö", "Ü"));
     addIngredient(1, 0, 8);
     search();
-    $$(By.id("Result")).shouldHave(CollectionCondition.texts("A", "O", "Title0", "Title1", "Title10", "Title11", "Title19", "Title20", "Title21", "Title29", "Title30", "Title31", "Title39", "Title40", "Title41", "Title49", "Title9", "U", "Õ", "Ä", "Ö", "Ü"));
-    refresh();
+    $(By.id("recipelist")).$$(By.className("md-title")).shouldHave(CollectionCondition.texts("A", "O", "Title0", "Title1", "Title10", "Title11", "Title19", "Title20", "Title21", "Title29", "Title30", "Title31", "Title39", "Title40", "Title41", "Title49", "Title9", "U", "Õ", "Ä", "Ö", "Ü"));
+    refreshPage();
   }
 
   private void testMultipleFields() {
-    $(By.id("creator")).setValue("Selenide");
+    $(By.id("creator")).$(By.className("md-input")).setValue("Selenide");
     addIngredient(0, 0, 18);
-    addAltLine(0, 0);
+    addSearchAltLine(0, 0);
     addAltIngredient(0, 0, 15);
     addLine(0);
     addIngredient(0, 1, 4);
-    addAltLine(0, 1);
+    addSearchAltLine(0, 1);
     addAltIngredient(1, 0, 6);
     search();
-    $$(By.id("Result")).shouldHave(CollectionCondition.texts("Title0", "Title10", "Title12", "Title14", "Title16",  "Title2", "Title20", "Title22", "Title24", "Title26", "Title30", "Title32", "Title34", "Title36", "Title4", "Title40", "Title42", "Title44", "Title46", "Title6"));
+    $(By.id("recipelist")).$$(By.className("md-title")).shouldHave(CollectionCondition.texts("Title0", "Title10", "Title12", "Title14", "Title16",  "Title2", "Title20", "Title22", "Title24", "Title26", "Title30", "Title32", "Title34", "Title36", "Title4", "Title40", "Title42", "Title44", "Title46", "Title6"));
     addLine(1);
     addLine(1);
     addIngredient(1, 0, 16);
     addIngredient(1, 1, 10);
     addIngredient(1, 2, 1);
     search();
-    $$(By.id("Result")).shouldHave(CollectionCondition.texts("Title12", "Title16", "Title2", "Title22", "Title26", "Title32", "Title36", "Title42", "Title46", "Title6"));
-    setCategory(0, "Category4");
+    $(By.id("recipelist")).$$(By.className("md-title")).shouldHave(CollectionCondition.texts("Title12", "Title16", "Title2", "Title22", "Title26", "Title32", "Title36", "Title42", "Title46", "Title6"));
+    addSearchCategory(0, "Category4");
     search();
-    $$(By.id("Result")).shouldHave((CollectionCondition.texts("Title12", "Title2", "Title22", "Title32", "Title42")));
-    $(By.id("source")).setValue("Source2");
+    $(By.id("recipelist")).$$(By.className("md-title")).shouldHave((CollectionCondition.texts("Title12", "Title2", "Title22", "Title32", "Title42")));
+    $(By.id("source")).$(By.className("md-input")).setValue("Source2");
     search();
-    $$(By.id("Result")).shouldHave(CollectionCondition.texts("Title2", "Title32"));
-    getTitleField().setValue("Title32");
+    $(By.id("recipelist")).$$(By.className("md-title")).shouldHave(CollectionCondition.texts("Title2", "Title32"));
+    getTitleField().$(By.className("md-input")).setValue("Title32");
     search();
-    $$(By.id("Result")).shouldHave(CollectionCondition.texts("Title32"));
-    refresh();
+    $(By.id("recipelist")).$$(By.className("md-title")).shouldHave(CollectionCondition.texts("Title32"));
+    refreshPage();
   }
 
   private void testEstonianLetters() {
-    getTitleField().setValue("Ä");
+    getTitleField().$(By.className("md-input")).setValue("Ä");
     search();
     $(By.id("recipelist")).shouldHave(text("Ä"));
-    $(By.id("recipelist")).shouldNotHave(text("A"));
-    getTitleField().setValue("A");
+    assert(!$(By.id("recipelist")).$(By.className("md-title")).getText().equals("A"));
+    $(By.id("recipelist")).$$(By.className("md-title")).shouldHaveSize(1);
+    getTitleField().$(By.className("md-input")).click();
+    getTitleField().$(By.className("md-input")).setValue("A");
     search();
     $(By.id("recipelist")).shouldHave(text("A"));
     $(By.id("recipelist")).shouldNotHave(text("Ä"));
-    getTitleField().setValue("Ü");
+    getTitleField().$(By.className("md-input")).click();
+    getTitleField().$(By.className("md-input")).setValue("Ü");
     search();
     $(By.id("recipelist")).shouldHave(text("Ü"));
-    $(By.id("recipelist")).shouldNotHave(text("U"));
-    getTitleField().setValue("U");
+    assert(!$(By.id("recipelist")).$(By.className("md-title")).getText().equals("U"));
+    $(By.id("recipelist")).$$(By.className("md-title")).shouldHaveSize(1);
+    getTitleField().$(By.className("md-input")).click();
+    getTitleField().$(By.className("md-input")).setValue("U");
     search();
     $(By.id("recipelist")).shouldHave(text("U"));
     $(By.id("recipelist")).shouldNotHave(text("Ü"));
-    getTitleField().setValue("Õ");
+    getTitleField().$(By.className("md-input")).click();
+    getTitleField().$(By.className("md-input")).setValue("Õ");
     search();
     $(By.id("recipelist")).shouldHave(text("Õ"));
     $(By.id("recipelist")).shouldNotHave(text("O"));
     $(By.id("recipelist")).shouldNotHave(text("Ö"));
-    getTitleField().setValue("Ö");
+    getTitleField().$(By.className("md-input")).click();
+    getTitleField().$(By.className("md-input")).setValue("Ö");
     search();
     $(By.id("recipelist")).shouldHave(text("Ö"));
     $(By.id("recipelist")).shouldNotHave(text("O"));
     $(By.id("recipelist")).shouldNotHave(text("Õ"));
-    getTitleField().setValue("O");
+    getTitleField().$(By.className("md-input")).click();
+    getTitleField().$(By.className("md-input")).setValue("O");
     search();
     $(By.id("recipelist")).shouldHave(text("O"));
     $(By.id("recipelist")).shouldNotHave(text("Õ"));
     $(By.id("recipelist")).shouldNotHave(text("Ö"));
-    refresh();
+    refreshPage();
   }
 
   private void testPaging() {
-    $(By.id("resultsPerPage")).selectOptionByValue(Integer.toString(10));
+    $(By.id("resultsPerPage")).click();
+    $(By.id("resultsPerPage")).sendKeys(DOWN);
+    $(By.id("resultsPerPage")).sendKeys(ENTER);
     addIngredient(0, 0, 4);
-    addAltLine(0, 0);
+    addSearchAltLine(0, 0);
     addAltIngredient(0, 0, 9);
     search();
-    $$(By.id("Result")).shouldHave(CollectionCondition.texts("Title0", "Title1", "Title10", "Title11", "Title12", "Title13", "Title14", "Title15", "Title16", "Title17"));
-    $(By.id("page1")).shouldBe(disabled);
+    $(By.id("recipelist")).$$(By.className("md-title")).shouldHave(CollectionCondition.texts("Title0", "Title1", "Title10", "Title11", "Title12", "Title13", "Title14", "Title15", "Title16", "Title17"));
     $(By.id("previouspage")).shouldBe(disabled);
     $(By.id("firstpage")).shouldBe(disabled);
     $(By.id("lastpage")).click();
-    $(By.id("page5")).shouldBe(disabled);
     $(By.id("lastpage")).shouldBe(disabled);
     $(By.id("nextpage")).shouldBe(disabled);
-    $(By.id("page1")).shouldNotBe(disabled);
     $(By.id("firstpage")).shouldNotBe(disabled);
     $(By.id("previouspage")).shouldNotBe(disabled);
-    $$(By.id("Result")).shouldHave(CollectionCondition.texts("Title45", "Title46", "Title47", "Title48", "Title49", "Title5", "Title6", "Title7", "Title8", "Title9"));
+    $(By.id("recipelist")).$$(By.className("md-title")).shouldHave(CollectionCondition.texts("Title45", "Title46", "Title47", "Title48", "Title49", "Title5", "Title6", "Title7", "Title8", "Title9"));
     $(By.id("previouspage")).click();
-    $(By.id("page4")).shouldBe(disabled);
-    $(By.id("page5")).shouldNotBe(disabled);
     $(By.id("lastpage")).shouldNotBe(disabled);
     $(By.id("nextpage")).shouldNotBe(disabled);
     $(By.id("firstpage")).shouldNotBe(disabled);
     $(By.id("previouspage")).shouldNotBe(disabled);
-    $$(By.id("Result")).shouldHave(CollectionCondition.texts("Title36", "Title37", "Title38", "Title39", "Title4", "Title40", "Title41", "Title42", "Title43", "Title44"));
-    $(By.id("page3")).click();
-    $(By.id("page3")).shouldBe(disabled);
-    $(By.id("page4")).shouldNotBe(disabled);
+    $(By.id("recipelist")).$$(By.className("md-title")).shouldHave(CollectionCondition.texts("Title36", "Title37", "Title38", "Title39", "Title4", "Title40", "Title41", "Title42", "Title43", "Title44"));
+    $(By.id("previouspage")).click();
     $(By.id("lastpage")).shouldNotBe(disabled);
     $(By.id("nextpage")).shouldNotBe(disabled);
     $(By.id("firstpage")).shouldNotBe(disabled);
     $(By.id("previouspage")).shouldNotBe(disabled);
-    $$(By.id("Result")).shouldHave(CollectionCondition.texts("Title27", "Title28", "Title29", "Title3", "Title30", "Title31", "Title32", "Title33", "Title34", "Title35"));
+    $(By.id("recipelist")).$$(By.className("md-title")).shouldHave(CollectionCondition.texts("Title27", "Title28", "Title29", "Title3", "Title30", "Title31", "Title32", "Title33", "Title34", "Title35"));
     $(By.id("firstpage")).click();
     $(By.id("nextpage")).click();
-    $(By.id("page2")).shouldBe(disabled);
-    $(By.id("page3")).shouldNotBe(disabled);
     $(By.id("firstpage")).shouldNotBe(disabled);
     $(By.id("lastpage")).shouldNotBe(disabled);
     $(By.id("nextpage")).shouldNotBe(disabled);
     $(By.id("previouspage")).shouldNotBe(disabled);
-    $$(By.id("Result")).shouldHave(CollectionCondition.texts("Title18", "Title19", "Title2", "Title20", "Title21", "Title22", "Title23", "Title24", "Title25", "Title26"));
-    refresh();
-    $(By.id("resultsPerPage")).selectOptionByValue(Integer.toString(50));
+    $(By.id("recipelist")).$$(By.className("md-title")).shouldHave(CollectionCondition.texts("Title18", "Title19", "Title2", "Title20", "Title21", "Title22", "Title23", "Title24", "Title25", "Title26"));
+    refreshPage();
+    $(By.id("resultsPerPage")).click();
+    $(By.id("resultsPerPage")).sendKeys(DOWN);
+    $(By.id("resultsPerPage")).sendKeys(DOWN);
+    $(By.id("resultsPerPage")).sendKeys(ENTER);
     search();
-    $$(By.id("Result")).shouldHave(CollectionCondition.texts("A", "O", "Title0", "Title1", "Title10", "Title11", "Title12", "Title13", "Title14", "Title15", "Title16", "Title17", "Title18", "Title19", "Title2", "Title20", "Title21", "Title22", "Title23", "Title24", "Title25", "Title26", "Title27", "Title28", "Title29", "Title3", "Title30", "Title31", "Title32", "Title33", "Title34", "Title35", "Title36", "Title37", "Title38", "Title39", "Title4", "Title40", "Title41", "Title42", "Title43", "Title44", "Title45", "Title46", "Title47", "Title48", "Title49", "Title5", "Title6", "Title7"));
+    $(By.id("recipelist")).$$(By.className("md-title")).shouldHave(CollectionCondition.texts("A", "O", "Title0", "Title1", "Title10", "Title11", "Title12", "Title13", "Title14", "Title15", "Title16", "Title17", "Title18", "Title19", "Title2", "Title20", "Title21", "Title22", "Title23", "Title24", "Title25", "Title26", "Title27", "Title28", "Title29", "Title3", "Title30", "Title31", "Title32", "Title33", "Title34", "Title35", "Title36", "Title37", "Title38", "Title39", "Title4", "Title40", "Title41", "Title42", "Title43", "Title44", "Title45", "Title46", "Title47", "Title48", "Title49", "Title5", "Title6", "Title7"));
     $(By.id("nextpage")).click();
-    $$(By.id("Result")).shouldHave(CollectionCondition.texts("Title8", "Title9", "U", "Õ", "Ä", "Ö", "Ü"));
-    $(By.id("resultsPerPage")).selectOptionByValue(Integer.toString(0));
+    $(By.id("recipelist")).$$(By.className("md-title")).shouldHave(CollectionCondition.texts("Title8", "Title9", "U", "Õ", "Ä", "Ö", "Ü"));
+    $(By.id("toggleSearch")).click();
+    $(By.id("resultsPerPage")).click();
+    $(By.id("resultsPerPage")).sendKeys(DOWN);
+    $(By.id("resultsPerPage")).sendKeys(ENTER);
     search();
-    $$(By.id("Result")).shouldHave(CollectionCondition.texts("A", "O", "Title0", "Title1", "Title10", "Title11", "Title12", "Title13", "Title14", "Title15", "Title16", "Title17", "Title18", "Title19", "Title2", "Title20", "Title21", "Title22", "Title23", "Title24", "Title25", "Title26", "Title27", "Title28", "Title29", "Title3", "Title30", "Title31", "Title32", "Title33", "Title34", "Title35", "Title36", "Title37", "Title38", "Title39", "Title4", "Title40", "Title41", "Title42", "Title43", "Title44", "Title45", "Title46", "Title47", "Title48", "Title49", "Title5", "Title6", "Title7", "Title8", "Title9", "U", "Õ", "Ä", "Ö", "Ü"));
+    $(By.id("recipelist")).$$(By.className("md-title")).shouldHave(CollectionCondition.texts("A", "O", "Title0", "Title1", "Title10", "Title11", "Title12", "Title13", "Title14", "Title15", "Title16", "Title17", "Title18", "Title19", "Title2", "Title20", "Title21", "Title22", "Title23", "Title24", "Title25", "Title26", "Title27", "Title28", "Title29", "Title3", "Title30", "Title31", "Title32", "Title33", "Title34", "Title35", "Title36", "Title37", "Title38", "Title39", "Title4", "Title40", "Title41", "Title42", "Title43", "Title44", "Title45", "Title46", "Title47", "Title48", "Title49", "Title5", "Title6", "Title7", "Title8", "Title9", "U", "Õ", "Ä", "Ö", "Ü"));
   }
 
-  private void testSortByNameDescending() {
-    $(By.id("resultsPerPage")).selectOptionByValue(Integer.toString(10));
-    $(By.id("descendingorder")).click();
+  private void testSortByNameDescending() throws InterruptedException {
+    $(By.id("resultsPerPage")).click();
+    $(By.id("resultsPerPage")).sendKeys(DOWN);
+    $(By.id("resultsPerPage")).sendKeys(ENTER);
+    $(Selectors.withText("Kahanevalt")).click();
     search();
-    $$(By.id("Result")).shouldHave(CollectionCondition.texts("Ü", "Ö", "Ä", "Õ", "U", "Title9", "Title8", "Title7", "Title6", "Title5"));
-    $(By.id("page3")).click();
-    $$(By.id("Result")).shouldHave(CollectionCondition.texts("Title4", "Title39", "Title38", "Title37", "Title36", "Title35", "Title34", "Title33", "Title32", "Title31"));
+    $(By.id("recipelist")).$$(By.className("md-title")).shouldHave(CollectionCondition.texts("Ü", "Ö", "Ä", "Õ", "U", "Title9", "Title8", "Title7", "Title6", "Title5"));
+    $(By.id("nextpage")).click();
+    Thread.sleep(200);
+    $(By.id("nextpage")).click();
+    $(By.id("recipelist")).$$(By.className("md-title")).shouldHave(CollectionCondition.texts("Title4", "Title39", "Title38", "Title37", "Title36", "Title35", "Title34", "Title33", "Title32", "Title31"));
   }
 
   private void testSortByUser() {
-    $(By.id("sort")).selectOptionByValue(Integer.toString(1));
-    $(By.id("resultsPerPage")).selectOptionByValue(Integer.toString(0));
+    $(By.id("toggleSearch")).click();
+    $(Selectors.withText("Kahanevalt")).click();
+    $(By.id("sort")).click();
+    $(By.id("sort")).sendKeys(DOWN);
+    $(By.id("resultsPerPage")).sendKeys(DOWN);
+    $(By.id("sort")).sendKeys(ENTER);
+    $(By.id("resultsPerPage")).click();
+    $(By.id("resultsPerPage")).sendKeys(DOWN);
+    $(By.id("resultsPerPage")).sendKeys(DOWN);
+    $(By.id("resultsPerPage")).sendKeys(ENTER);
     search();
-    $$(By.id("Result")).shouldHave(CollectionCondition.texts("Title1", "Title11", "Title13", "Title15", "Title17", "Title19", "Title21", "Title23", "Title25", "Title27", "Title29", "Title3", "Title31", "Title33", "Title35", "Title37", "Title39", "Title41", "Title43", "Title45", "Title47", "Title49", "Title5", "Title7", "Title9", "A", "O", "Title0", "Title10", "Title12", "Title14", "Title16", "Title18", "Title2", "Title20", "Title22", "Title24", "Title26", "Title28", "Title30", "Title32", "Title34", "Title36", "Title38", "Title4", "Title40", "Title42", "Title44", "Title46", "Title48", "Title6", "Title8", "U", "Õ", "Ä", "Ö", "Ü"));
- }
+    $(By.id("recipelist")).$$(By.className("md-title")).shouldHave(CollectionCondition.texts("A", "O", "Title0", "Title10", "Title12", "Title14", "Title16", "Title18", "Title2", "Title20", "Title22", "Title24", "Title26", "Title28", "Title30", "Title32", "Title34", "Title36", "Title38", "Title4", "Title40", "Title42", "Title44", "Title46", "Title48", "Title6", "Title8", "U", "Õ", "Ä", "Ö", "Ü", "Title1", "Title11", "Title13", "Title15", "Title17", "Title19", "Title21", "Title23", "Title25", "Title27", "Title29", "Title3", "Title31", "Title33", "Title35", "Title37", "Title39", "Title41", "Title43", "Title45", "Title47", "Title49", "Title5", "Title7", "Title9"));
+  }
 
   private void testSortByUserDescending() {
-    $(By.id("descendingorder")).click();
+    $(Selectors.withText("Kahanevalt")).click();
     search();
-    $$(By.id("Result")).shouldHave(CollectionCondition.texts("A", "O", "Title0", "Title10", "Title12", "Title14", "Title16", "Title18", "Title2", "Title20", "Title22", "Title24", "Title26", "Title28", "Title30", "Title32", "Title34", "Title36", "Title38", "Title4", "Title40", "Title42", "Title44", "Title46", "Title48", "Title6", "Title8", "U", "Õ", "Ä", "Ö", "Ü", "Title1", "Title11", "Title13", "Title15", "Title17", "Title19", "Title21", "Title23", "Title25", "Title27", "Title29", "Title3", "Title31", "Title33", "Title35", "Title37", "Title39", "Title41", "Title43", "Title45", "Title47", "Title49", "Title5", "Title7", "Title9"));
+    $(By.id("recipelist")).$$(By.className("md-title")).shouldHave(CollectionCondition.texts("Title1", "Title11", "Title13", "Title15", "Title17", "Title19", "Title21", "Title23", "Title25", "Title27", "Title29", "Title3", "Title31", "Title33", "Title35", "Title37", "Title39", "Title41", "Title43", "Title45", "Title47", "Title49", "Title5", "Title7", "Title9", "A", "O", "Title0", "Title10", "Title12", "Title14", "Title16", "Title18", "Title2", "Title20", "Title22", "Title24", "Title26", "Title28", "Title30", "Title32", "Title34", "Title36", "Title38", "Title4", "Title40", "Title42", "Title44", "Title46", "Title48", "Title6", "Title8", "U", "Õ", "Ä", "Ö", "Ü"));
   }
 
   private void testSortByDateAdded() {
-    $(By.id("sort")).selectOptionByValue(Integer.toString(2));
+    $(Selectors.withText("Kahanevalt")).click();
+    $(By.id("sort")).click();
+    $(By.id("sort")).sendKeys(DOWN);
+    $(By.id("sort")).sendKeys(ENTER);
     search();
-    $$(By.id("Result")).shouldHave(CollectionCondition.texts(recipeTitles));
+    $(By.id("recipelist")).$$(By.className("md-title")).shouldHave(CollectionCondition.texts(recipeTitles));
   }
 
   private void testSortByDateAddedDescending() {
-    $(By.id("descendingorder")).click();
+    $(Selectors.withText("Kahanevalt")).click();
     search();
-    $$(By.id("Result")).shouldHave(CollectionCondition.texts(Lists.reverse(recipeTitles)));
+    $(By.id("recipelist")).$$(By.className("md-title")).shouldHave(CollectionCondition.texts(Lists.reverse(recipeTitles)));
   }
 
   private void addRecipes() {
@@ -286,17 +316,17 @@ public class SearchTest extends BaseSelenideTest {
       recipe.ingredientLists.add(list);
       recipe.ingredientLists.add(list);
       for (int n=0; n < 5; n++) {IngredientLine ingredientLine = new IngredientLine();
-        ingredientLine.ingredient = new Ingredient("Ingredient" + ((i + n) % 10));
-        ingredientLine.searchIngredient = new Ingredient("Ingredient"+((i+n)%10));
+        ingredientLine.ingredient = "Ingredient" + ((i + n) % 10);
+        ingredientLine.searchIngredient = "Ingredient" + ((i+n)%10);
         recipe.ingredientLists.get(0).ingredientLines.add(ingredientLine);
       }
       for (int n=0; n < 5; n++) {IngredientLine ingredientLine = new IngredientLine();
-        ingredientLine.ingredient = new Ingredient("Ingredient" + ((i + n) % 10 + 11));
-        ingredientLine.searchIngredient = new Ingredient("Ingredient" + ((i + n) % 10 + 10));
+        ingredientLine.ingredient = "Ingredient" + ((i + n) % 10 + 11);
+        ingredientLine.searchIngredient = "Ingredient" + ((i + n) % 10 + 10);
         ingredientLine.alternateLines = new ArrayList<>();
         AlternateIngredientLine altLine = new AlternateIngredientLine();
-        altLine.ingredient = new Ingredient("Ingredient" + ((((i + n) % 10) * 3 + n) % 10 + 10));
-        altLine.searchIngredient = new Ingredient("Ingredient" + ((((i + n) % 10) * 3 + n) % 10 + 10));
+        altLine.ingredient = "Ingredient" + ((((i + n) % 10) * 3 + n) % 10 + 10);
+        altLine.searchIngredient = "Ingredient" + ((((i + n) % 10) * 3 + n) % 10 + 10);
         ingredientLine.alternateLines.add(altLine);
         recipe.ingredientLists.get(1).ingredientLines.add(ingredientLine);
       }
@@ -317,13 +347,23 @@ public class SearchTest extends BaseSelenideTest {
 
 
   private void addIngredient(int list, int line, int ingredient) {
-    String lineId="list"+list+"-line"+line;
-    $(By.id(lineId+"-ingr")).setValue("Ingredient"+ingredient);
+    String lineId="list" + list + "-line" + line;
+    $(By.id(lineId + "-ingr")).$(By.className("md-input")).setValue("Ingredient" + ingredient);
   }
 
   private void addAltIngredient(int line, int altLine, int ingredient) {
-    String altLineId = "list0-line"+line+"-altLine"+altLine;
-    $(By.id(altLineId+"-ingr")).setValue("Ingredient" + ingredient);
+    String altLineId = "list0-line" + line + "-altLine" + altLine;
+    $(By.id(altLineId + "-ingr")).$(By.className("md-input")).setValue("Ingredient" + ingredient);
+  }
+
+  private void addSearchCategory(int field, String name) {
+    $(By.id("category" + field)).$(By.className("md-input")).click();
+    $(By.id("category" + field)).$(By.className("md-input")).setValue(name);
+  }
+
+  public void addSearchAltLine(int list, int line) {
+    $(By.id("list" + list + "-line" + line + "-ingr")).$(By.className("md-input")).sendKeys(ESCAPE);
+    $(By.id("list" + list + "-line" + line + "-addAlt")).click();
   }
 
   private void createEstonianLetterRecipe(String letter, int i) {
@@ -341,8 +381,8 @@ public class SearchTest extends BaseSelenideTest {
     list.name = new IngredientListName("Koostis");
     list.ingredientLines = new ArrayList<>();
     IngredientLine line = new IngredientLine();
-    line.ingredient = new Ingredient(letter);
-    line.searchIngredient = new Ingredient(letter);
+    line.ingredient = letter;
+    line.searchIngredient = letter;
     list.ingredientLines.add(line);
     recipe.ingredientLists.add(list);
     recipe.categories = new ArrayList<>();
@@ -379,5 +419,11 @@ public class SearchTest extends BaseSelenideTest {
 
   private void search() {
     $(By.id("searchbutton")).click();
+    $(By.id("toggleSearch")).click();
+  }
+
+  private void refreshPage() {
+    refresh();
+    $(By.id("toggleSearch")).click();
   }
 }

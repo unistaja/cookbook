@@ -172,9 +172,8 @@ export function saveDate (date, id, recipeId, callback) {
   xhr.send(formData);
 }
 
-export function saveRating (rating, id, recipeId, callback) {
+export function saveRating (rating, recipeId, callback) {
   const formData = new FormData();
-  formData.append("id", id);
   formData.append("recipeId", recipeId);
   formData.append("rating", rating);
   let xhr = new XMLHttpRequest();
@@ -230,3 +229,23 @@ export function deleteSavedImage (id, callback) {
   };
   xhr.send(formData);
 }
+
+export function findPreparedTimes (id, callback) {
+  const formData = new FormData();
+  formData.append("recipeId", id);
+  let xhr = new XMLHttpRequest();
+  xhr.open("POST", "/api/recipe/findpreparedtimes");
+  xhr.onload = function () {
+    if (this.status === 200) {
+      try {
+        callback(null, JSON.parse(this.responseText));
+      } catch (ex) {
+        callback({message: "Valmistamiskordade otsing ebaõnnestus."});
+      }
+    } else {
+      callback({errorCode: this.status, message: this.responseText});
+    }
+  };
+  xhr.send(formData);
+}
+

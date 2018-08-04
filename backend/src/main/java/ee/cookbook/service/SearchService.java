@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -19,12 +20,12 @@ public class SearchService {
   private JdbcTemplate template;
 
   public SearchResult findRecipes(SearchForm searchParameters) {
-    List<String> parameters = new ArrayList<>();
+    List<Object> parameters = new ArrayList<>();
     StringBuilder query = new StringBuilder();
     SearchResult result = new SearchResult();
     query.append("SELECT SQL_CALC_FOUND_ROWS recipe.id, username, recipe.name, added, pictureName, preparedTime, preparedhistory.userid, rating, averageRating FROM recipe JOIN user ON recipe.userId = user.id LEFT JOIN preparedhistory ON preparedhistory.preparedTime = (SELECT MAX(preparedTime) FROM preparedhistory WHERE recipeId = recipe.id AND userId = ?) LEFT JOIN rating ON recipe.id = rating.recipeId AND rating.userId = ? LEFT JOIN average_rating ON recipe.id = average_rating.recipeId WHERE");
-    parameters.add(String.valueOf(searchParameters.userId));
-    parameters.add(String.valueOf(searchParameters.userId));
+    parameters.add(searchParameters.userId);
+    parameters.add(searchParameters.userId);
     if (!StringUtils.isBlank(searchParameters.name)) {
       query.append(" name = ? AND ");
       parameters.add(searchParameters.name);
@@ -46,13 +47,13 @@ public class SearchService {
     if (searchParameters.withIngredients.size() > 0) {
       for (IngredientLine ingredientLine : searchParameters.withIngredients) {
         query.append(" EXISTS (SELECT * FROM ingredientlist WHERE recipeId = recipe.id AND EXISTS (SELECT * FROM ingredientline WHERE listId = ingredientlist.id AND  (searchIngredient = ? OR EXISTS (SELECT * FROM alternateingredientline WHERE lineId = ingredientline.id AND searchIngredient = ?  ) ");
-        parameters.add(ingredientLine.ingredient.name);
-        parameters.add(ingredientLine.ingredient.name);
+        parameters.add(ingredientLine.ingredient);
+        parameters.add(ingredientLine.ingredient);
         if (ingredientLine.alternateLines.size() > 0) {
           for (AlternateIngredientLine altLine : ingredientLine.alternateLines) {
             query.append("OR searchIngredient = ? OR EXISTS (SELECT * FROM alternateingredientline WHERE lineId = ingredientline.id AND searchIngredient = ?  ) ");
-            parameters.add(altLine.ingredient.name);
-            parameters.add(altLine.ingredient.name);
+            parameters.add(altLine.ingredient);
+            parameters.add(altLine.ingredient);
           }
         }
         query.append(") ) ) AND ");
@@ -75,11 +76,13 @@ public class SearchService {
     if (searchParameters.hasPicture) {
       query.append(" pictureName IS NOT NULL AND ");
     }
-    if (searchParameters.hasPrepared == 1) {
-      query.append(" preparedhistory.userId = ? AND ");
-      parameters.add(String.valueOf(searchParameters.userId));
-    } else if (searchParameters.hasPrepared == 2) {
-      query.append(" preparedhistory.userId IS NULL AND ");
+    if (searchParameters.hasPrepared != null) {
+      if (searchParameters.hasPrepared) {
+        query.append(" preparedhistory.userId = ? AND ");
+        parameters.add(searchParameters.userId);
+      } else {
+        query.append(" preparedhistory.userId IS NULL AND ");
+      }
     }
     query.delete(query.length() - 5, query.length());
     if (searchParameters.sortOrder == 0) {
@@ -112,9 +115,7 @@ public class SearchService {
       public Recipe mapRow(ResultSet resultSet, int i) throws SQLException {
         Recipe result = new Recipe();
         PreparedHistory preparedHistory = new PreparedHistory();
-        List<PreparedHistory> preparedHistoryList = new ArrayList<PreparedHistory>();
         Rating rating = new Rating();
-        List<Rating> ratingList = new ArrayList<Rating>();
         result.id = resultSet.getLong("id");
         result.name = resultSet.getString("name");
         result.user = new User();
@@ -122,11 +123,9 @@ public class SearchService {
         result.added = resultSet.getTimestamp("added");
         result.pictureName = resultSet.getString("pictureName");
         preparedHistory.preparedTime = resultSet.getDate("preparedTime");
-        preparedHistoryList.add(preparedHistory);
-        result.preparedHistory = preparedHistoryList;
+        result.preparedHistory = Collections.singletonList(preparedHistory);
         rating.rating = resultSet.getInt("rating");
-        ratingList.add(rating);
-        result.rating = ratingList;
+        result.rating = Collections.singletonList(rating);
         result.averageRating = resultSet.getDouble("averageRating");
         return result;
       }

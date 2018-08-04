@@ -119,13 +119,14 @@ public abstract class BaseSelenideTest {
     $(Selectors.byText("Lisa retsept")).click();
   }
 
-  public void openUserPage() {
-    $(By.className("logout")).click();
+  public void openPasswordChange() {
+    $(Selectors.byText(testUsername)).click();
+    $(Selectors.byText("Muuda parooli")).click();
   }
 
-  public void openSearchPage() {
-    zoom(0.5);
+  public void openSearchPage() throws InterruptedException {
     $(Selectors.byText("Otsing")).click();
+    Thread.sleep(1000);
   }
 
   public SelenideElement getTitleField() {

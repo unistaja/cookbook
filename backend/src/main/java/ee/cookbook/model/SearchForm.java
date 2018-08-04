@@ -2,6 +2,7 @@ package ee.cookbook.model;
 
 
 
+import javax.annotation.Nullable;
 import java.util.List;
 
 public class SearchForm {
@@ -29,5 +30,5 @@ public class SearchForm {
 
   public long userId;
 
-  public int hasPrepared = 0;
+  public Boolean hasPrepared = null;
 }
