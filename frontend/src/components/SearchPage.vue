@@ -269,7 +269,7 @@
               </div>
               <div class="md-list-item-text">
                 <span class="md-title" :id="'recipe' + recipe.id">{{ recipe.name }}</span>
-                <div>Lisatud: {{ new Date(recipe.added).toLocaleDateString("et-ET") }} ({{ recipe.user.username }})
+                <div>Lisatud: {{ new Date(recipe.added).toLocaleDateString("et-ET", {day: "2-digit", month: "2-digit", year: "numeric"}) }} ({{ recipe.user.username }})
                   <div v-if="recipe.preparedHistory[0].preparedTime" :id="'recipe' + recipe.id + 'preparedtime'">Viimati valmistasin: {{ new Date(recipe.preparedHistory[0].preparedTime).toLocaleDateString("et-ET")}} </div>
                 </div>
 

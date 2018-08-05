@@ -11,7 +11,7 @@ export function getNewRecipe () {
       {name: "Koostis", ingredientLines: [{alternateLines: []}]}
     ],
     categories: [""],
-    preparedHistory: [null],
+    preparedHistory: [{}],
     rating: [null],
     averageRating: null
   };
