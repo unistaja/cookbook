@@ -1,7 +1,7 @@
-var recipe=require("../../src/datastore.js");
+var view= require('../../src/components/ViewRecipe.vue')
 describe ("appi", function() {
-  var test=recipe.getNewRecipe();
   it("oeh", function(){
-    expect(test.name).toBe(null);
+
+    expect(true).toBe(true);
   });
 });

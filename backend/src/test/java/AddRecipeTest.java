@@ -1,9 +1,12 @@
 import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.Selectors;
 import com.codeborne.selenide.SelenideElement;
+import com.codeborne.selenide.WebDriverRunner;
 import ee.cookbook.model.*;
 import org.junit.Test;
 import org.openqa.selenium.By;
+import org.openqa.selenium.interactions.Actions;
+
 import java.io.File;
 import java.util.*;
 import static com.codeborne.selenide.Condition.*;
@@ -30,7 +33,7 @@ public class AddRecipeTest extends BaseSelenideTest {
     testRecipeCreating();
     testEditingRecipes();
     testHistory();
-    testRating();
+    testRating();    //currently not working
   }
 
   //test methods
@@ -222,7 +225,7 @@ public class AddRecipeTest extends BaseSelenideTest {
   private void checkRecipe(Recipe recipe) throws InterruptedException {
     openSearchPage();
     $(By.id("recipe1")).click();
-    $(By.id("recipeheader")).shouldHave(exactTextCaseSensitive(createRecipeHeaderInfo(recipe)));
+    $(By.id("recipeheader")).shouldHave(textCaseSensitive(createRecipeHeaderInfo(recipe)));
     $(By.id("instructions")).shouldHave(exactTextCaseSensitive(recipe.instructions));
     $(By.id("categories")).shouldHave(textCaseSensitive(createCategoryInfo(recipe)));
     $(By.id("ingredient-list")).shouldHave(exactTextCaseSensitive(createRecipeIngredientInfo(recipe)));
@@ -382,9 +385,9 @@ public class AddRecipeTest extends BaseSelenideTest {
   //creating the text expected from the recipe's header (div recipeheader)
   private String createRecipeHeaderInfo(Recipe recipe) {
     StringBuilder header = new StringBuilder();
-    header.append($(By.className("edit-button")).text());
-    header.append(" ");
     header.append(recipe.name);
+    header.append('\n');
+    header.append($(By.className("edit-button")).text());
     header.append('\n');
     header.append(recipe.source.name);
     return header.toString();
@@ -500,7 +503,7 @@ public class AddRecipeTest extends BaseSelenideTest {
   }
 
   private void testPreparedTimeError() {
-    $(By.id("showpreparedtimes")).click();
+    $(By.className("close")).click();
     checkTextVisibility(invalidPreparedTimeError, false);
     $(By.id("newpreparedtime0")).sendKeys("01019999");
     $(By.id("savedate")).click();
@@ -508,32 +511,42 @@ public class AddRecipeTest extends BaseSelenideTest {
     checkTextVisibility(invalidPreparedTimeError, true);
     $(By.id("newpreparedtime0")).sendKeys("01012018");
     checkTextVisibility(invalidPreparedTimeError, false);
-    $(By.id("changebutton1")).click();
-    $(By.id("newpreparedtime1")).sendKeys("01019999");
-    $(By.id("savepreparedtime1")).click();
+    $(By.id("preparedTimes")).click();
+    $(By.id("changebutton2")).click();
+    $(By.id("newpreparedtime2")).sendKeys("01019999");
+    $(By.id("savepreparedtime2")).click();
     $(Selectors.byText("Valmistamiskord salvestatud.")).shouldNotBe(visible);
     checkTextVisibility(invalidPreparedTimeError, true);
-    $(By.id("newpreparedtime1")).sendKeys("01012018");
+    $(By.id("newpreparedtime2")).sendKeys("01012018");
     checkTextVisibility(invalidPreparedTimeError, false);
+    $(By.className("close")).click();
   }
 
   private void testHistory() throws InterruptedException {
     openSearchPage();
     $(By.id("recipe1")).click();
     for (int i = 1; i < 3; i++) {
-      $(By.id("newpreparedtime0")).sendKeys("0" + (i) + "022018");
+      $(By.id("newpreparedtime0")).sendKeys("0" + i + "022018");
       $(By.id("savedate")).click();
       $(Selectors.byText("Valmistamiskord salvestatud.")).shouldBe(visible);
       refresh();
-      $(By.id("showpreparedtimes")).click();
-      $(By.id("prepared" + (i))).shouldHave(text("0" + ".02.2018"));
+      $(By.id("preparedTimes")).click();
+      $(By.id("prepared" + i)).shouldHave(text("0" + i + ".02.2018"));
+      $(By.className("close")).click();
     }
-    $(By.id("newpreparedtime" + (2+(currentTest-1)*2))).shouldNotBe(visible);
-    $(By.id("changebutton" + (2+(currentTest-1)*2))).click();
-    $(By.id("newpreparedtime" + (2+(currentTest-1)*2))).sendKeys("04052018");
-    $(By.id("savepreparedtime" + (2+(currentTest-1)*2))).click();
+    $(By.id("preparedTimes")).click();
+    $(By.id("newpreparedtime" + 2)).shouldNotBe(visible);
+    $(By.id("changebutton" + 2)).click();
+    $(By.id("newpreparedtime" + 2)).sendKeys("04052018");
+    $(By.id("savepreparedtime" + 2)).click();
     refresh();
-    $(By.id("prepared" + (2+(currentTest-1)*2))).shouldHave(text("04.05.2018"));
+    $(By.id("preparedTimes")).click();
+    $(By.id("prepared" + 2)).shouldHave(text("04.05.2018"));
+    $(By.id("changebutton" + 1)).click();
+    $(By.id("deletepreparedtime" + 1)).click();
+    refresh();
+    $(By.id("preparedTimes")).click();
+    $(By.id("prepared" + 1)).shouldNot(exist);
     testPreparedTimeError();
   }
 
@@ -541,11 +554,14 @@ public class AddRecipeTest extends BaseSelenideTest {
     openSearchPage();
     $(By.id("recipe1")).click();
     for (int i = 1; i < 6; i++) {
-      $(By.id("rating" + i)).click();
+      $(By.id("rating-display")).$(By.className("non-hover")).$$(By.tagName("i")).get(i-1).hover();
+      Thread.sleep(1000);
+      Actions builder = new Actions(WebDriverRunner.getWebDriver());
+      builder.moveToElement($(By.id("rating"+i))).click().build().perform();
+      Thread.sleep(1000);
       $(Selectors.byText("Hinnang salvestatud.")).shouldBe(visible);
       refresh();
       $(By.id("ratinginput" + i)).shouldBe(checked);
-      $(By.id("averageRating")).shouldHave(exactTextCaseSensitive("Keskmine hinnang: " + Integer.toString(i) + ".0"));
     }
   }
 

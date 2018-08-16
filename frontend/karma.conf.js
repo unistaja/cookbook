@@ -1,6 +1,41 @@
 // Karma configuration
 // Generated on Mon Jun 12 2017 15:56:58 GMT+0300 (FLE suveaeg)
 //var webpackConfig = require('C:/Users/Kaarel/cookbook/frontend/build/webpack.base.conf.js');
+var path = require('path')
+var merge = require('webpack-merge')
+var baseConfig = require('./build/webpack.base.conf')
+var utils = require('./build/utils')
+var webpack = require('webpack')
+var projectRoot = path.resolve(__dirname, '../../')
+
+var webpackConfig = merge(baseConfig, {
+  // use inline sourcemap for karma-sourcemap-loader
+  module: {
+    loaders: utils.styleLoaders()
+  },
+  devtool: '#inline-source-map',
+  vue: {
+    loaders: {
+      js: 'babel-loader'
+    }
+  },
+  plugins: [
+    new webpack.DefinePlugin({
+      'process.env': require('./config/test.env')
+    })
+  ]
+})
+
+// no need for app entry during tests
+delete webpackConfig.entry
+
+// Use babel for test files too
+webpackConfig.module.loaders.some(function (loader, i) {
+  if (/^babel(-loader)?$/.test(loader.loader)) {
+    loader.include.push(path.resolve(projectRoot, 'test/unit'))
+    return true
+  }
+})
 module.exports = function(config) {
   config.set({
     // base path that will be used to resolve all patterns (eg. files, exclude)
@@ -34,15 +69,7 @@ module.exports = function(config) {
     preprocessors: {
         './test/unit/test1Spec.js': ['webpack']
     },
-    webpack: {
-    //webpack Configuration
-      // karma watches the test entry points
-      // (you don't need to specify the entry option)
-      // webpack watches dependencies
-
-      // webpack configuration
-    },
-
+    webpack: webpackConfig,
     webpackMiddleware: {
     // webpack-dev-middleware configuration
     // i. e.

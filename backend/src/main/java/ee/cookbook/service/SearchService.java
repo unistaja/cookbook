@@ -23,7 +23,7 @@ public class SearchService {
     List<Object> parameters = new ArrayList<>();
     StringBuilder query = new StringBuilder();
     SearchResult result = new SearchResult();
-    query.append("SELECT SQL_CALC_FOUND_ROWS recipe.id, username, recipe.name, added, pictureName, preparedTime, preparedhistory.userid, rating, averageRating FROM recipe JOIN user ON recipe.userId = user.id LEFT JOIN preparedhistory ON preparedhistory.preparedTime = (SELECT MAX(preparedTime) FROM preparedhistory WHERE recipeId = recipe.id AND userId = ?) LEFT JOIN rating ON recipe.id = rating.recipeId AND rating.userId = ? LEFT JOIN average_rating ON recipe.id = average_rating.recipeId WHERE");
+    query.append("SELECT DISTINCT SQL_CALC_FOUND_ROWS recipe.id, username, recipe.name, added, pictureName, preparedTime, preparedhistory.userid, rating, averageRating FROM recipe JOIN user ON recipe.userId = user.id LEFT JOIN preparedhistory ON preparedhistory.preparedTime = (SELECT MAX(preparedTime) FROM preparedhistory WHERE recipeId = recipe.id AND userId = ?) LEFT JOIN rating ON recipe.id = rating.recipeId AND rating.userId = ? LEFT JOIN average_rating ON recipe.id = average_rating.recipeId WHERE");
     parameters.add(searchParameters.userId);
     parameters.add(searchParameters.userId);
     if (!StringUtils.isBlank(searchParameters.name)) {
@@ -123,7 +123,9 @@ public class SearchService {
         result.added = resultSet.getTimestamp("added");
         result.pictureName = resultSet.getString("pictureName");
         preparedHistory.preparedTime = resultSet.getDate("preparedTime");
-        result.preparedHistory = Collections.singletonList(preparedHistory);
+        if (preparedHistory.preparedTime != null) {
+          result.preparedHistory = Collections.singletonList(preparedHistory);
+        }
         rating.rating = resultSet.getInt("rating");
         result.rating = Collections.singletonList(rating);
         result.averageRating = resultSet.getDouble("averageRating");

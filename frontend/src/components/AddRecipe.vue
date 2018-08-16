@@ -73,8 +73,15 @@
       <div id="picture">
         <img v-if="image" id="recipeimage" :src="'images/temp/1' + image" />
         <img v-else-if="recipe.pictureName" :src="'images/' + recipe.id + '/1RecipePicture.' + recipe.pictureName"/>
-      </div>
-      <input id="image-input" type="file" name="file" formenctype="multipart/form-data" @change="onFileChange" accept="image/*">
+        <img v-else="" src="/static/icons/baseline-photo-24px.svg" class="recipe-image">
+        </div>
+        <div>
+          <md-field>
+            <label>Lisa pilt:</label>
+            <md-file name="file" id="image-input" type="file" formenctype="multipart/form-data" accept="image/*" @change="onFileChange">
+            </md-file>
+          </md-field>
+        </div>
       <button v-if="recipe.pictureName || image" @click="deleteImage()">Kustuta pilt</button>
       <div id="categories">
         <datalist id="category-data">
@@ -284,10 +291,6 @@
   .error {
     color: red;
   }
-  #recipeimage {
-    height: 350px;
-    width: 350px;
-  }
 
   .modal {
     position: fixed;
@@ -319,6 +322,10 @@
     color: black;
     text-decoration: none;
     cursor: pointer;
+  }
+
+  .recipe-image {
+    height: 300px;
   }
 
 </style>
@@ -440,6 +447,7 @@
           });
         });
         newRecipe.categories = newRecipe.categories.filter(x => x);
+        newRecipe.preparedHistory = newRecipe.preparedHistory.filter(x => x);
         return newRecipe;
       },
       remove: function (arr, el) {

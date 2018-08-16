@@ -11,39 +11,39 @@
         <div id="rating" class="rating">
           <label>
             <input type="radio" id="ratinginput0" name="stars" />
-            <md-icon v-for="n in 5" md-src="/static/icons/baseline-star_border-24px.svg" class="rating-star-style rating-star-opaque"></md-icon>
+            <md-icon  :id="'rating'+n" v-for="n in 5" md-src="/static/icons/baseline-star_border-24px.svg" class="rating-star-style rating-star-opaque"></md-icon>
           </label>
           <label>
             <input type="radio" id="ratinginput1" name="stars" v-model="rating" @click="saveRating(1)" value="1" />
-            <md-icon md-src="/static/icons/baseline-star-24px.svg" class="rating-star-style"></md-icon>
+            <md-icon id="rating1" md-src="/static/icons/baseline-star-24px.svg" class="rating-star-style"></md-icon>
             <md-tooltip md-direction="bottom">
               Ei taha enam kunagi süüa
             </md-tooltip>
           </label>
           <label>
             <input type="radio" id="ratinginput2" name="stars" v-model="rating" @click="saveRating(2)" value="2" />
-            <md-icon v-for="n in 2" md-src="/static/icons/baseline-star-24px.svg" class="rating-star-style"></md-icon>
+            <md-icon :id="'rating'+n" v-for="n in 2" md-src="/static/icons/baseline-star-24px.svg" class="rating-star-style"></md-icon>
             <md-tooltip md-direction="bottom">
               Kui on võimalik midagi muud süüa, siis seda ei sööks
             </md-tooltip>
           </label>
           <label>
             <input type="radio" id="ratinginput3" name="stars" v-model="rating" @click="saveRating(3)" value="3" />
-            <md-icon v-for="n in 3" md-src="/static/icons/baseline-star-24px.svg" class="rating-star-style"></md-icon>
+            <md-icon v-for="n in 3" :id="'rating'+n" md-src="/static/icons/baseline-star-24px.svg" class="rating-star-style"></md-icon>
             <md-tooltip md-direction="bottom">
               Kõlbab süüa, aga väga tihti ei tahaks
             </md-tooltip>
           </label>
           <label>
             <input type="radio" id="ratinginput4" name="stars" v-model="rating" @click="saveRating(4)" value="4" />
-            <md-icon v-for="n in 4" md-src="/static/icons/baseline-star-24px.svg" class="rating-star-style"></md-icon>
+            <md-icon v-for="n in 4" :id="'rating'+n" md-src="/static/icons/baseline-star-24px.svg" class="rating-star-style"></md-icon>
             <md-tooltip md-direction="bottom">
               Üsna hea, päris iga päev ei sööks
             </md-tooltip>
           </label>
           <label>
             <input type="radio" id="ratinginput5" name="stars" v-model="rating" @click="saveRating(5)" value="5" />
-            <md-icon v-for="n in 5" md-src="/static/icons/baseline-star-24px.svg" class="rating-star-style"></md-icon>
+            <md-icon v-for="n in 5" :id="'rating'+n" md-src="/static/icons/baseline-star-24px.svg" class="rating-star-style"></md-icon>
           </label>
         </div>
         <div class="non-hover">
@@ -51,7 +51,7 @@
         </div>
         <div v-show="ratingSaved === true">Hinnang salvestatud.</div>
       </div>
-      <div v-if="recipe.preparedHistory[0] && recipe.preparedHistory[0].preparedTime" class="md-caption">Viimati valmistasin: <a @click="findPreparedTimes();">{{ formatDate(recipe.preparedHistory[0].preparedTime)}} </a></div>
+      <div v-if="recipe.preparedHistory[0] && recipe.preparedHistory[0].preparedTime" class="md-caption">Viimati valmistasin: <a @click="findPreparedTimes();" id="preparedTimes">{{ formatDate(recipe.preparedHistory[0].preparedTime)}} </a></div>
       <div id="preparedTimesModal" class="modal" v-if="displayPreparedTimesModal">
         <span class="close" @click="displayPreparedTimesModal=false">&times;</span>
         <div class="md-layout md-alignment-top-center md-dense">
@@ -65,13 +65,13 @@
 
                   <div class="md-list-item-text date-list">
                     <div :id="'prepared'+preparedDate.id">
-                      {{ formatDate(preparedDate.preparedTime) }} <md-button class="md-raised md-dense edit-button md-accent" @click="this.document.getElementById('editpreparedtime'+preparedDate.id).style.display='block';this.document.getElementById('prepared'+preparedDate.id).style.display='none'">&#x270e
+                      {{ formatDate(preparedDate.preparedTime) }} <md-button :id="'changebutton' + preparedDate.id" class="md-raised md-dense edit-button md-accent" @click="this.document.getElementById('editpreparedtime'+preparedDate.id).style.display='block';this.document.getElementById('prepared'+preparedDate.id).style.display='none'">&#x270e
                     </md-button>
                     </div>
                     <div class="editpreparedtime" :id="'editpreparedtime' + preparedDate.id">
                       <input :name="'newpreparedtime'+preparedDate.id" v-once :value="formatDateForDatePicker(new Date(preparedDate.preparedTime))" type="date" :id="'newpreparedtime'+preparedDate.id" v-validate="'before:today,true|date_format:YYYY-MM-DD|required'"/>
                       <md-button class="md-raised md-dense edit-button md-accent" :id="'savepreparedtime'+preparedDate.id" @click="saveDate(this.document.getElementById('newpreparedtime'+preparedDate.id).value, preparedDate.id)">Salvesta</md-button>
-                      <md-button class="md-raised md-dense edit-button md-accent" :id="'deleteprepapredtime'+preparedDate.id" @click="deletePreparedTime(preparedDate.id)">Kustuta</md-button>
+                      <md-button class="md-raised md-dense edit-button md-accent" :id="'deletepreparedtime'+preparedDate.id" @click="deletePreparedTime(preparedDate.id)">Kustuta</md-button>
                       <div v-if="errors.has('newpreparedtime'+preparedDate.id)" class="error">Valmistamiskorda ei saa lisada tulevikku.</div>
                     </div>
 
@@ -575,12 +575,13 @@
       },
       deletePreparedTime: function (id) {
         let xhr = new XMLHttpRequest();
+        let that = this;
         const formData = new FormData();
         formData.append("id", id);
         xhr.open("POST", "api/recipe/deletedate");
         xhr.onload = function () {
           if (this.status === 200) {
-            this.recipe.preparedHistory.splice(this.recipe.preparedHistory.findIndex(x => x.id === id));
+            that.recipe.preparedHistory.splice(that.recipe.preparedHistory.findIndex(x => x.id === id));
           } else {
             alert(this.responseText);
           }

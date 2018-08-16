@@ -12,13 +12,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
-
 
 
 @RestController
@@ -108,8 +108,12 @@ public class RecipeController {
     newDate.userId = ((User) auth.getPrincipal()).id;
     try {
       newDate.preparedTime = new SimpleDateFormat("yyyy-MM-dd").parse(date);
+      if (newDate.preparedTime.after(new Date())) {
+        throw new Exception("Prepared time must not be in the future.");
+      }
     } catch (Exception e) {
       logger.error("Saving prepared time {} to recipe {} failed. ", date, recipeId, e);
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Valmistuskorda ei saa lisada tulevikku.");
     }
     newDate.recipeId = recipeId;
     if (id > 0) {
@@ -119,7 +123,6 @@ public class RecipeController {
     return ResponseEntity.ok("");
   }
 
-  @Transactional
   @RequestMapping(value = "/deletedate", method = RequestMethod.POST)
   ResponseEntity deleteDate(@RequestParam("id") Long id, Authentication auth) {
     User user = (User) auth.getPrincipal();
