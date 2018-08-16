@@ -1,0 +1,2 @@
+ALTER TABLE user MODIFY COLUMN username varchar(30) UNIQUE;
+ALTER TABLE rating DROP COLUMN id, ADD PRIMARY KEY(userId, recipeId);
