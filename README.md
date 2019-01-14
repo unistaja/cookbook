@@ -3,7 +3,7 @@
  - Java Development Kit 8
  - Maven
  - Git
- - mysql
+ - MySQL 5.6
  
 # Activating
 - git clone the repository
