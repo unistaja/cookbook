@@ -87,14 +87,14 @@ public class ImageService {
     for (int i = 1; i < 4; i++) {
       move(get(imageFolder + "temp/" + i + name + "." + extension), get(imageFolder + recipeId + "/" + i + "RecipePicture." + extension), REPLACE_EXISTING);
     }
-    template.update("UPDATE recipe SET pictureName = ? WHERE id = ?", extension, recipeId);
+    template.update("UPDATE Recipe SET pictureName = ? WHERE id = ?", extension, recipeId);
     return extension;
   }
 
   public void deleteSavedImage(Long recipeId) throws DataAccessException {
     String fileExtension = template.queryForObject("SELECT pictureName FROM recipe WHERE id = ?", String.class, recipeId);
     try {
-      template.update("UPDATE recipe SET pictureName = NULL WHERE id = ?", recipeId);
+      template.update("UPDATE Recipe SET pictureName = '' WHERE id = ?", recipeId);
       delete(Paths.get(imageFolder + recipeId + "/1RecipePicture." + fileExtension));
       delete(Paths.get(imageFolder + recipeId + "/2RecipePicture." + fileExtension));
       delete(Paths.get(imageFolder + recipeId + "/3RecipePicture." + fileExtension));

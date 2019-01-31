@@ -23,7 +23,7 @@ public class SearchService {
     List<Object> parameters = new ArrayList<>();
     StringBuilder query = new StringBuilder();
     SearchResult result = new SearchResult();
-    query.append("SELECT DISTINCT SQL_CALC_FOUND_ROWS recipe.id, username, recipe.name, added, pictureName, preparedTime, preparedhistory.userid, rating, averageRating FROM recipe JOIN user ON recipe.userId = user.id LEFT JOIN preparedhistory ON preparedhistory.preparedTime = (SELECT MAX(preparedTime) FROM preparedhistory WHERE recipeId = recipe.id AND userId = ?) LEFT JOIN rating ON recipe.id = rating.recipeId AND rating.userId = ? LEFT JOIN average_rating ON recipe.id = average_rating.recipeId WHERE");
+    query.append("SELECT DISTINCT SQL_CALC_FOUND_ROWS Recipe.id, username, Recipe.name, added, pictureName, preparedTime, PreparedHistory.userId, rating, averageRating FROM Recipe JOIN User ON Recipe.userId = User.id LEFT JOIN PreparedHistory ON PreparedHistory.preparedTime = (SELECT MAX(preparedTime) FROM PreparedHistory WHERE recipeId = Recipe.id AND userId = ?) LEFT JOIN Rating ON Recipe.id = Rating.recipeId AND Rating.userId = ? LEFT JOIN average_rating ON Recipe.id = average_rating.recipeId WHERE");
     parameters.add(searchParameters.userId);
     parameters.add(searchParameters.userId);
     if (!StringUtils.isBlank(searchParameters.name)) {
@@ -40,18 +40,18 @@ public class SearchService {
     }
     if (searchParameters.categories.size() > 0) {
       for (String category : searchParameters.categories) {
-        query.append(" EXISTS (SELECT * FROM recipecategory WHERE recipeId = recipe.id AND category = ? ) AND ");
+        query.append(" EXISTS (SELECT * FROM RecipeCategory  WHERE recipeId = Recipe.id AND category = ? ) AND ");
         parameters.add(category);
       }
     }
     if (searchParameters.withIngredients.size() > 0) {
       for (IngredientLine ingredientLine : searchParameters.withIngredients) {
-        query.append(" EXISTS (SELECT * FROM ingredientlist WHERE recipeId = recipe.id AND EXISTS (SELECT * FROM ingredientline WHERE listId = ingredientlist.id AND  (searchIngredient = ? OR EXISTS (SELECT * FROM alternateingredientline WHERE lineId = ingredientline.id AND searchIngredient = ?  ) ");
+        query.append(" EXISTS (SELECT * FROM IngredientList WHERE recipeId = Recipe.id AND EXISTS (SELECT * FROM IngredientLine WHERE listId = IngredientList. id AND  (searchIngredient = ? OR EXISTS (SELECT * FROM AlternateIngredientLine WHERE lineId = IngredientLine. id AND searchIngredient = ?  ) ");
         parameters.add(ingredientLine.ingredient);
         parameters.add(ingredientLine.ingredient);
         if (ingredientLine.alternateLines.size() > 0) {
           for (AlternateIngredientLine altLine : ingredientLine.alternateLines) {
-            query.append("OR searchIngredient = ? OR EXISTS (SELECT * FROM alternateingredientline WHERE lineId = ingredientline.id AND searchIngredient = ?  ) ");
+            query.append("OR searchIngredient = ? OR EXISTS (SELECT * FROM AlternateIngredientLine WHERE lineId = IngredientLine. id AND searchIngredient = ?  ) ");
             parameters.add(altLine.ingredient);
             parameters.add(altLine.ingredient);
           }
@@ -60,9 +60,9 @@ public class SearchService {
       }
     }
     if (searchParameters.withoutIngredients.size() > 0) {
-      query.append(" NOT EXISTS (SELECT * FROM ingredientlist WHERE recipeId = recipe.id AND EXISTS (SELECT * FROM ingredientline WHERE listId = ingredientlist.id AND (");
+      query.append(" NOT EXISTS (SELECT * FROM IngredientList WHERE recipeId = Recipe.id AND EXISTS (SELECT * FROM IngredientLine WHERE listId = IngredientList. id AND (");
       for (String ingredient : searchParameters.withoutIngredients) {
-        query.append("(searchIngredient = ? AND NOT EXISTS (SELECT * FROM alternateingredientline WHERE lineId = ingredientline.id ");
+        query.append("(searchIngredient = ? AND NOT EXISTS (SELECT * FROM AlternateIngredientLine WHERE lineId = IngredientLine. id ");
         parameters.add(ingredient);
         for (String ingr : searchParameters.withoutIngredients) {
           query.append("AND NOT searchIngredient = ? ");
@@ -74,14 +74,14 @@ public class SearchService {
       query.append(") ) ) AND ");
     }
     if (searchParameters.hasPicture) {
-      query.append(" pictureName IS NOT NULL AND ");
+      query.append(" NOT pictureName = '' AND ");
     }
     if (searchParameters.hasPrepared != null) {
       if (searchParameters.hasPrepared) {
-        query.append(" preparedhistory.userId = ? AND ");
+        query.append(" PreparedHistory.userId = ? AND ");
         parameters.add(searchParameters.userId);
       } else {
-        query.append(" preparedhistory.userId IS NULL AND ");
+        query.append(" PreparedHistory.userId IS NULL AND ");
       }
     }
     query.delete(query.length() - 5, query.length());

@@ -69,7 +69,7 @@
                     </md-button>
                     </div>
                     <div class="editpreparedtime" :id="'editpreparedtime' + preparedDate.id">
-                      <input :name="'newpreparedtime'+preparedDate.id" v-once :value="formatDateForDatePicker(new Date(preparedDate.preparedTime))" type="date" :id="'newpreparedtime'+preparedDate.id" v-validate="'before:today,true|date_format:YYYY-MM-DD|required'"/>
+                      <input :name="'newpreparedtime'+preparedDate.id" v-once :value="formatDateForDatePicker(new Date(preparedDate.preparedTime))" type="date" :id="'newpreparedtime'+preparedDate.id" v-validate="'before:today,true|date_format:YYYY-MM-DD|required'" @keyup.enter="saveDate(this.document.getElementById('newpreparedtime'+preparedDate.id).value, preparedDate.id)"/>
                       <md-button class="md-raised md-dense edit-button md-accent" :id="'savepreparedtime'+preparedDate.id" @click="saveDate(this.document.getElementById('newpreparedtime'+preparedDate.id).value, preparedDate.id)">Salvesta</md-button>
                       <md-button class="md-raised md-dense edit-button md-accent" :id="'deletepreparedtime'+preparedDate.id" @click="deletePreparedTime(preparedDate.id)">Kustuta</md-button>
                       <div v-if="errors.has('newpreparedtime'+preparedDate.id)" class="error">Valmistamiskorda ei saa lisada tulevikku.</div>
@@ -85,7 +85,7 @@
       </div>
       <div id="preparedtime">
         <input name="today" :value="formatDateForDatePicker(new Date())" type="hidden">
-        <input name="newpreparedtime0" type="date" id="newpreparedtime0" v-model="newDate" v-validate="'before:today,true|date_format:YYYY-MM-DD|required'"/>
+        <input name="newpreparedtime0" type="date" id="newpreparedtime0" v-model="newDate" v-validate="'before:today,true|date_format:YYYY-MM-DD|required'" @keyup.enter="saveDate(newDate, 0)"/>
         <md-button id="savedate" class="md-raised md-dense edit-button md-accent" @click="saveDate(newDate, 0)">Valmistasin
         </md-button>
         <div v-if="errors.has('newpreparedtime0')" class="error">Valmistamiskorda ei saa lisada tulevikku.</div>
@@ -408,7 +408,7 @@
 <script>
   import { getRecipe, uploadImage, saveImage, deleteTempImage, saveDate, saveRating, findPreparedTimes } from "../api.js";
   import { store, getNewRecipe } from "../datastore.js";
-  import Vue from "vue";
+  import Vue from "vue/dist/vue.min";
   import VeeValidate from "vee-validate";
   Vue.use(VeeValidate);
 

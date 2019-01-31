@@ -4,7 +4,7 @@
       <div v-if="message" :class="[error ? 'error' : 'success']">{{ message }}</div>
       <h2>Muuda parool: </h2>
       <input type=password v-model="oldPassword" placeholder="Vana parool"/><br/>
-      <input type=password v-model="newPassword" placeholder="Uus parool"/>
+      <input type=password v-model="newPassword" @keyup.enter="savePassword()" placeholder="Uus parool"/>
       <div id="savebutton">
         <a id="save" @click="savePassword()">Salvesta muudatused</a>
       </div>

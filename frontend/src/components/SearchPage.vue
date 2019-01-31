@@ -23,7 +23,7 @@
 
                 <div class="md-layout md-gutter md-alignment-center-left">
                   <div class="md-layout-item md-size-20 md-medium-size-33 md-small-size-100">
-                    <md-autocomplete md-dense v-model="recipeToSearch.name" id="title" :md-options="autofill.names">
+                    <md-autocomplete md-dense v-model="recipeToSearch.name" id="title" @keyup.enter.native="search = JSON.parse(JSON.stringify(recipeToSearch)), startSearch(0)" :md-options="autofill.names">
                       <label>Pealkiri</label>
                     </md-autocomplete>
                   </div>
@@ -33,7 +33,7 @@
                     </md-autocomplete>
                   </div>
                   <div class="md-layout-item md-size-20 md-medium-size-33 md-small-size-100">
-                    <md-autocomplete v-model="recipeToSearch.username" id="creator" :md-options="autofill.users">
+                    <md-autocomplete v-model="recipeToSearch.username" id="creator" @keyup.enter.native="search = JSON.parse(JSON.stringify(recipeToSearch)), startSearch(0)" :md-options="autofill.users">
                       <label>Lisaja</label>
                     </md-autocomplete>
                   </div>
@@ -61,6 +61,7 @@
                       <div class="md-layout-item md-size-80">
                         <md-autocomplete class="md-dense" v-model="line.ingredient"
                                          :id="'list0-line' + lineIndex + '-ingr'"
+                                         @keyup.enter.native="search = JSON.parse(JSON.stringify(recipeToSearch)), startSearch(0)"
                                          :md-options="autofill.searchIngredients">
                           <label>Koostisosa</label>
                           <md-button v-if="recipeToSearch.withIngredients.length > 1"
@@ -88,6 +89,7 @@
                         </md-button>
                         <md-autocomplete class="md-dense" v-model="altLine.ingredient"
                                          :id="'list0-line' + lineIndex + '-altLine' + altLineIndex + '-ingr'"
+                                         @keyup.enter.native="search = JSON.parse(JSON.stringify(recipeToSearch)), startSearch(0)"
                                          :md-options="autofill.searchIngredients">
                           <label>Alternatiiv</label>
                           <md-button :id="'list0-line' + lineIndex + '-altLine' + altLineIndex + '-del'"
@@ -117,6 +119,7 @@
                       <div class="md-layout-item md-size-80">
                         <md-autocomplete class="md-dense" v-model="recipeToSearch.withoutIngredients[lineIndex]"
                                          :id="'list1-line' + lineIndex + '-ingr'"
+                                         @keyup.enter.native="search = JSON.parse(JSON.stringify(recipeToSearch)), startSearch(0)"
                                          :md-options="autofill.searchIngredients">
                           <label>Koostisosa</label>
                           <md-button v-if="recipeToSearch.withoutIngredients.length > 1"
@@ -155,6 +158,7 @@
                       <div class="md-layout-item md-size-80">
                         <md-autocomplete class="md-dense" v-model="recipeToSearch.categories[index]"
                                          :id="'category' + index"
+                                         @keyup.enter.native="search = JSON.parse(JSON.stringify(recipeToSearch)), startSearch(0)"
                                          :md-options="autofill.categories">
                           <label>Kategooria</label>
                           <md-button v-if="recipeToSearch.categories.length > 1" :id="'category' + index + '-del'"

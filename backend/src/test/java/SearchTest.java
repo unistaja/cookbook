@@ -310,6 +310,8 @@ public class SearchTest extends BaseSelenideTest {
       }
       if (i % 5 == 0) {
         recipe.pictureName = Integer.toString(i);
+      } else {
+        recipe.pictureName = "";
       }
       list.ingredientLines = new ArrayList<>();
       recipe.ingredientLists = new ArrayList<>();
@@ -371,6 +373,7 @@ public class SearchTest extends BaseSelenideTest {
     recipe.name = letter;
     recipeTitles.add(recipe.name);
     recipe.added = new Timestamp(2000000000+(i+50)*100000);
+    recipe.pictureName = "";
     recipe.instructions = "instructions";
     recipe.source = new RecipeSource(letter);
     recipe.user = new User();
