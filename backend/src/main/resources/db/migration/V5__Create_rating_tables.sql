@@ -12,5 +12,5 @@ CREATE TABLE Rating (
 
 CREATE VIEW average_rating AS
   SELECT AVG(rating) AS averageRating, recipeId
-  FROM rating
+  FROM Rating
   GROUP BY recipeId;

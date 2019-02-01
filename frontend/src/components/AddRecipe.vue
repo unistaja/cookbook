@@ -496,7 +496,7 @@
         if (this.saveButtonClicked) {
           this.errors.remove("list" + listIndex + "-name");
           if (!list.name || !/\S/.test(list.name)) {
-            this.errors.add("list" + listIndex + "-name", "Palun sisestage jaotise nimi.");
+            this.errors.add({field: "list" + listIndex + "-name", msg: "Palun sisestage jaotise nimi."});
             return;
           }
           let emptyLines = 0;
@@ -506,7 +506,7 @@
             }
           }
           if (emptyLines === list.ingredientLines.length) {
-            this.errors.add("list" + listIndex + "-name", "Siestage jaotisele vähemalt 1 koostisosa.");
+            this.errors.add({field: "list" + listIndex + "-name", msg: "Siestage jaotisele vähemalt 1 koostisosa."});
             return;
           }
           this.errors.remove("list" + listIndex + "-name");

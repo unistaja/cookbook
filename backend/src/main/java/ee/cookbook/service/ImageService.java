@@ -92,7 +92,7 @@ public class ImageService {
   }
 
   public void deleteSavedImage(Long recipeId) throws DataAccessException {
-    String fileExtension = template.queryForObject("SELECT pictureName FROM recipe WHERE id = ?", String.class, recipeId);
+    String fileExtension = template.queryForObject("SELECT pictureName FROM Recipe WHERE id = ?", String.class, recipeId);
     try {
       template.update("UPDATE Recipe SET pictureName = '' WHERE id = ?", recipeId);
       delete(Paths.get(imageFolder + recipeId + "/1RecipePicture." + fileExtension));

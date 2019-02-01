@@ -1,47 +1,43 @@
-RENAME TABLE ingredient TO ingredientAutoSuggest;
-ALTER TABLE ingredientline DROP FOREIGN KEY ingredientline_ibfk_2;
-ALTER TABLE ingredientline DROP FOREIGN KEY ingredientline_ibfk_4;
-ALTER TABLE alternateingredientline DROP FOREIGN KEY alternateingredientline_ibfk_2;
-ALTER TABLE alternateingredientline DROP FOREIGN KEY alternateingredientline_ibfk_4;
+RENAME TABLE Ingredient TO IngredientAutoSuggest;
 
 DELIMITER |
-CREATE TRIGGER addIngredientAfterUpdate AFTER UPDATE ON ingredientline
+CREATE TRIGGER addIngredientAfterUpdate AFTER UPDATE ON IngredientLine
 FOR EACH ROW
   BEGIN
-    IF EXISTS (SELECT * FROM ingredientAutoSuggest WHERE displayName = NEW.ingredient) THEN
-      UPDATE ingredientAutoSuggest SET searchName = NEW.searchIngredient WHERE displayName = NEW.ingredient;
+    IF EXISTS (SELECT * FROM IngredientAutoSuggest WHERE displayName = NEW.ingredient) THEN
+      UPDATE IngredientAutoSuggest SET searchName = NEW.searchIngredient WHERE displayName = NEW.ingredient;
     ELSE
-      INSERT INTO ingredientAutoSuggest VALUES (NEW.ingredient, NEW.searchIngredient);
+      INSERT INTO IngredientAutoSuggest VALUES (NEW.ingredient, NEW.searchIngredient);
     END IF;
   END;
 |
-CREATE TRIGGER addIngredientAfterInsert AFTER INSERT ON ingredientline
+CREATE TRIGGER addIngredientAfterInsert AFTER INSERT ON IngredientLine
 FOR EACH ROW
   BEGIN
-    IF EXISTS (SELECT * FROM ingredientAutoSuggest WHERE displayName = NEW.ingredient) THEN
-      UPDATE ingredientAutoSuggest SET searchName = NEW.searchIngredient WHERE displayName = NEW.ingredient;
+    IF EXISTS (SELECT * FROM IngredientAutoSuggest WHERE displayName = NEW.ingredient) THEN
+      UPDATE IngredientAutoSuggest SET searchName = NEW.searchIngredient WHERE displayName = NEW.ingredient;
     ELSE
-      INSERT INTO ingredientAutoSuggest VALUES (NEW.ingredient, NEW.searchIngredient);
+      INSERT INTO IngredientAutoSuggest VALUES (NEW.ingredient, NEW.searchIngredient);
     END IF;
   END;
 |
-CREATE TRIGGER addAltIngredientAfterUpdate AFTER UPDATE ON alternateingredientline
+CREATE TRIGGER addAltIngredientAfterUpdate AFTER UPDATE ON AlternateIngredientLine
 FOR EACH ROW
   BEGIN
-    IF EXISTS (SELECT * FROM ingredientAutoSuggest WHERE displayName = NEW.ingredient) THEN
-      UPDATE ingredientAutoSuggest SET searchName = NEW.searchIngredient WHERE displayName = NEW.ingredient;
+    IF EXISTS (SELECT * FROM IngredientAutoSuggest WHERE displayName = NEW.ingredient) THEN
+      UPDATE IngredientAutoSuggest SET searchName = NEW.searchIngredient WHERE displayName = NEW.ingredient;
     ELSE
-      INSERT INTO ingredientAutoSuggest VALUES (NEW.ingredient, NEW.searchIngredient);
+      INSERT INTO IngredientAutoSuggest VALUES (NEW.ingredient, NEW.searchIngredient);
     END IF;
   END;
 |
-CREATE TRIGGER addAltIngredientAfterInsert AFTER INSERT ON alternateingredientline
+CREATE TRIGGER addAltIngredientAfterInsert AFTER INSERT ON AlternateIngredientLine
 FOR EACH ROW
   BEGIN
-    IF EXISTS (SELECT * FROM ingredientAutoSuggest WHERE displayName = NEW.ingredient) THEN
-      UPDATE ingredientAutoSuggest SET searchName = NEW.searchIngredient WHERE displayName = NEW.ingredient;
+    IF EXISTS (SELECT * FROM IngredientAutoSuggest WHERE displayName = NEW.ingredient) THEN
+      UPDATE IngredientAutoSuggest SET searchName = NEW.searchIngredient WHERE displayName = NEW.ingredient;
     ELSE
-      INSERT INTO ingredientAutoSuggest VALUES (NEW.ingredient, NEW.searchIngredient);
+      INSERT INTO IngredientAutoSuggest VALUES (NEW.ingredient, NEW.searchIngredient);
     END IF;
   END;
 |

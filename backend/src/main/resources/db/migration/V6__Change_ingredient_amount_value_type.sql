@@ -1,2 +1,2 @@
-ALTER TABLE ingredientline MODIFY amount varchar(40);
-ALTER TABLE alternateingredientline MODIFY amount varchar(40);
+ALTER TABLE IngredientLine MODIFY amount varchar(40);
+ALTER TABLE AlternateIngredientLine MODIFY amount varchar(40);

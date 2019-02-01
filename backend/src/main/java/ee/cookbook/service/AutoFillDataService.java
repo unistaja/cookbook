@@ -29,13 +29,13 @@ public class AutoFillDataService {
 
   public AutoFillData getAutoFillData() {
     AutoFillData data = new AutoFillData();
-    data.users = jdbcTemplate.queryForList("SELECT username FROM user", String.class);
-    data.names = jdbcTemplate.queryForList("SELECT DISTINCT name FROM recipe", String.class);
+    data.users = jdbcTemplate.queryForList("SELECT username FROM User", String.class);
+    data.names = jdbcTemplate.queryForList("SELECT DISTINCT name FROM Recipe", String.class);
     data.categories = categoryRepository.findAll();
     data.units = unitRepository.findAll();
     data.listNames = ingredientListNameRepository.findAll();
     data.sources = sourceRepository.findAll();
-    data.ingredients = jdbcTemplate.query("SELECT searchName, displayName FROM ingredientautosuggest", new ResultSetExtractor<Map<String, String>>(){
+    data.ingredients = jdbcTemplate.query("SELECT searchName, displayName FROM IngredientAutoSuggest", new ResultSetExtractor<Map<String, String>>(){
       @Override
       public Map<String, String> extractData(ResultSet rs) throws SQLException,DataAccessException {
         HashMap<String,String> searchIngredients = new HashMap<String,String>();
@@ -45,7 +45,7 @@ public class AutoFillDataService {
          return searchIngredients;
       }
     });
-    data.searchIngredients = jdbcTemplate.queryForList("SELECT DISTINCT searchName FROM ingredientautosuggest", String.class);
+    data.searchIngredients = jdbcTemplate.queryForList("SELECT DISTINCT searchName FROM IngredientAutoSuggest", String.class);
     return data;
   }
 }
