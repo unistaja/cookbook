@@ -372,6 +372,7 @@ public class SearchTest extends BaseSelenideTest {
     Recipe recipe = new Recipe();
     recipe.name = letter;
     recipeTitles.add(recipe.name);
+    recipe.pictureName = "";
     recipe.added = new Timestamp(2000000000+(i+50)*100000);
     recipe.pictureName = "";
     recipe.instructions = "instructions";
