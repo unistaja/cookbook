@@ -84,7 +84,7 @@
         </div>
       </div>
       <div id="preparedtime">
-        <input name="today" :value="formatDateForDatePicker(new Date())" type="hidden">
+        <input name="today" ref="today" :value="formatDateForDatePicker(new Date())" type="hidden">
         <input name="newpreparedtime0" type="date" id="newpreparedtime0" v-model="newDate" v-validate="'before:today,true|date_format:YYYY-MM-DD|required'" @keyup.enter="saveDate(newDate, 0)"/>
         <md-button id="savedate" class="md-raised md-dense edit-button md-accent" @click="saveDate(newDate, 0)">Valmistasin
         </md-button>
@@ -408,9 +408,6 @@
 <script>
   import { getRecipe, uploadImage, saveImage, deleteTempImage, saveDate, saveRating, findPreparedTimes } from "../api.js";
   import { store, getNewRecipe } from "../datastore.js";
-  import Vue from "vue/dist/vue.min";
-  import VeeValidate from "vee-validate";
-  Vue.use(VeeValidate);
 
   export default{
     name: "viewrecipe",

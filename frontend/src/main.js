@@ -4,8 +4,10 @@ import Vue from "vue";
 import VueRouter from "vue-router";
 import App from "./App";
 import VueMaterial from "vue-material";
+import VeeValidate from "vee-validate";
 import "vue-material/dist/vue-material.min.css";
 
+Vue.use(VeeValidate);
 Vue.use(VueMaterial);
 Vue.use(VueRouter);
 

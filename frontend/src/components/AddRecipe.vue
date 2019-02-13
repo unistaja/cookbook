@@ -332,9 +332,6 @@
 <script>
   import { store } from "../datastore.js";
   import { getAutoFillData, loadUser, uploadImage, deleteTempImage, deleteSavedImage } from "../api.js";
-  import Vue from "vue/dist/vue.min";
-  import VeeValidate from "vee-validate";
-  Vue.use(VeeValidate);
 
   export default {
     name: "addrecipe",
