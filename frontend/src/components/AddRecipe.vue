@@ -11,7 +11,6 @@
 
     <div id="ingredients">
       <datalist id="ingredient-data">
-        <option v-for="ingredient in Object.keys(autofill.ingredients)" :value="ingredient">{{ ingredient }}</option>
       </datalist>
       <datalist id="unit-data">
         <option v-for="unit in autofill.units" :value="unit">{{ unit }}</option>
@@ -20,7 +19,6 @@
         <option v-for="name in autofill.listNames" :value="name">{{ name }}</option>
       </datalist>
       <datalist id="searchingredient-data">
-        <option v-for="searchIngredient in autofill.searchIngredients" :value="searchIngredient">{{ searchIngredient }}</option>
       </datalist>
       <div id="ingredient-list">
         <span v-if="message" :class="[error ? 'error' : 'success']">{{ message }}</span>
@@ -380,6 +378,20 @@
           next();
         } else {
           next(vm => {
+            let ingredientList = document.getElementById("ingredient-data");
+            for (const ingredient of Object.keys(res.ingredients)) {
+              let node = document.createElement("option");
+              node.setAttribute("value", ingredient);
+              node.innerText = ingredient;
+              ingredientList.appendChild(node);
+            }
+            let searchIngredientList = document.getElementById("searchingredient-data");
+            for (const ingredient of res.searchIngredients) {
+              let node = document.createElement("option");
+              node.setAttribute("value", ingredient);
+              node.innerText = ingredient;
+              searchIngredientList.appendChild(node);
+            }
             vm.autofill = res;
           });
         }
