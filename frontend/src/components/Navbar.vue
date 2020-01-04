@@ -12,6 +12,7 @@
         <md-button md-menu-trigger><md-icon md-src="/static/icons/baseline-account_circle-24px.svg"/>{{ user.username }}</md-button>
         <md-menu-content>
           <md-menu-item to="/user">Muuda parooli</md-menu-item>
+          <md-menu-item v-if="user && user.isAdmin" to="/admin">Halda kasutajaid</md-menu-item>
           <md-menu-item href="/logout">Logi välja</md-menu-item>
         </md-menu-content>
       </md-menu>

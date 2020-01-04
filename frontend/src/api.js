@@ -85,6 +85,27 @@ export function changePassword (oldPassword, newPassword, callback) {
   xhr.send("oldPassword=" + oldPassword + "&newPassword=" + newPassword);
 }
 
+export function addUser (username, password, callback) {
+  const xhr = new XMLHttpRequest();
+  xhr.open("POST", "/api/admin/addUser");
+  xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+  xhr.onload = function () {
+    if (this.status === 200) {
+      if (this.responseText === "") {
+        callback(null);
+      } else {
+        callback(this.responseText);
+      }
+    } else {
+      callback("Uue kasutaja loomine ebaõnnestus. Viga: " + this.responseText);
+    }
+  };
+  xhr.onerror = function () {
+    callback("Uue kasutaja loomine ebaõnnestus võrguvea tõttu. Proovi uuesti.");
+  };
+  xhr.send("username=" + username + "&password=" + password);
+}
+
 export function findRecipes (query, callback) {
   const xhr = new XMLHttpRequest();
   xhr.open("POST", "/api/search");
