@@ -3,7 +3,10 @@ package ee.cookbook.controller;
 import ee.cookbook.dao.PreparedHistoryRepository;
 import ee.cookbook.dao.RatingRepository;
 import ee.cookbook.dao.RecipeRepository;
-import ee.cookbook.model.*;
+import ee.cookbook.model.PreparedHistory;
+import ee.cookbook.model.Rating;
+import ee.cookbook.model.Recipe;
+import ee.cookbook.model.User;
 import ee.cookbook.protocol.AutoFillData;
 import ee.cookbook.service.AutoFillDataService;
 import ee.cookbook.service.ImageService;
@@ -15,7 +18,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -67,7 +76,7 @@ public class RecipeController {
   ResponseEntity add(@RequestBody Recipe recipe, Authentication auth) {
     User user = (User) auth.getPrincipal();
     String imageName = "";
-    if (recipe.id != 0 && recipeRepository.countByIdAndUserId(recipe.id, user.id) == 0) {
+    if (recipe.id != 0 && !user.isAdmin && recipeRepository.countByIdAndUserId(recipe.id, user.id) == 0) {
       logger.error("User {} is not allowed to modify recipe with id {}", user.username, recipe.id);
       throw new IllegalStateException("Teil pole lubatud seda retsepti muuta.");
     }

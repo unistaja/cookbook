@@ -3,7 +3,7 @@
     <div id="recipeheader" class="md-body-1">
       <div class="md-headline">
         {{ recipe.name }} <md-button class="md-raised md-dense edit-button md-accent"
-                      v-if="user.id === recipe.user.id" @click="edit()">&#x270e
+                      v-if="user.id === recipe.user.id || user.isAdmin" @click="edit()">&#x270e
       </md-button>
       </div>
       {{ recipe.source }}

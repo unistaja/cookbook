@@ -2,6 +2,7 @@ package ee.cookbook.controller;
 
 import ee.cookbook.dao.RecipeRepository;
 import ee.cookbook.model.User;
+import ee.cookbook.service.ImageService;
 import org.apache.tika.exception.UnsupportedFormatException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,10 +13,12 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import ee.cookbook.service.ImageService;
 import java.io.IOException;
 
 @RestController
@@ -36,7 +39,7 @@ public class ImageController {
   @RequestMapping(value = "/upload", method = RequestMethod.POST)
   public ResponseEntity image(@RequestParam("file") MultipartFile file, @Param("id") Long id, Authentication auth) {
     User user = (User) auth.getPrincipal();
-    if (!(id == null || recipeRepository.findOne(id).pictureName == null || recipeRepository.findOne(id).pictureName.equals("")) && recipeRepository.countByIdAndUserId(id, user.id) == 0) {
+    if (!(id == null || user.isAdmin || recipeRepository.findOne(id).pictureName == null || recipeRepository.findOne(id).pictureName.equals("")) && recipeRepository.countByIdAndUserId(id, user.id) == 0) {
       throw new IllegalStateException("User " + user.username + " is not allowed to modify recipe with id " + id);
     }
     try {
@@ -80,7 +83,7 @@ public class ImageController {
   @RequestMapping(value = "/deletesavedimage", method = RequestMethod.POST)
   ResponseEntity deleteSavedImage(@RequestParam("id") Long recipeId, Authentication auth) {
     User user = (User) auth.getPrincipal();
-    if (recipeRepository.countByIdAndUserId(recipeId, user.id) == 0) {
+    if (!user.isAdmin && recipeRepository.countByIdAndUserId(recipeId, user.id) == 0) {
       throw new IllegalStateException("User " + user.username + " is not allowed to modify recipe with id " + recipeId);
     }
     try {
