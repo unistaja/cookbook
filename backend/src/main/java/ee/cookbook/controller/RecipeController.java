@@ -80,24 +80,33 @@ public class RecipeController {
       logger.error("User {} is not allowed to modify recipe with id {}", user.username, recipe.id);
       throw new IllegalStateException("Teil pole lubatud seda retsepti muuta.");
     }
+    Recipe recipeToSave = recipe;
+    if (recipe.id != 0) {
+      recipeToSave = recipeRepository.findOne(recipe.id);
+      recipeToSave.categories.clear();
+      recipeToSave.categories.addAll(recipe.categories);
+      recipeToSave.ingredientLists.clear();
+      recipeToSave.ingredientLists.addAll(recipe.ingredientLists);
+      recipeToSave.instructions = recipe.instructions;
+      recipeToSave.name = recipe.name;
+      recipeToSave.source = recipe.source;
+    } else {
+      recipeToSave.user = user;
+    }
+
     if (!StringUtils.isBlank(recipe.pictureName)) {
       String[] nameParts = recipe.pictureName.split("[.]");
       if (nameParts.length > 1) {
         imageName = nameParts[0];
-        recipe.pictureName = nameParts[1];
+        recipeToSave.pictureName = nameParts[1];
       } else {
-        recipe.pictureName = nameParts[0];
+        recipeToSave.pictureName = nameParts[0];
       }
     }
-    if (recipe.id != 0) {
-      recipe.preparedHistory = preparedHistoryRepository.findAllByRecipeId(recipe.id);
-      recipe.rating = ratingRepository.findAllByRecipeId(recipe.id);
-    }
-    recipe.user = user;
-    Recipe savedRecipe = recipeRepository.save(recipe);
+    Recipe savedRecipe = recipeRepository.save(recipeToSave);
     if (!StringUtils.isBlank(imageName)) {
       try {
-        imageService.saveImages(imageName, recipe.pictureName, savedRecipe.id);
+        imageService.saveImages(imageName, recipeToSave.pictureName, savedRecipe.id);
       } catch(Exception e) {
         logger.error("Saving image to recipe {} failed.", savedRecipe.id, e);
         return ResponseEntity.ok("{\"message\": \"Pildi salvestamine ebaõnnestus, kuid retsept on salvestatud.\", \"recipeId\": " + savedRecipe.id + "}");
