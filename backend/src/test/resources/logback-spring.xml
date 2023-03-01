@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+
+    <property name="LOGS" value="./logs" />
+
+    <appender name="Console"
+              class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <!-- use spring default console pattern -->
+            <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+            <charset>${CONSOLE_LOG_CHARSET}</charset>
+        </encoder>
+    </appender>
+
+    <!-- LOG everything at INFO level -->
+    <root level="info">
+        <appender-ref ref="Console" />
+    </root>
+
+    <!-- LOG "ee.cookbook*" at trace level -->
+    <logger name="ee.cookbook" level="trace"/>
+
+    <!-- log sql statements -->
+    <logger name="org.hibernate.SQL" level="debug"/>
+    <!--    <logger name="org.hibernate.type.descriptor.sql" level="trace"/>-->
+
+</configuration>

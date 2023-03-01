@@ -5,8 +5,8 @@ import ee.cookbook.dao.PreparedHistoryRepository;
 import ee.cookbook.dao.RatingRepository;
 import ee.cookbook.dao.RecipeRepository;
 import ee.cookbook.model.*;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -16,6 +16,8 @@ import java.sql.PreparedStatement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.codeborne.selenide.CollectionCondition.size;
 import static com.codeborne.selenide.Condition.*;
 import static com.codeborne.selenide.Selenide.*;
 import static org.openqa.selenium.Keys.DOWN;
@@ -26,7 +28,7 @@ import static org.openqa.selenium.Keys.ESCAPE;
 public class SearchTest extends BaseSelenideTest {
   private List<String> recipeTitles = new ArrayList<>();
 
-  @Before
+  @BeforeEach
   public void createSecondUser() throws Exception {
     Connection conn = DriverManager.getConnection(flywayUrl, flywayUser, flywayPassword);
     String query = "INSERT INTO `cookbooktest`.`user` (`username`, `passwordHash`, `active`) VALUES ('testAdder', '', 1);";
@@ -150,36 +152,42 @@ public class SearchTest extends BaseSelenideTest {
     search();
     $(By.id("recipelist")).shouldHave(text("Ä"));
     assert(!$(By.id("recipelist")).$(By.className("md-title")).getText().equals("A"));
-    $(By.id("recipelist")).$$(By.className("md-title")).shouldHaveSize(1);
+    $(By.id("recipelist")).$$(By.className("md-title")).shouldHave(size(1));
     getTitleField().$(By.className("md-input")).click();
+    getTitleField().$(By.className("md-input")).clear();
     getTitleField().$(By.className("md-input")).setValue("A");
     search();
     $(By.id("recipelist")).shouldHave(text("A"));
     $(By.id("recipelist")).shouldNotHave(text("Ä"));
     getTitleField().$(By.className("md-input")).click();
+    getTitleField().$(By.className("md-input")).clear();
     getTitleField().$(By.className("md-input")).setValue("Ü");
     search();
     $(By.id("recipelist")).shouldHave(text("Ü"));
     assert(!$(By.id("recipelist")).$(By.className("md-title")).getText().equals("U"));
-    $(By.id("recipelist")).$$(By.className("md-title")).shouldHaveSize(1);
+    $(By.id("recipelist")).$$(By.className("md-title")).shouldHave(size(1));
     getTitleField().$(By.className("md-input")).click();
+    getTitleField().$(By.className("md-input")).clear();
     getTitleField().$(By.className("md-input")).setValue("U");
     search();
     $(By.id("recipelist")).shouldHave(text("U"));
     $(By.id("recipelist")).shouldNotHave(text("Ü"));
     getTitleField().$(By.className("md-input")).click();
+    getTitleField().$(By.className("md-input")).clear();
     getTitleField().$(By.className("md-input")).setValue("Õ");
     search();
     $(By.id("recipelist")).shouldHave(text("Õ"));
     $(By.id("recipelist")).shouldNotHave(text("O"));
     $(By.id("recipelist")).shouldNotHave(text("Ö"));
     getTitleField().$(By.className("md-input")).click();
+    getTitleField().$(By.className("md-input")).clear();
     getTitleField().$(By.className("md-input")).setValue("Ö");
     search();
     $(By.id("recipelist")).shouldHave(text("Ö"));
     $(By.id("recipelist")).shouldNotHave(text("O"));
     $(By.id("recipelist")).shouldNotHave(text("Õ"));
     getTitleField().$(By.className("md-input")).click();
+    getTitleField().$(By.className("md-input")).clear();
     getTitleField().$(By.className("md-input")).setValue("O");
     search();
     $(By.id("recipelist")).shouldHave(text("O"));
@@ -189,7 +197,7 @@ public class SearchTest extends BaseSelenideTest {
   }
 
   private void testPaging() {
-    $(By.id("resultsPerPage")).click();
+    $(By.id("resultsPerPage")).parent().parent().parent().click();
     $(By.id("resultsPerPage")).sendKeys(DOWN);
     $(By.id("resultsPerPage")).sendKeys(ENTER);
     addIngredient(0, 0, 4);
@@ -225,7 +233,7 @@ public class SearchTest extends BaseSelenideTest {
     $(By.id("previouspage")).shouldNotBe(disabled);
     $(By.id("recipelist")).$$(By.className("md-title")).shouldHave(CollectionCondition.texts("Title18", "Title19", "Title2", "Title20", "Title21", "Title22", "Title23", "Title24", "Title25", "Title26"));
     refreshPage();
-    $(By.id("resultsPerPage")).click();
+    $(By.id("resultsPerPage")).parent().parent().parent().click();
     $(By.id("resultsPerPage")).sendKeys(DOWN);
     $(By.id("resultsPerPage")).sendKeys(DOWN);
     $(By.id("resultsPerPage")).sendKeys(ENTER);
@@ -234,7 +242,7 @@ public class SearchTest extends BaseSelenideTest {
     $(By.id("nextpage")).click();
     $(By.id("recipelist")).$$(By.className("md-title")).shouldHave(CollectionCondition.texts("Title8", "Title9", "U", "Õ", "Ä", "Ö", "Ü"));
     $(By.id("toggleSearch")).click();
-    $(By.id("resultsPerPage")).click();
+    $(By.id("resultsPerPage")).parent().parent().parent().click();
     $(By.id("resultsPerPage")).sendKeys(DOWN);
     $(By.id("resultsPerPage")).sendKeys(ENTER);
     search();
@@ -242,7 +250,7 @@ public class SearchTest extends BaseSelenideTest {
   }
 
   private void testSortByNameDescending() throws InterruptedException {
-    $(By.id("resultsPerPage")).click();
+    $(By.id("resultsPerPage")).parent().parent().parent().click();
     $(By.id("resultsPerPage")).sendKeys(DOWN);
     $(By.id("resultsPerPage")).sendKeys(ENTER);
     $(Selectors.withText("Kahanevalt")).click();
@@ -257,11 +265,11 @@ public class SearchTest extends BaseSelenideTest {
   private void testSortByUser() {
     $(By.id("toggleSearch")).click();
     $(Selectors.withText("Kahanevalt")).click();
-    $(By.id("sort")).click();
+    $(By.id("sort")).parent().parent().parent().click();
     $(By.id("sort")).sendKeys(DOWN);
     $(By.id("resultsPerPage")).sendKeys(DOWN);
     $(By.id("sort")).sendKeys(ENTER);
-    $(By.id("resultsPerPage")).click();
+    $(By.id("resultsPerPage")).parent().parent().parent().click();
     $(By.id("resultsPerPage")).sendKeys(DOWN);
     $(By.id("resultsPerPage")).sendKeys(DOWN);
     $(By.id("resultsPerPage")).sendKeys(ENTER);
@@ -277,7 +285,7 @@ public class SearchTest extends BaseSelenideTest {
 
   private void testSortByDateAdded() {
     $(Selectors.withText("Kahanevalt")).click();
-    $(By.id("sort")).click();
+    $(By.id("sort")).parent().parent().parent().click();
     $(By.id("sort")).sendKeys(DOWN);
     $(By.id("sort")).sendKeys(ENTER);
     search();
@@ -290,12 +298,11 @@ public class SearchTest extends BaseSelenideTest {
     $(By.id("recipelist")).$$(By.className("md-title")).shouldHave(CollectionCondition.texts(Lists.reverse(recipeTitles)));
   }
 
-  private void addRecipes() {
+  private void addRecipes() throws InterruptedException {
     for (int i = 0; i < 50; i++) {
       Recipe recipe = new Recipe();
       recipe.name = "Title" + i;
       recipeTitles.add(recipe.name);
-      recipe.added = new Timestamp(2000000000+i*100000);
       recipe.instructions = "instructions";
       recipe.source = new RecipeSource("Source" + (i % 15));
       IngredientList list = new IngredientList();
@@ -368,12 +375,10 @@ public class SearchTest extends BaseSelenideTest {
     $(By.id("list" + list + "-line" + line + "-addAlt")).click();
   }
 
-  private void createEstonianLetterRecipe(String letter, int i) {
+  private void createEstonianLetterRecipe(String letter, int i) throws InterruptedException {
     Recipe recipe = new Recipe();
     recipe.name = letter;
     recipeTitles.add(recipe.name);
-    recipe.pictureName = "";
-    recipe.added = new Timestamp(2000000000+(i+50)*100000);
     recipe.pictureName = "";
     recipe.instructions = "instructions";
     recipe.source = new RecipeSource(letter);
@@ -398,14 +403,14 @@ public class SearchTest extends BaseSelenideTest {
     for (int i = 5; i < 51; i=i+5) {
       if (i % 10 == 0) {
         Rating rating1 = new Rating();
-        rating1.recipeId = new Long(i);
-        rating1.userId = new Long(1);
+        rating1.recipeId = (long) i;
+        rating1.userId = 1L;
         rating1.rating = i/10;
         ratingRepository.save(rating1);
       }
       Rating rating2 = new Rating();
-      rating2.recipeId = new Long(i);
-      rating2.userId = new Long(2);
+      rating2.recipeId = (long) i;
+      rating2.userId = 2L;
       rating2.rating = i/5 % 5 + 1;
       ratingRepository.save(rating2);
     }
@@ -414,8 +419,8 @@ public class SearchTest extends BaseSelenideTest {
   private void addPreparedTime() {
     for (int i = 1; i < 51; i=i+10) {
       PreparedHistory lastPrepared = new PreparedHistory();
-      lastPrepared.recipeId = new Long(i);
-      lastPrepared.userId = new Long(i/10 % 2 + 1);
+      lastPrepared.recipeId = (long) i;
+      lastPrepared.userId = (long) (i / 10 % 2 + 1);
       lastPrepared.preparedTime = new Timestamp(2100000000*i);
       preparedHistoryRepository.save(lastPrepared);
     }

@@ -1,76 +1,62 @@
-import static com.codeborne.selenide.Condition.exist;
-import static com.codeborne.selenide.Selenide.*;
-import static com.codeborne.selenide.WebDriverRunner.url;
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.DEFINED_PORT;
-import com.codeborne.selenide.Configuration;
 import com.codeborne.selenide.Selectors;
 import com.codeborne.selenide.SelenideElement;
 import com.codeborne.selenide.WebDriverRunner;
 import ee.cookbook.CookbookApplication;
 import org.apache.commons.io.FileUtils;
+import org.flywaydb.test.FlywayTestExecutionListener;
 import org.flywaydb.test.annotation.FlywayTest;
-import org.flywaydb.test.junit.FlywayTestExecutionListener;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.runner.RunWith;
+import org.flywaydb.test.junit5.FlywayTestExtension;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.openqa.selenium.By;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
-import java.io.File;
-import java.sql.*;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+import java.io.File;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+
+import static com.codeborne.selenide.Condition.exist;
+import static com.codeborne.selenide.Selenide.$;
+import static com.codeborne.selenide.Selenide.open;
+import static com.codeborne.selenide.WebDriverRunner.url;
+import static org.openqa.selenium.devtools.v101.page.Page.close;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.DEFINED_PORT;
+
+@ExtendWith(SpringExtension.class)
+@ExtendWith({FlywayTestExtension.class})
 @TestExecutionListeners({DependencyInjectionTestExecutionListener.class,
         FlywayTestExecutionListener.class })
 @SpringBootTest(classes = CookbookApplication.class, webEnvironment=DEFINED_PORT)
 @TestPropertySource(locations= "classpath:application.properties")
 @FlywayTest(invokeCleanDB = true)
-
-
-
 public abstract class BaseSelenideTest {
-  @BeforeClass
-  public static void browserSetUp() {
-    if (System.getProperty("os.name").contains("Windows")) {
-      System.setProperty("webdriver.chrome.driver", "./chromedriver/chromedriver.exe");
-    } else if (System.getProperty("os.name").contains("Mac")) {
-      System.setProperty("webdriver.chrome.driver", "./chromedriver/chromedrivermac");
-    } else {
-      if ( "x86".equals(System.getProperty("os.arch"))) {
-        System.setProperty("webdriver.chrome.driver", "./chromedriver/chromedriverlinux32");
-      } else if ( "x86_64".equals(System.getProperty("os.arch"))) {
-        System.setProperty("webdriver.chrome.driver", "./chromedriver/chromedriverlinux64");
-      }
-    }
-    Configuration.browser = "chrome";
-    Configuration.browserSize = "1920x1080";
-    Configuration.holdBrowserOpen = false;
-    Configuration.timeout = 1500;
-  }
 
   String baseUrl;
   //account details
   final String testUsername = "Selenide";
   String testPassword = "test";
   //creating a user account
-  @Value ("${flyway.url}")
+  @Value ("${spring.datasource.url}")
   public String flywayUrl;
 
-  @Value ("${flyway.user}")
+  @Value ("${spring.datasource.username}")
   public String flywayUser;
 
-  @Value ("${flyway.password}")
+  @Value ("${spring.datasource.password}")
   public String flywayPassword;
 
   @Value("${imageFolder}")
   public String imageFolder;
 
-  @Before
+  @BeforeEach
+  @FlywayTest(invokeCleanDB = true)
   public void setUpTest() {
     try {
       Connection conn = DriverManager.getConnection(flywayUrl, flywayUser, flywayPassword);
@@ -91,18 +77,18 @@ public abstract class BaseSelenideTest {
   public void login() {
     $(By.name("username")).setValue(testUsername);
     $(By.name("password")).setValue(testPassword);
-    $(By.name("submit")).click();
+    $(By.cssSelector("button[type='submit']")).click();
   }
 
   public void refresh() {
     WebDriverRunner.getWebDriver().navigate().refresh();
   }
-  @After
+  @AfterEach
   public void closePage() {
     close();
   }
 
-  @After
+  @AfterEach
   public void deleteTestImageFolder() {
     try {
       FileUtils.deleteDirectory(new File(imageFolder));

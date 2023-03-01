@@ -1,8 +1,5 @@
 package ee.cookbook.model;
 
-
-
-import javax.annotation.Nullable;
 import java.util.List;
 
 public class SearchForm {

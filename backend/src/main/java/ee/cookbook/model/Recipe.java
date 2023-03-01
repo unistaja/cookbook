@@ -34,6 +34,7 @@ public class Recipe implements Persistable<Long>{
   @NotNull
   public String name;
 
+  @Column(insertable = false)
   public Date added;
 
   @OneToMany(cascade = {CascadeType.ALL}, orphanRemoval = true)

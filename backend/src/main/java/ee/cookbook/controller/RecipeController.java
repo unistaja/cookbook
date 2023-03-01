@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.text.SimpleDateFormat;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -52,16 +53,18 @@ public class RecipeController {
   @RequestMapping(value = "/{recipeId}", method = RequestMethod.GET)
   Recipe getRecipe(@PathVariable long recipeId, Authentication auth) {
     User user = (User) auth.getPrincipal();
-    Recipe recipe = recipeRepository.findOne(recipeId);
+    Recipe recipe = recipeRepository.findById(recipeId).orElseThrow();
     PreparedHistory preparedHistory = preparedHistoryRepository.findTopByRecipeIdAndUserIdOrderByPreparedTimeDesc(recipeId, user.id);
-    recipe.preparedHistory.clear();
     if (preparedHistory != null) {
-      recipe.preparedHistory.add(preparedHistory);
+      recipe.preparedHistory = Collections.singletonList(preparedHistory);
+    } else {
+      recipe.preparedHistory = Collections.emptyList();
     }
     Rating rating = ratingRepository.findByRecipeIdAndUserId(recipeId, user.id);
-    recipe.rating.clear();
     if (rating != null) {
-      recipe.rating.add(rating);
+      recipe.rating = Collections.singletonList(rating);
+    } else {
+      recipe.rating = Collections.emptyList();
     }
 
     return recipe;
@@ -82,7 +85,7 @@ public class RecipeController {
     }
     Recipe recipeToSave = recipe;
     if (recipe.id != 0) {
-      recipeToSave = recipeRepository.findOne(recipe.id);
+      recipeToSave = recipeRepository.findById(recipe.id).orElseThrow();
       recipeToSave.categories.clear();
       recipeToSave.categories.addAll(recipe.categories);
       recipeToSave.ingredientLists.clear();

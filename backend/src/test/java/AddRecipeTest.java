@@ -3,7 +3,7 @@ import com.codeborne.selenide.Selectors;
 import com.codeborne.selenide.SelenideElement;
 import com.codeborne.selenide.WebDriverRunner;
 import ee.cookbook.model.*;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.interactions.Actions;
 
@@ -524,23 +524,23 @@ public class AddRecipeTest extends BaseSelenideTest {
   private void testHistory() throws InterruptedException {
     openSearchPage();
     $(By.id("recipe1")).click();
-    for (int i = 1; i < 3; i++) {
-      $(By.id("newpreparedtime0")).sendKeys("0" + i + "022018");
+    for (int i = 11; i < 13; i++) {
+      $(By.id("newpreparedtime0")).sendKeys(getDateKeys(2018, 10, i));
       $(By.id("savedate")).click();
       $(Selectors.byText("Valmistamiskord salvestatud.")).shouldBe(visible);
       refresh();
       $(By.id("preparedTimes")).click();
-      $(By.id("prepared" + i)).shouldHave(text("0" + i + ".02.2018"));
+      $(By.id("prepared" + (i - 10))).shouldHave(text(i + ".10.2018"));
       $(By.className("close")).click();
     }
     $(By.id("preparedTimes")).click();
     $(By.id("newpreparedtime" + 2)).shouldNotBe(visible);
     $(By.id("changebutton" + 2)).click();
-    $(By.id("newpreparedtime" + 2)).sendKeys("04052018");
+    $(By.id("newpreparedtime" + 2)).sendKeys(getDateKeys(2018, 11, 14));
     $(By.id("savepreparedtime" + 2)).click();
     refresh();
     $(By.id("preparedTimes")).click();
-    $(By.id("prepared" + 2)).shouldHave(text("04.05.2018"));
+    $(By.id("prepared" + 2)).shouldHave(text("14.11.2018"));
     $(By.id("changebutton" + 1)).click();
     $(By.id("deletepreparedtime" + 1)).click();
     refresh();
@@ -571,5 +571,14 @@ public class AddRecipeTest extends BaseSelenideTest {
   private boolean checkTemporaryImagesExist() throws NullPointerException {
     File tempImageDirectory =new File(imageFolder + "temp/");
     return (tempImageDirectory.listFiles().length == 3);
+  }
+
+  // hackish way to figure out which order keys need to sent in (month-day-year or day-month-year)
+  // will not work with single-digit day/month
+  private static String getDateKeys(int year, int month, int day) {
+    String keys = executeJavaScript(
+            "return (new Date(" + year + ", " + (month - 1) + ", " + day  + ")).toLocaleDateString()"
+    );
+    return keys.replace(".", "").replace("/", "");
   }
 }

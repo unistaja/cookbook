@@ -102,6 +102,11 @@ public class SearchService {
         query.append(" DESC");
       }
     }
+    // ensure recipes with equal sort values are sorted in logical order
+    query.append(", id");
+    if (searchParameters.descending) {
+      query.append(" DESC");
+    }
 
     if (searchParameters.resultsPerPage > 0) {
       query.append(" LIMIT ");

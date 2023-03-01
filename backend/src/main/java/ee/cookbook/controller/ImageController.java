@@ -1,6 +1,7 @@
 package ee.cookbook.controller;
 
 import ee.cookbook.dao.RecipeRepository;
+import ee.cookbook.model.Recipe;
 import ee.cookbook.model.User;
 import ee.cookbook.service.ImageService;
 import org.apache.tika.exception.UnsupportedFormatException;
@@ -39,8 +40,12 @@ public class ImageController {
   @RequestMapping(value = "/upload", method = RequestMethod.POST)
   public ResponseEntity image(@RequestParam("file") MultipartFile file, @Param("id") Long id, Authentication auth) {
     User user = (User) auth.getPrincipal();
-    if (!(id == null || user.isAdmin || recipeRepository.findOne(id).pictureName == null || recipeRepository.findOne(id).pictureName.equals("")) && recipeRepository.countByIdAndUserId(id, user.id) == 0) {
-      throw new IllegalStateException("User " + user.username + " is not allowed to modify recipe with id " + id);
+    if (id != null && !user.isAdmin) {
+      Recipe recipe = recipeRepository.findById(id).orElseThrow(() -> new IllegalStateException("User " + user.username + " is not allowed to modify recipe with id " + id));
+      boolean recipeHasImage = recipe.pictureName != null && !recipe.pictureName.isEmpty();
+      if (recipeHasImage && recipe.user.id != user.id) {
+        throw new IllegalStateException("User " + user.username + " is not allowed to modify recipe with id " + id);
+      }
     }
     try {
       return ResponseEntity.ok(imageService.createTemporaryImages(file, id, user.id));
