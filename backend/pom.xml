@@ -122,11 +122,11 @@
                             <goal>copy-resources</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>src/main/resources/public</outputDirectory>
+                            <outputDirectory>${project.build.outputDirectory}/public</outputDirectory>
                             <overwrite>true</overwrite>
                             <resources>
                                 <resource>
-                                    <directory>${project.parent.basedir}/frontend/target/dist</directory>
+                                    <directory>${project.parent.basedir}/frontend-vue/target/dist</directory>
                                 </resource>
                             </resources>
                         </configuration>

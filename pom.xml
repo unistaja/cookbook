@@ -23,7 +23,7 @@
 	</properties>
 
 	<modules>
-		<module>frontend</module>
+		<module>frontend-vue</module>
 		<module>backend</module>
 	</modules>
 </project>

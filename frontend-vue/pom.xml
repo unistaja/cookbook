@@ -9,7 +9,7 @@
     <version>0.0.1-SNAPSHOT</version>
   </parent>
 
-  <artifactId>frontend</artifactId>
+  <artifactId>frontend-vue</artifactId>
 
   <name>cookbook frontend</name>
   <description>Demo project for Spring Boot</description>
