@@ -27,8 +27,8 @@ module.exports = merge(baseWebpackConfig, {
     new webpack.NoErrorsPlugin(),
     // https://github.com/ampedandwired/html-webpack-plugin
     new HtmlWebpackPlugin({
-      filename: 'index.html',
-      template: 'index.html',
+      filename: 'index-vue.html',
+      template: 'index-vue.html',
       inject: true
     }),
     new FriendlyErrors()

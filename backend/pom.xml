@@ -18,6 +18,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>17</java.version>
+        <selenium.version>4.8.1</selenium.version>
+        <httpclient5.version>5.2.1</httpclient5.version>
     </properties>
 
     <dependencies>
@@ -84,8 +86,7 @@
         <dependency>
             <groupId>com.codeborne</groupId>
             <artifactId>selenide</artifactId>
-            <!-- use version that uses selenide 4.1.4 which is inherited from spring boot parent -->
-            <version>6.5.2</version>
+            <version>6.12.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -127,6 +128,9 @@
                             <resources>
                                 <resource>
                                     <directory>${project.parent.basedir}/frontend-vue/target/dist</directory>
+                                </resource>
+                                <resource>
+                                    <directory>${project.parent.basedir}/frontend/build</directory>
                                 </resource>
                             </resources>
                         </configuration>

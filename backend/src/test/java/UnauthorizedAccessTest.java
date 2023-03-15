@@ -20,7 +20,7 @@ public class UnauthorizedAccessTest extends BaseSelenideTest {
   }
 
   private void testPage(String page) {
-    open("/#/"+page);
+    open("/index-vue.html#/"+page);
     assert url().equals(baseUrl + "login#/"+page);
     $(By.id("app")).shouldNotBe(visible);
   }

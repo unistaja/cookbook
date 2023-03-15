@@ -5,6 +5,7 @@ import com.codeborne.selenide.WebDriverRunner;
 import ee.cookbook.model.*;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.interactions.Actions;
 
 import java.io.File;
@@ -299,8 +300,10 @@ public class AddRecipeTest extends BaseSelenideTest {
     $(By.id(lineId + "-unit")).click();
     $(By.id(lineId + "-unit")).setValue(unit);
     $(By.id(lineId + "-ingr")).click();
+    $(By.id(lineId + "-ingr")).sendKeys(Keys.CONTROL + "a" + Keys.BACK_SPACE);
     $(By.id(lineId + "-ingr")).setValue(ingredient);
     $(By.id(lineId + "-searchingr")).click();
+    $(By.id(lineId + "-searchingr")).sendKeys(Keys.CONTROL + "a" + Keys.BACK_SPACE);
     $(By.id(lineId + "-searchingr")).setValue(searchIngredient);
   }
 

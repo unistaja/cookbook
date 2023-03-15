@@ -4,7 +4,7 @@ var path = require('path')
 module.exports = {
   build: {
     env: require('./prod.env'),
-    index: path.resolve(__dirname, '../target/dist/index.html'),
+    index: path.resolve(__dirname, '../target/dist/index-vue.html'),
     assetsRoot: path.resolve(__dirname, '../target/dist'),
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',

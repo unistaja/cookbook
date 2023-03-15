@@ -1,3 +1,4 @@
+import com.codeborne.selenide.Configuration;
 import com.codeborne.selenide.Selectors;
 import com.codeborne.selenide.SelenideElement;
 import com.codeborne.selenide.WebDriverRunner;
@@ -26,7 +27,7 @@ import static com.codeborne.selenide.Condition.exist;
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.open;
 import static com.codeborne.selenide.WebDriverRunner.url;
-import static org.openqa.selenium.devtools.v101.page.Page.close;
+import static org.openqa.selenium.devtools.v110.page.Page.close;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.DEFINED_PORT;
 
 @ExtendWith(SpringExtension.class)
@@ -70,7 +71,7 @@ public abstract class BaseSelenideTest {
     }
     open("/login");
     login();
-    baseUrl = url().substring(0, url().length()-2);
+    baseUrl = url();
   }
 
   //logging in

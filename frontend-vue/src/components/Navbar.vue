@@ -3,6 +3,7 @@
   <md-app-toolbar class="md-primary md-dense">
     <div class="md-toolbar-section-start">
       <md-tabs md-sync-route class="md-primary">
+        <md-tab md-label="Avaleht" href="/"></md-tab>
         <md-tab md-label="Lisa retsept" to="/addrecipe"></md-tab>
         <md-tab md-label="Otsing" to="/search"></md-tab>
       </md-tabs>
