@@ -3,6 +3,7 @@ import { Routes, Route, Outlet, Link } from "react-router-dom";
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { green } from '@mui/material/colors';
 import Navbar from './components/Navbar';
+import WeekPlan from "./components/WeekPlan";
 
 const theme = createTheme({
   palette: {
@@ -38,6 +39,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Layout user={user}/>}>
           <Route index element={<Home />} />
+            <Route path="weekplan" element={<WeekPlan />}></Route>
 
           {/* Using path="*"" means "match anything", so this route
                 acts like a catch-all for URLs that we don't have explicit

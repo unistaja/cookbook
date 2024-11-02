@@ -101,6 +101,8 @@ public class SearchService {
       if (searchParameters.descending) {
         query.append(" DESC");
       }
+    } else if (searchParameters.sortOrder == 3) {
+      query.append(" ORDER BY RAND()");
     }
     // ensure recipes with equal sort values are sorted in logical order
     query.append(", id");
