@@ -31,7 +31,7 @@ export default function Navbar({user}) {
           <Tab label="Avaleht" value="/" to="/" component={RouterLink}/>
           <Tab label="Lisa retsept" href="/index-vue.html#/addrecipe"/>
           <Tab label="Otsing" href="/index-vue.html#/search"/>
-          <Tab label="Nädalaplaan" value="/weekplan" href="/weekplan"/>
+          <Tab label="Nädalaplaan" value="/weekplan" to="/weekplan" component={RouterLink}/>
         </Tabs>
         <Button startIcon={<AccountCircleIcon />} color="inherit" onClick={handleClick}>
           {user.username}
