@@ -15,7 +15,6 @@ import Paper from '@mui/material/Paper';
 export default function AddRecipeModal({ingredientLists, onUpdateIngredientLists, autoFillData, open, onClose, onSubmit}) {
   const updateIngredientField = useCallback((newValue, fieldName, listIdx, ingredientIdx, altIngredientIdx) => {
     const newLists = JSON.parse(JSON.stringify(ingredientLists)); // make deep copy
-    console.log(newLists);
     let lineToEdit = newLists[listIdx].ingredientLines[ingredientIdx];
     if (altIngredientIdx !== undefined) {
       lineToEdit = lineToEdit.alternateLines[altIngredientIdx];
@@ -55,10 +54,17 @@ export default function AddRecipeModal({ingredientLists, onUpdateIngredientLists
                    />
                  </TableCell>
                  <TableCell>
-                   <TextField size="small" value={ingredient.ingredient ?? ''} onChange={(e, newValue) => updateIngredientField(newValue, 'ingredient', listIdx, ingredientIdx)}/>
+                   <TextField size="small" value={ingredient.ingredient ?? ''} onChange={(e) => updateIngredientField(e.target.value, 'ingredient', listIdx, ingredientIdx)}/>
                  </TableCell>
                  <TableCell>
-                   <TextField size="small" value={ingredient.searchIngredient ?? ''} onChange={(e, newValue) => updateIngredientField(newValue, 'searchIngredient', listIdx, ingredientIdx)}/>
+                   <Autocomplete
+                     freeSolo
+                     size="small"
+                     options={autoFillData.searchIngredients}
+                     inputValue={ingredient.searchIngredient ?? ''}
+                     onInputChange={(e, newValue) => updateIngredientField(newValue, 'searchIngredient', listIdx, ingredientIdx)}
+                     renderInput={(params) => <TextField {...params}/>}
+                   />
                  </TableCell>
                </TableRow>
                {ingredient.alternateLines.map((altIngredient, altIdx) => (
@@ -75,10 +81,17 @@ export default function AddRecipeModal({ingredientLists, onUpdateIngredientLists
                      />
                    </TableCell>
                    <TableCell>
-                     <TextField size="small" value={altIngredient.ingredient ?? ''} onChange={(e, newValue) => updateIngredientField(newValue, 'ingredient', listIdx, ingredientIdx, altIdx)}/>
+                     <TextField size="small" value={altIngredient.ingredient ?? ''} onChange={(e) => updateIngredientField(e.target.value, 'ingredient', listIdx, ingredientIdx, altIdx)}/>
                    </TableCell>
                    <TableCell>
-                     <TextField size="small" value={altIngredient.searchIngredient ?? ''} onChange={(e, newValue) => updateIngredientField(newValue, 'searchIngredient', listIdx, ingredientIdx, altIdx)}/>
+                     <Autocomplete
+                       freeSolo
+                       size="small"
+                       options={autoFillData.searchIngredients}
+                       inputValue={altIngredient.searchIngredient ?? ''}
+                       onInputChange={(e, newValue) => updateIngredientField(newValue, 'searchIngredient', listIdx, ingredientIdx, altIdx)}
+                       renderInput={(params) => <TextField {...params}/>}
+                     />
                    </TableCell>
                  </TableRow>
                ))}
