@@ -12,7 +12,6 @@ import {
   Link as RouterLink,
   useLocation,
 } from 'react-router-dom';
-import WeekPlan from "./WeekPlan";
 
 export default function Navbar({user}) {
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -29,7 +28,7 @@ export default function Navbar({user}) {
       <Toolbar variant="dense" disableGutters>
         <Tabs value={pathname} sx={{flexGrow: 1}} textColor="inherit" TabIndicatorProps={{style: {backgroundColor: 'black'}}}>
           <Tab label="Avaleht" value="/" to="/" component={RouterLink}/>
-          <Tab label="Lisa retsept" href="/index-vue.html#/addrecipe"/>
+          <Tab label="Lisa retsept" value="/add-recipe" to="/add-recipe" component={RouterLink}/>
           <Tab label="Otsing" href="/index-vue.html#/search"/>
           <Tab label="Nädalaplaan" value="/weekplan" to="/weekplan" component={RouterLink}/>
         </Tabs>

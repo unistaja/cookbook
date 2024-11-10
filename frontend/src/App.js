@@ -4,6 +4,8 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { green } from '@mui/material/colors';
 import Navbar from './components/Navbar';
 import WeekPlan from "./components/WeekPlan";
+import AddRecipeView from "./components/AddRecipeView";
+import { getLoggedInUser } from "./api";
 
 const theme = createTheme({
   palette: {
@@ -18,13 +20,7 @@ export default function App() {
   const [user, setUser] = useState({});
 
   useEffect(() => {
-    fetch('/api/user')
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Invalid response when fetching user");
-        }
-        return response.json();
-      })
+    getLoggedInUser()
       .then((data) => setUser(data))
       .catch((error) => {
         console.error("Error:", error);
@@ -39,7 +35,8 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Layout user={user}/>}>
           <Route index element={<Home />} />
-            <Route path="weekplan" element={<WeekPlan />}></Route>
+          <Route path="weekplan" element={<WeekPlan />}></Route>
+          <Route path="add-recipe" element={<AddRecipeView />}></Route>
 
           {/* Using path="*"" means "match anything", so this route
                 acts like a catch-all for URLs that we don't have explicit
