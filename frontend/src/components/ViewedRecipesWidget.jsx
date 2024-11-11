@@ -17,7 +17,10 @@ export default function ViewedRecipesWidget() {
         console.error("Error:", error);
       });
   }, [setViewedRecipes]);
-  console.log(viewedRecipes);
+
+  function goToRecipe(recipeId) {
+    window.location.href=`/index-vue.html#/recipe/${recipeId}`;
+  }
   if (!viewedRecipes.length) {
     return null;
   }
@@ -31,7 +34,7 @@ export default function ViewedRecipesWidget() {
         {viewedRecipes.map((recipe) => (
           <Grid key={recipe.recipeId} sx={{  display: "flex", alignItems: "stretch", justifyContent: "center", flexWrap: "wrap"}}>
           <Card elevation={4}>
-            <CardActionArea sx={{width: "180px", textAlign: "center", paddingTop: "10px"}}>
+            <CardActionArea onClick={() => goToRecipe(recipe.recipeId)} sx={{width: "180px", textAlign: "center", paddingTop: "10px"}}>
               <img src={`images/${recipe.recipeId}/2RecipePicture.${recipe.pictureName}`} alt=""/>
               <CardContent>
                 <Typography variant="subtitle2">{recipe.name}</Typography>
