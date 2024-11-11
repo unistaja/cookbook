@@ -4,6 +4,7 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { green } from '@mui/material/colors';
 import Navbar from './components/Navbar';
 import WeekPlan from "./components/WeekPlan";
+import HomePageView from "./components/HomePageView";
 import AddRecipeView from "./components/AddRecipeView";
 import { getLoggedInUser } from "./api";
 
@@ -34,7 +35,7 @@ export default function App() {
             parent route elements. See the note about <Outlet> below. */}
       <Routes>
         <Route path="/" element={<Layout user={user}/>}>
-          <Route index element={<Home />} />
+          <Route index element={<HomePageView />} />
           <Route path="weekplan" element={<WeekPlan />}></Route>
           <Route path="add-recipe" element={<AddRecipeView />}></Route>
 
@@ -54,14 +55,6 @@ function Layout({user}) {
       <Navbar user={user}/>
       <Outlet />
     </>
-  );
-}
-
-function Home() {
-  return (
-    <div>
-      Tere tulemast retseptibaasi!
-    </div>
   );
 }
 

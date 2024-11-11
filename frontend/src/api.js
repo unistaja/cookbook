@@ -13,7 +13,7 @@ export const getAutoFillData = async () => {
     return {};
   }
   return response.json();
-}
+};
 
 export const addRecipe = async (recipeToSend) => {
   console.log("Sending recipe");
@@ -30,4 +30,13 @@ export const addRecipe = async (recipeToSend) => {
     throw Error("Retsepti lisamine ebaõnnestus!");
   }
   return response.json();
-}
+};
+
+export const getViewedRecipes = async () => {
+  const response = await fetch('/api/widgets/viewedRecipes');
+  if (!response.ok) {
+    console.log("Invalid response when fetching viewed recipe data");
+    return {};
+  }
+  return response.json();
+};

@@ -10,6 +10,7 @@ import ee.cookbook.model.User;
 import ee.cookbook.protocol.AutoFillData;
 import ee.cookbook.service.AutoFillDataService;
 import ee.cookbook.service.ImageService;
+import ee.cookbook.service.ViewHistoryService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +26,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
@@ -46,6 +49,8 @@ public class RecipeController {
   @Autowired
   private ImageService imageService;
   @Autowired
+  private ViewHistoryService viewHistoryService;
+  @Autowired
   private PreparedHistoryRepository preparedHistoryRepository;
   @Autowired
   private RatingRepository ratingRepository;
@@ -54,6 +59,7 @@ public class RecipeController {
   Recipe getRecipe(@PathVariable long recipeId, Authentication auth) {
     User user = (User) auth.getPrincipal();
     Recipe recipe = recipeRepository.findById(recipeId).orElseThrow();
+    viewHistoryService.addRecipeView(user.id, recipeId);
     PreparedHistory preparedHistory = preparedHistoryRepository.findTopByRecipeIdAndUserIdOrderByPreparedTimeDesc(recipeId, user.id);
     if (preparedHistory != null) {
       recipe.preparedHistory = Collections.singletonList(preparedHistory);
