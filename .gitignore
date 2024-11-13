@@ -3,3 +3,4 @@ logs/
 images/
 node_modules/
 *.iml
+.vscode/settings.json

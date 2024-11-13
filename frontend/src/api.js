@@ -16,7 +16,6 @@ export const getAutoFillData = async () => {
 };
 
 export const addRecipe = async (recipeToSend) => {
-  console.log("Sending recipe");
   const response = await fetch('/api/recipe', {
     method: "POST",
     headers: {
@@ -24,7 +23,6 @@ export const addRecipe = async (recipeToSend) => {
     },
     body: JSON.stringify(recipeToSend)
   });
-  console.log(response);
   if (!response.ok) {
     alert("Retsepti lisamine ebaõnnestus")
     throw Error("Retsepti lisamine ebaõnnestus!");
@@ -40,3 +38,33 @@ export const getViewedRecipes = async () => {
   }
   return response.json();
 };
+
+export const uploadImage = async (image, recipeId) => {
+  const formData = new FormData();
+  formData.append("file", image);
+  if (recipeId) {
+    formData.append("id", recipeId);
+  }
+  const response = await fetch('/api/image/upload', {
+    method: "POST",
+    body: formData
+  });
+  if (!response.ok) {
+    alert("Pildi lisamine ebaõnnestus")
+    throw Error("Pildi lisamine ebaõnnestus!");
+  }
+  return response.text();
+}
+
+export const deleteTempImage = async (name) => {
+  const formData = new FormData();
+  formData.append("name", name);
+  const response = await fetch('/api/image/deletetempimage', {
+    method: "POST",
+    body: formData
+  });
+  if (!response.ok) {
+    alert("Pildi eemaldamine ebaõnnestus")
+    throw Error("Pildi eemaldamine ebaõnnestus!");
+  }
+}

@@ -10,7 +10,8 @@ import Autocomplete from '@mui/material/Autocomplete';
 import Button from '@mui/material/Button';
 import ImageUploadInput from './ImageUploadInput';
 import AddRecipeModal from './AddRecipeModal';
-import { getAutoFillData, addRecipe } from "../api";
+import { getAutoFillData, addRecipe, deleteTempImage } from "../api";
+import RecipeImage from './RecipeImage';
 
 export default function AddRecipeView() {
   const sampleRecipe = `1 kg kartuleid
@@ -27,6 +28,7 @@ Koori kartulid ja keeda soolaga maitsestatud vees pehmeks.
   const [parsedIngredientLists, setParsedIngredientLists] = useState([]);
   const [parsedInstructions, setParsedInstructions] = useState('');
   const [submitModalOpen, setSubmitModalOpen] = useState(false);
+  const [recipeImage, setRecipeImage] = useState(null);
   const availableCategories = autoFillData.categories ?? [];
   const recipeSources = autoFillData.sources ?? [];
 
@@ -58,11 +60,19 @@ Koori kartulid ja keeda soolaga maitsestatud vees pehmeks.
       ingredientLists: parsedIngredientLists,
       categories: recipeCategories,
     };
+    if (recipeImage) {
+      recipeToSubmit.pictureName = recipeImage;
+    }
     const resp = await addRecipe(recipeToSubmit);
     if (resp.message) {
       alert("Pildi lisamine ebaõnnestus!");
     }
     window.location.href=`/index-vue.html#/recipe/${resp.recipeId}`;
+  }
+
+  async function removeTempImage() {
+    await deleteTempImage(recipeImage);
+    setRecipeImage(null);
   }
 
   useEffect(() => {
@@ -122,9 +132,17 @@ Koori kartulid ja keeda soolaga maitsestatud vees pehmeks.
 
           </Stack>
         </Grid>
-{/*         <Grid size="auto" align="center"> */}
-{/*           <ImageUploadInput/> */}
-{/*         </Grid> */}
+        <Grid size="auto" align="center"> 
+          {recipeImage 
+            ?
+              <Stack width="350px">
+                <RecipeImage imgName={recipeImage} size="medium"/>
+                <Button onClick={removeTempImage}>Eemalda</Button>
+              </Stack>
+            :
+              <ImageUploadInput onImageChange={setRecipeImage}/>
+          }
+        </Grid>
       </Grid>
       <AddRecipeModal open={submitModalOpen} onClose={() => setSubmitModalOpen(false)} ingredientLists={parsedIngredientLists} onUpdateIngredientLists={(lists) => setParsedIngredientLists(lists)} autoFillData={autoFillData} onSubmit={submitRecipe} />
     </Container>

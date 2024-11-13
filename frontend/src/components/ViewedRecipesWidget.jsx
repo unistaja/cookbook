@@ -6,6 +6,7 @@ import CardContent from '@mui/material/CardContent';
 import Grid from '@mui/material/Grid2';
 import Typography from '@mui/material/Typography';
 import CardActionArea from '@mui/material/CardActionArea';
+import RecipeImage from './RecipeImage';
 
 export default function ViewedRecipesWidget() {
   const [viewedRecipes, setViewedRecipes] = useState([]);
@@ -35,7 +36,7 @@ export default function ViewedRecipesWidget() {
           <Grid key={recipe.recipeId} sx={{  display: "flex", alignItems: "stretch", justifyContent: "center", flexWrap: "wrap"}}>
           <Card elevation={4}>
             <CardActionArea onClick={() => goToRecipe(recipe.recipeId)} sx={{width: "180px", textAlign: "center", paddingTop: "10px"}}>
-              <img src={`images/${recipe.recipeId}/2RecipePicture.${recipe.pictureName}`} alt=""/>
+              <RecipeImage recipeId={recipe.recipeId} imgName={recipe.pictureName} />
               <CardContent>
                 <Typography variant="subtitle2">{recipe.name}</Typography>
               </CardContent>
