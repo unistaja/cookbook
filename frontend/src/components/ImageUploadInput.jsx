@@ -6,7 +6,7 @@ import { uploadImage } from '../api';
 export default function ImageUploadInput({recipeId, onImageChange}) {
   async function handleImageSelect(file) {
     if (!file) return;
-    const uploadedImgName = await uploadImage(file);
+    const uploadedImgName = await uploadImage(file, recipeId);
     onImageChange(uploadedImgName);
   }
 
@@ -14,7 +14,7 @@ export default function ImageUploadInput({recipeId, onImageChange}) {
     <Button
       component="label"
       variant="outlined"
-      style={{width: '350px', height: '300px'}}
+      style={{width: '200px', height: '200px'}}
     >
       <AddAPhotoIcon/>
       <input

@@ -3,8 +3,6 @@ package ee.cookbook.service;
 import ee.cookbook.dao.RecipeViewHistoryRepository;
 import ee.cookbook.model.RecipeViewHistory;
 import ee.cookbook.model.ViewedRecipe;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -33,7 +31,7 @@ public class ViewHistoryService {
         } else {
             if (existingHistory.size() >= MAX_HISTORY) {
                 var oldestItems = existingHistory.subList(0, existingHistory.size() - MAX_HISTORY + 1);
-                historyRepository.deleteAll(oldestItems);
+                historyRepository.deleteAllInBatch(oldestItems);
             }
             var newViwHistory = new RecipeViewHistory();
             newViwHistory.userId = userId;

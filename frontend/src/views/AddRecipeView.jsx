@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { useState } from 'react';
 import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid2';
 import Stack from '@mui/material/Stack';
@@ -8,12 +9,13 @@ import TextField from '@mui/material/TextField';
 import Chip from '@mui/material/Chip';
 import Autocomplete from '@mui/material/Autocomplete';
 import Button from '@mui/material/Button';
-import ImageUploadInput from './ImageUploadInput';
-import AddRecipeModal from './AddRecipeModal';
+import ImageUploadInput from '../components/ImageUploadInput';
+import AddRecipeModal from '../components/AddRecipeModal';
 import { getAutoFillData, addRecipe, deleteTempImage } from "../api";
-import RecipeImage from './RecipeImage';
+import RecipeImage from '../components/RecipeImage';
 
 export default function AddRecipeView() {
+  const navigate = useNavigate();
   const sampleRecipe = `1 kg kartuleid
 vett
 soola
@@ -49,7 +51,6 @@ Koori kartulid ja keeda soolaga maitsestatud vees pehmeks.
     setParsedIngredientLists(parsedRecipe.ingredientLists);
     setParsedInstructions(parsedRecipe.instructions);
     setSubmitModalOpen(true);
-    console.log(`State: name: ${recipeName}, source: ${recipeSource}, recipe: ${JSON.stringify(parsedRecipe)}, categories: ${recipeCategories}`);
   }
 
   async function submitRecipe() {
@@ -67,7 +68,7 @@ Koori kartulid ja keeda soolaga maitsestatud vees pehmeks.
     if (resp.message) {
       alert("Pildi lisamine ebaõnnestus!");
     }
-    window.location.href=`/index-vue.html#/recipe/${resp.recipeId}`;
+    navigate(`/recipe/${resp.recipeId}`);
   }
 
   async function removeTempImage() {

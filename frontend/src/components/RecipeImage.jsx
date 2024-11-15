@@ -1,4 +1,4 @@
-export default function RecipeImage({imgName, recipeId, size}) {
+export default function RecipeImage({imgName, recipeId, size, sx, onClick}) {
   const imgFolder = recipeId ?? 'temp';
   const imgNamePrefix = recipeId ? 'RecipePicture.' : '';
   let sizePrefix = 2;
@@ -10,6 +10,6 @@ export default function RecipeImage({imgName, recipeId, size}) {
   }
 
   return (
-    <img src={`images/${imgFolder}/${sizePrefix}${imgNamePrefix}${imgName}`} alt=""/>
+    <img src={`/images/${imgFolder}/${sizePrefix}${imgNamePrefix}${imgName}`} onClick={onClick} alt="" style={sx}/>
   );
 }

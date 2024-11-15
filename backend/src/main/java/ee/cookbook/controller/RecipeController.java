@@ -26,8 +26,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
@@ -172,6 +170,6 @@ public class RecipeController {
   @RequestMapping(value = "/findpreparedtimes", method = RequestMethod.POST)
   List<PreparedHistory> findPreparedTimes (@RequestParam("recipeId") Long recipeId, Authentication auth) {
     User user = (User) auth.getPrincipal();
-    return preparedHistoryRepository.findAllByRecipeIdAndUserId(recipeId, user.id);
+    return preparedHistoryRepository.findAllByRecipeIdAndUserIdOrderByPreparedTimeDesc(recipeId, user.id);
   }
 }

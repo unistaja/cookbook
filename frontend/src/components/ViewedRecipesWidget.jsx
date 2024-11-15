@@ -1,4 +1,7 @@
 import { useState, useEffect } from 'react';
+import {
+  Link as RouterLink
+} from 'react-router-dom';
 import { getViewedRecipes} from "../api";
 import Paper from '@mui/material/Paper';
 import Card from '@mui/material/Card';
@@ -19,9 +22,6 @@ export default function ViewedRecipesWidget() {
       });
   }, [setViewedRecipes]);
 
-  function goToRecipe(recipeId) {
-    window.location.href=`/index-vue.html#/recipe/${recipeId}`;
-  }
   if (!viewedRecipes.length) {
     return null;
   }
@@ -35,7 +35,7 @@ export default function ViewedRecipesWidget() {
         {viewedRecipes.map((recipe) => (
           <Grid key={recipe.recipeId} sx={{  display: "flex", alignItems: "stretch", justifyContent: "center", flexWrap: "wrap"}}>
           <Card elevation={4}>
-            <CardActionArea onClick={() => goToRecipe(recipe.recipeId)} sx={{width: "180px", textAlign: "center", paddingTop: "10px"}}>
+            <CardActionArea to={`/recipe/${recipe.recipeId}`} component={RouterLink} sx={{width: "180px", textAlign: "center", paddingTop: "10px"}}>
               <RecipeImage recipeId={recipe.recipeId} imgName={recipe.pictureName} />
               <CardContent>
                 <Typography variant="subtitle2">{recipe.name}</Typography>

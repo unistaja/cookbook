@@ -1,4 +1,4 @@
-import ViewedRecipesWidget from './ViewedRecipesWidget';
+import ViewedRecipesWidget from '../components/ViewedRecipesWidget';
 import Stack from '@mui/material/Stack';
 
 export default function Home() {

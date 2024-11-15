@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { Fragment, useCallback } from 'react';
 import Autocomplete from '@mui/material/Autocomplete';
 import Button from '@mui/material/Button';
 import DialogTitle from '@mui/material/DialogTitle';
@@ -37,10 +37,10 @@ export default function AddRecipeModal({ingredientLists, onUpdateIngredientLists
            </TableRow>
          </TableHead>
          {ingredientLists.map((list, listIdx) => (
-           <TableBody>
-             {ingredientLists.length > 1 && <TableRow><TableCell colSpan="4">{list.name}</TableCell></TableRow>}
+           <TableBody key={`list-${listIdx}`}>
+             {ingredientLists.length > 1 && <TableRow key={`list-heading-${listIdx}`}><TableCell colSpan="4">{list.name}</TableCell></TableRow>}
              {list.ingredientLines.map((ingredient, ingredientIdx) => (
-               <>
+               <Fragment key={`list-${listIdx}-ingredientline-${ingredientIdx}`}>
                <TableRow>
                  <TableCell align="right">{ingredient.amount}</TableCell>
                  <TableCell>
@@ -95,7 +95,7 @@ export default function AddRecipeModal({ingredientLists, onUpdateIngredientLists
                    </TableCell>
                  </TableRow>
                ))}
-               </>
+               </Fragment>
              ))}
            </TableBody>
          ))}
