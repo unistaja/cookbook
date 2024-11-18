@@ -14,6 +14,7 @@ import AddRecipeModal from '../components/AddRecipeModal';
 import { getAutoFillData, addRecipe, deleteTempImage } from "../api";
 import RecipeImage from '../components/RecipeImage';
 
+const amountValidator = /^\d+(?:[.,]\d+)?(?:-\d+(?:[.,]\d+)?)?$/;
 export default function AddRecipeView() {
   const navigate = useNavigate();
   const sampleRecipe = `1 kg kartuleid
@@ -190,15 +191,16 @@ function parseRecipeContent(content, autoFillData) {
 
 function parseIngredientLine(ingredientLine, autoFillData) {
   const lineParts = ingredientLine.split(" ").filter(x => x.trim().length > 0);
-  const amount = Number(lineParts[0]);
-
+  
   // no amount
-  if (!amount) {
+  if (!amountValidator.test(lineParts[0])) {
     return {
       ingredient: ingredientLine,
       searchIngredient: autoFillData.ingredients?.[ingredientLine] ?? undefined
     };
   }
+
+  const amount = lineParts[0];
 
   // no unit
   if (lineParts.length === 2) {
