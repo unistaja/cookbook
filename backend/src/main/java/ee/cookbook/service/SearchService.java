@@ -19,13 +19,13 @@ public class SearchService {
   @Autowired
   private JdbcTemplate template;
 
-  public SearchResult findRecipes(SearchForm searchParameters) {
+  public SearchResult findRecipes(SearchForm searchParameters, long userId) {
     List<Object> parameters = new ArrayList<>();
     StringBuilder query = new StringBuilder();
     SearchResult result = new SearchResult();
     query.append("SELECT DISTINCT SQL_CALC_FOUND_ROWS Recipe.id, username, Recipe.name, added, pictureName, preparedTime, PreparedHistory.userId, rating, averageRating FROM Recipe JOIN User ON Recipe.userId = User.id LEFT JOIN PreparedHistory ON PreparedHistory.preparedTime = (SELECT MAX(preparedTime) FROM PreparedHistory WHERE recipeId = Recipe.id AND userId = ?) LEFT JOIN Rating ON Recipe.id = Rating.recipeId AND Rating.userId = ? LEFT JOIN average_rating ON Recipe.id = average_rating.recipeId WHERE");
-    parameters.add(searchParameters.userId);
-    parameters.add(searchParameters.userId);
+    parameters.add(userId);
+    parameters.add(userId);
     if (!StringUtils.isBlank(searchParameters.name)) {
       query.append(" name = ? AND ");
       parameters.add(searchParameters.name);
@@ -79,7 +79,7 @@ public class SearchService {
     if (searchParameters.hasPrepared != null) {
       if (searchParameters.hasPrepared) {
         query.append(" PreparedHistory.userId = ? AND ");
-        parameters.add(searchParameters.userId);
+        parameters.add(userId);
       } else {
         query.append(" PreparedHistory.userId IS NULL AND ");
       }
@@ -140,9 +140,9 @@ public class SearchService {
       }
     }, parameters.toArray());
     if (searchParameters.resultsPerPage > 0) {
-      result.pages = (template.queryForObject("SELECT FOUND_ROWS();", Long.class) + searchParameters.resultsPerPage - 1) / searchParameters.resultsPerPage;
+      result.total = template.queryForObject("SELECT FOUND_ROWS();", Long.class);
     } else {
-      result.pages = 0;
+      result.total = result.recipes.size();
     }
     return result;
   }

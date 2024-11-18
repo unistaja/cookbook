@@ -8,6 +8,7 @@ import HomePageView from "./views/HomePageView";
 import AddRecipeView from "./views/AddRecipeView";
 import { getLoggedInUser } from "./api";
 import RecipeView from './views/RecipeView';
+import SearchView from './views/SearchView';
 
 const theme = createTheme({
   palette: {
@@ -39,6 +40,7 @@ export default function App() {
           <Route index element={<HomePageView />} />
           <Route path="weekplan" element={<WeekPlan />}></Route>
           <Route path="add-recipe" element={<AddRecipeView />}></Route>
+          <Route path="search" element={<SearchView />}></Route>
           <Route path="recipe">
             <Route path=":recipeId" element={<RecipeView />}></Route>
           </Route>

@@ -29,7 +29,7 @@ export default function Navbar({user}) {
         <Tabs value={pathname} sx={{flexGrow: 1}} textColor="inherit" TabIndicatorProps={{style: {backgroundColor: 'black'}}}>
           <Tab label="Avaleht" value="/" to="/" component={RouterLink}/>
           <Tab label="Lisa retsept" value="/add-recipe" to="/add-recipe" component={RouterLink}/>
-          <Tab label="Otsing" href="/index-vue.html#/search"/>
+          <Tab label="Otsing" value="/search" to="/search" component={RouterLink}/>
           <Tab label="Nädalaplaan" value="/weekplan" to="/weekplan" component={RouterLink}/>
         </Tabs>
         <Button startIcon={<AccountCircleIcon />} color="inherit" onClick={handleClick}>

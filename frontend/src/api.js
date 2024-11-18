@@ -38,6 +38,21 @@ export const getRecipe = async (recipeId) => {
   return response.json();
 }
 
+export const findRecipes = async (query) => {
+  const response = await fetch('/api/search', {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json;charset=UTF-8",
+    },
+    body: JSON.stringify(query)
+  });
+  if (!response.ok) {
+    alert("Otsing ebaõnnestus")
+    throw Error("Otsing ebaõnnestus");
+  }
+  return response.json();
+}
+
 export const getViewedRecipes = async () => {
   const response = await fetch('/api/widgets/viewedRecipes');
   if (!response.ok) {

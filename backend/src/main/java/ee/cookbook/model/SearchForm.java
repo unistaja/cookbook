@@ -25,7 +25,5 @@ public class SearchForm {
 
   public long resultPage;
 
-  public long userId;
-
   public Boolean hasPrepared = null;
 }

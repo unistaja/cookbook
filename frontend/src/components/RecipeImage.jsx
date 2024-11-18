@@ -1,4 +1,8 @@
+import ImageIcon from '@mui/icons-material/Image';
 export default function RecipeImage({imgName, recipeId, size, sx, onClick}) {
+  if (!imgName) {
+    return <ImageIcon sx={{fontSize: "100px"}}/>;
+  }
   const imgFolder = recipeId ?? 'temp';
   const imgNamePrefix = recipeId ? 'RecipePicture.' : '';
   let sizePrefix = 2;
