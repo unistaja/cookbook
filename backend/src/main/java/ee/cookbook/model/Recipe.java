@@ -17,6 +17,10 @@ public class Recipe implements Persistable<Long>{
 
   public String pictureName;
 
+  public String amount;
+
+  public String prepareTime;
+
   @ManyToOne
   @JoinColumn(name = "userId")
   public User user;

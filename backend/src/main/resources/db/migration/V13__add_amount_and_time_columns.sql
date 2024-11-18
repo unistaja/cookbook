@@ -1,0 +1,1 @@
+ALTER TABLE Recipe ADD amount VARCHAR(100), ADD prepareTime VARCHAR(100);

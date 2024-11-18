@@ -11,6 +11,8 @@ import dayjs from 'dayjs';
 import Link from "@mui/material/Link";
 import PreparedHistoryModal from "../components/PreparedHistoryModal";
 import RecipeImageSection from "../components/RecipeImageSection";
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import RestaurantIcon from '@mui/icons-material/Restaurant';
 import { Fragment } from "react";
 
 
@@ -65,8 +67,13 @@ export default function RecipeView () {
     <Container align="center">
       <Stack spacing={1} padding={2} maxWidth="700px" align="center" alignItems="center">
         <Typography variant="h4">{recipe.name}</Typography>
-        <Typography variant="subtitle1" sx={{marginTop: 0}}>{recipe.source}</Typography>
+        {recipe.source && <Typography variant="subtitle1" sx={{marginTop: 0}}>{recipe.source}</Typography>}
         <EditableRating recipeId={recipeId} value={recipe.rating.length > 0 ? recipe.rating[0].rating : recipe.averageRating} onChange={onRatingChange}/>
+        {(recipe.amount || recipe.prepareTime) && <Stack alignItems="center" direction="row" gap={2}>
+            {recipe.amount && <><RestaurantIcon fontSize="small"/><Typography variant="body2" sx={{marginTop: 0}}>{recipe.amount}</Typography></>}
+            {recipe.prepareTime && <><AccessTimeIcon fontSize="small"/><Typography variant="body2" sx={{marginTop: 0}}>{recipe.prepareTime}</Typography></>}
+          </Stack>
+        }
         {recipe.preparedHistory[0]?.preparedTime && 
           <Typography variant="body2">
             Viimati valmistasin: {" "}

@@ -97,6 +97,8 @@ public class RecipeController {
       recipeToSave.instructions = recipe.instructions;
       recipeToSave.name = recipe.name;
       recipeToSave.source = recipe.source;
+      recipeToSave.amount = recipe.amount;
+      recipeToSave.prepareTime = recipe.prepareTime;
     } else {
       recipeToSave.user = user;
     }

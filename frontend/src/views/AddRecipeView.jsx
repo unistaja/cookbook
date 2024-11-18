@@ -24,6 +24,8 @@ Koori kartulid ja keeda soolaga maitsestatud vees pehmeks.
   `;
   const [autoFillData, setAutoFillData] = useState({});
   const [recipeName, setRecipeName] = useState('');
+  const [recipeAmount, setRecipeAmount] = useState('');
+  const [recipePrepareTime, setRecipePrepareTime] = useState('');
   const [recipeSource, setRecipeSource] = useState('');
   const [recipeContent, setRecipeContent] = useState('');
   const [recipeCategories, setRecipeCategories] = useState([]);
@@ -56,7 +58,9 @@ Koori kartulid ja keeda soolaga maitsestatud vees pehmeks.
   async function submitRecipe() {
     const recipeToSubmit = {
       name: recipeName,
-      source: recipeSource ?? null,
+      source: recipeSource || null,
+      amount: recipeAmount || null,
+      prepareTime: recipePrepareTime || null,
       instructions: parsedInstructions,
       ingredientLists: parsedIngredientLists,
       categories: recipeCategories,
@@ -98,6 +102,8 @@ Koori kartulid ja keeda soolaga maitsestatud vees pehmeks.
                     onInputChange={(e, newValue) => setRecipeSource(newValue)}
                     renderInput={(params) => <TextField {...params}  label="Allikas" />}
                   />
+            <TextField id="amount" label="Kogus" value={recipeAmount} onChange={e => setRecipeAmount(e.target.value)} placeholder="Neljale"/>
+            <TextField id="time" label="Valmistusaeg" value={recipePrepareTime} onChange={e => setRecipePrepareTime(e.target.value)} placeholder="15 min + 30 min ahjus"/>
             <TextField
               id="recipe"
               label="Retsept"
