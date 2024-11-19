@@ -3,6 +3,7 @@ import {Container, Grid, styled} from "@mui/material";
 import Button from "@mui/material/Button";
 import {createTheme} from "@mui/material/styles";
 import {Fragment, useEffect, useState} from "react";
+import { Link } from 'react-router-dom';
 
 const days = ['Esmaspäev', "Teisipäev", "Kolmapäev", "Neljapäev", "Reede", "Laupäev", "Pühapäev"]
 
@@ -68,7 +69,7 @@ function DayPlan({day}) {
                 <StyledDiv mt>
                     {day}
                 </StyledDiv>
-                <a href={"/index-vue.html#/recipe/" + recipe?.id}>{recipe?.name}</a>
+                <Link to={"/recipe/" + recipe?.id}>{recipe?.name}</Link>
             </Grid>
         </Fragment>
     );

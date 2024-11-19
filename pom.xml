@@ -9,7 +9,7 @@
 	<packaging>pom</packaging>
 
 	<name>cookbook</name>
-	<description>Demo project for Spring Boot</description>
+	<description>Retseptibaas</description>
 
 	<parent>
 			<groupId>org.springframework.boot</groupId>
@@ -23,7 +23,6 @@
 	</properties>
 
 	<modules>
-		<module>frontend-vue</module>
 		<module>frontend</module>
 		<module>backend</module>
 	</modules>
