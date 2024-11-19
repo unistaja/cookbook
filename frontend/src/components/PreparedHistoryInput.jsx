@@ -15,7 +15,7 @@ export default function PreparedHistoryInput({recipeId, onChange}) {
   const [dateSaved, setDateSaved] = useState(false);
 
   async function savePreparation() {
-    saveDate(dateValue.format('YYYY-MM-DD'), 0, recipeId);
+    await saveDate(dateValue.format('YYYY-MM-DD'), 0, recipeId);
     setDateSaved(true);
     setTimeout(() => setDateSaved(false), 2000);
     onChange(dateValue);

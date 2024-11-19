@@ -42,8 +42,8 @@ export default function Navbar({user}) {
           open={open}
           onClose={handleClose}
         >
-          <MenuItem component={Link} href="/index-vue.html#/user" onClick={handleClose}>Muuda parooli</MenuItem>
-          {user.isAdmin && <MenuItem component={Link} href="/index-vue.html#/admin" onClick={handleClose}>Halda kasutajaid</MenuItem>}
+          <MenuItem component={RouterLink} to="/user" onClick={handleClose}>Muuda parooli</MenuItem>
+          {user.isAdmin && <MenuItem component={RouterLink} to="/admin" onClick={handleClose}>Halda kasutajaid</MenuItem>}
           <MenuItem component={Link} href="/logout" onClick={handleClose}>Logi välja</MenuItem>
         </Menu>
 

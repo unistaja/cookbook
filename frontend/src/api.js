@@ -173,3 +173,31 @@ export const findPreparedTimes = async (recipeId) => {
   }
   return response.json();
 }
+
+export const changePassword = async (oldPassword, newPassword) => {
+  const formData = new FormData();
+  formData.append("oldPassword", oldPassword);
+  formData.append("newPassword", newPassword);
+  const response = await fetch('/api/user', {
+    method: "POST",
+    body: formData
+  });
+  if (!response.ok || await response.text() !== "OK") {
+    alert("Parooli muutmine ebaõnnestus. Kas vana parooli oli õige?")
+    throw Error("Parooli muutmine ebaõnnestus.");
+  }
+}
+
+export const addUser = async (username, password) => {
+  const formData = new FormData();
+  formData.append("username", username);
+  formData.append("password", password);
+  const response = await fetch('/api/admin/addUser', {
+    method: "POST",
+    body: formData
+  });
+  if (!response.ok) {
+    alert("Kasutaja lisamine ebaõnnestus")
+    throw Error("Kasutaja lisamine ebaõnnestus.");
+  }
+}

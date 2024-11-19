@@ -9,6 +9,8 @@ import AddRecipeView from "./views/AddRecipeView";
 import { getLoggedInUser } from "./api";
 import RecipeView from './views/RecipeView';
 import SearchView from './views/SearchView';
+import ChangePasswordView from './views/ChangePasswordView';
+import AdminView from './views/AdminView';
 
 const theme = createTheme({
   palette: {
@@ -47,6 +49,8 @@ export default function App() {
           <Route path="recipe">
             <Route path=":recipeId" element={<RecipeView user={user}/>}></Route>
           </Route>
+          <Route path="user" element={<ChangePasswordView />}></Route>
+          <Route path="admin" element={<AdminView />}></Route>
 
           {/* Using path="*"" means "match anything", so this route
                 acts like a catch-all for URLs that we don't have explicit
