@@ -106,6 +106,19 @@ export const deleteTempImage = async (name) => {
   }
 }
 
+export const deleteSavedImage = async (id) => {
+  const formData = new FormData();
+  formData.append("id", id);
+  const response = await fetch('/api/image/deletesavedimage', {
+    method: "POST",
+    body: formData
+  });
+  if (!response.ok) {
+    alert("Pildi eemaldamine ebaõnnestus")
+    throw Error("Pildi eemaldamine ebaõnnestus!");
+  }
+}
+
 export const saveRating = async (rating, recipeId) => {
   const formData = new FormData();
   formData.append("recipeId", recipeId);

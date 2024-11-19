@@ -1,6 +1,7 @@
 package ee.cookbook.model;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import java.util.List;
 
@@ -10,8 +11,10 @@ public class IngredientLine {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   public long id;
 
+  @NotNull
   public String ingredient;
 
+  @NotNull
   public String searchIngredient;
 
   @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})

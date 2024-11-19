@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { getRecipe } from "../api";
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
+import IconButton from '@mui/material/IconButton';
 import Stack from "@mui/material/Stack";
 import EditableRating from "../components/EditableRating";
 import PreparedHistoryInput from "../components/PreparedHistoryInput";
@@ -13,11 +14,13 @@ import PreparedHistoryModal from "../components/PreparedHistoryModal";
 import RecipeImageSection from "../components/RecipeImageSection";
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import RestaurantIcon from '@mui/icons-material/Restaurant';
+import EditIcon from '@mui/icons-material/Edit';
 import { Fragment } from "react";
 
 
 
-export default function RecipeView () {
+export default function RecipeView ({user}) {
+  const navigate = useNavigate();
   const [recipe, setRecipe] = useState(null);
   const [historyModalOpen, setHistoryModalOpen] = useState(false);
 
@@ -66,7 +69,7 @@ export default function RecipeView () {
   return (
     <Container align="center">
       <Stack spacing={1} padding={2} maxWidth="700px" align="center" alignItems="center">
-        <Typography variant="h4">{recipe.name}</Typography>
+        <Stack direction="row"><Typography variant="h4">{recipe.name}</Typography>{user.isAdmin || user.id === recipe.user.id ? <IconButton onClick={() => navigate(`/edit-recipe/${recipeId}`)}><EditIcon/></IconButton> : null}</Stack>
         {recipe.source && <Typography variant="subtitle1" sx={{marginTop: 0}}>{recipe.source}</Typography>}
         <EditableRating recipeId={recipeId} value={recipe.rating.length > 0 ? recipe.rating[0].rating : recipe.averageRating} onChange={onRatingChange}/>
         {(recipe.amount || recipe.prepareTime) && <Stack alignItems="center" direction="row" gap={2}>

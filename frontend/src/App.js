@@ -40,9 +40,12 @@ export default function App() {
           <Route index element={<HomePageView />} />
           <Route path="weekplan" element={<WeekPlan />}></Route>
           <Route path="add-recipe" element={<AddRecipeView />}></Route>
+          <Route path="edit-recipe">
+            <Route path=":recipeId" element={<AddRecipeView />}></Route>
+          </Route>
           <Route path="search" element={<SearchView />}></Route>
           <Route path="recipe">
-            <Route path=":recipeId" element={<RecipeView />}></Route>
+            <Route path=":recipeId" element={<RecipeView user={user}/>}></Route>
           </Route>
 
           {/* Using path="*"" means "match anything", so this route

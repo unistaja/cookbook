@@ -13,6 +13,7 @@ import {
   useLocation,
 } from 'react-router-dom';
 
+const knownPaths = ["/", "/add-recipe", "/search", "/weekplan"];
 export default function Navbar({user}) {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const { pathname } = useLocation();
@@ -26,7 +27,7 @@ export default function Navbar({user}) {
   return (
     <AppBar position="sticky">
       <Toolbar variant="dense" disableGutters>
-        <Tabs value={pathname} sx={{flexGrow: 1}} textColor="inherit" TabIndicatorProps={{style: {backgroundColor: 'black'}}}>
+        <Tabs value={knownPaths.includes(pathname) ? pathname : false} sx={{flexGrow: 1}} textColor="inherit" TabIndicatorProps={{style: {backgroundColor: 'black'}}}>
           <Tab label="Avaleht" value="/" to="/" component={RouterLink}/>
           <Tab label="Lisa retsept" value="/add-recipe" to="/add-recipe" component={RouterLink}/>
           <Tab label="Otsing" value="/search" to="/search" component={RouterLink}/>

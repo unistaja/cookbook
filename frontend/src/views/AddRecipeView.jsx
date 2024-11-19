@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useState } from 'react';
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid2';
 import Stack from '@mui/material/Stack';
@@ -11,11 +11,12 @@ import Autocomplete from '@mui/material/Autocomplete';
 import Button from '@mui/material/Button';
 import ImageUploadInput from '../components/ImageUploadInput';
 import AddRecipeModal from '../components/AddRecipeModal';
-import { getAutoFillData, addRecipe, deleteTempImage } from "../api";
+import { getAutoFillData, addRecipe, deleteTempImage, deleteSavedImage, getRecipe } from "../api";
 import RecipeImage from '../components/RecipeImage';
 
 const amountValidator = /^\d+(?:[.,]\d+)?(?:-\d+(?:[.,]\d+)?)?$/;
 export default function AddRecipeView() {
+  let { recipeId } = useParams();
   const navigate = useNavigate();
   const sampleRecipe = `1 kg kartuleid
 vett
@@ -33,6 +34,7 @@ Koori kartulid ja keeda soolaga maitsestatud vees pehmeks.
   const [parsedIngredientLists, setParsedIngredientLists] = useState([]);
   const [parsedInstructions, setParsedInstructions] = useState('');
   const [submitModalOpen, setSubmitModalOpen] = useState(false);
+  const [existingRecipeImage, setExistingRecipeImage] = useState(null);
   const [recipeImage, setRecipeImage] = useState(null);
   const availableCategories = autoFillData.categories ?? [];
   const recipeSources = autoFillData.sources ?? [];
@@ -58,6 +60,7 @@ Koori kartulid ja keeda soolaga maitsestatud vees pehmeks.
 
   async function submitRecipe() {
     const recipeToSubmit = {
+      ...(recipeId ? {id: recipeId} : null),
       name: recipeName,
       source: recipeSource || null,
       amount: recipeAmount || null,
@@ -68,6 +71,8 @@ Koori kartulid ja keeda soolaga maitsestatud vees pehmeks.
     };
     if (recipeImage) {
       recipeToSubmit.pictureName = recipeImage;
+    } else if (existingRecipeImage) {
+      recipeToSubmit.pictureName = existingRecipeImage;
     }
     const resp = await addRecipe(recipeToSubmit);
     if (resp.message) {
@@ -81,6 +86,13 @@ Koori kartulid ja keeda soolaga maitsestatud vees pehmeks.
     setRecipeImage(null);
   }
 
+  async function removeExistingImage() {
+    if(window.confirm("Kustuta jäädavalt eksisteeriv pilt?")) {
+      await deleteSavedImage(recipeId);
+      setExistingRecipeImage(null);
+    }
+  }
+
   useEffect(() => {
       getAutoFillData()
         .then((data) => setAutoFillData(data))
@@ -88,6 +100,24 @@ Koori kartulid ja keeda soolaga maitsestatud vees pehmeks.
           console.error("Error:", error);
         });
     }, [setAutoFillData]);
+
+    useEffect(() => {
+      if (recipeId) {
+        getRecipe(recipeId)
+        .then((recipe) => {
+          setRecipeName(recipe.name);
+          setRecipeAmount(recipe.amount ?? '');
+          setRecipePrepareTime(recipe.prepareTime ?? '');
+          setRecipeSource(recipe.source ?? '');
+          setRecipeCategories(recipe.categories);
+          setExistingRecipeImage(recipe.pictureName);
+          setRecipeContent(getRecipeContent(recipe.ingredientLists, recipe.instructions));
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+      }
+    }, [recipeId]);
 
   return (
     <Container sx={{ mt: 2 }}>
@@ -136,19 +166,25 @@ Koori kartulid ja keeda soolaga maitsestatud vees pehmeks.
                 />
               )}
             />
-            <Button variant="contained" onClick={prepareAddRecipe}>Lisa retsept</Button>
+            <Button variant="contained" onClick={prepareAddRecipe}>{recipeId ? "Muuda" : "Lisa"} retsept</Button>
 
           </Stack>
         </Grid>
         <Grid size="auto" align="center"> 
           {recipeImage 
             ?
-              <Stack width="350px">
+              <Stack width="200px">
                 <RecipeImage imgName={recipeImage} size="medium"/>
                 <Button onClick={removeTempImage}>Eemalda</Button>
               </Stack>
-            :
+            : (existingRecipeImage ?
+              <Stack width="200px" spacing={1}>
+                <RecipeImage imgName={existingRecipeImage} recipeId={recipeId} size="medium"/>
+                <Button onClick={removeExistingImage} color="error" variant="contained">Kustuta</Button>
+              </Stack>
+              :
               <ImageUploadInput onImageChange={setRecipeImage}/>
+            )           
           }
         </Grid>
       </Grid>
@@ -190,13 +226,21 @@ function parseRecipeContent(content, autoFillData) {
 }
 
 function parseIngredientLine(ingredientLine, autoFillData) {
+  ingredientLine = ingredientLine.trim();
+  let existingSearchIngredient = undefined;
+  if (ingredientLine.endsWith("]")) {
+    const [line, searchIngredient] = ingredientLine.split("[");
+    ingredientLine = line;
+    existingSearchIngredient = searchIngredient.substring(0, searchIngredient.length -1);
+
+  }
   const lineParts = ingredientLine.split(" ").filter(x => x.trim().length > 0);
   
   // no amount
   if (!amountValidator.test(lineParts[0])) {
     return {
       ingredient: ingredientLine,
-      searchIngredient: autoFillData.ingredients?.[ingredientLine] ?? undefined
+      searchIngredient: existingSearchIngredient ?? (autoFillData.ingredients?.[ingredientLine] ?? undefined)
     };
   }
 
@@ -209,7 +253,7 @@ function parseIngredientLine(ingredientLine, autoFillData) {
     return {
       amount: amount,
       ingredient: ingredient,
-      searchIngredient: autoFillData.ingredients?.[ingredient] ?? undefined
+      searchIngredient: existingSearchIngredient ?? (autoFillData.ingredients?.[ingredient] ?? undefined)
     };
   }
 
@@ -220,7 +264,7 @@ function parseIngredientLine(ingredientLine, autoFillData) {
       amount: amount,
       unit: possibleUnit,
       ingredient: ingredient,
-      searchIngredient: autoFillData.ingredients?.[ingredient] ?? undefined
+      searchIngredient: existingSearchIngredient ?? (autoFillData.ingredients?.[ingredient] ?? undefined)
     };
   }
 
@@ -230,6 +274,21 @@ function parseIngredientLine(ingredientLine, autoFillData) {
   return {
     amount: amount,
     ingredient: ingredient,
-    searchIngredient: autoFillData.ingredients?.[ingredient] ?? undefined
+    searchIngredient: existingSearchIngredient ?? (autoFillData.ingredients?.[ingredient] ?? undefined)
   };
+}
+
+function getRecipeContent(ingredientLists, instructions) {
+  const ingredientsPart = ingredientLists.map((list) => {
+    return list.name + ":\n" + list.ingredientLines.map((line) => {
+      const lines = [line, ...line.alternateLines];
+      return lines.map(ingredient => getContentIngredient(ingredient)).join(' või ')
+    }).join('\n');
+  }).join('\n');
+  return ingredientsPart + '\n\n' + instructions;
+}
+
+function getContentIngredient(ingredient) {
+  return `${ingredient.amount ? ingredient.amount + " " : "" }${ingredient.unit ? ingredient.unit + " " : "" }${ingredient.ingredient} [${ingredient.searchIngredient}]`
+
 }
