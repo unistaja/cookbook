@@ -14,7 +14,7 @@ import AddRecipeModal from '../components/AddRecipeModal';
 import { getAutoFillData, addRecipe, deleteTempImage, deleteSavedImage, getRecipe } from "../api";
 import RecipeImage from '../components/RecipeImage';
 
-const amountValidator = /^\d+(?:[.,]\d+)?(?:-\d+(?:[.,]\d+)?)?$/;
+const amountValidator = /^\d+(?:[.,/]\d+)?(?:-\d+(?:[.,/]\d+)?)?$/;
 export default function AddRecipeView() {
   let { recipeId } = useParams();
   const navigate = useNavigate();

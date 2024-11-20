@@ -21,7 +21,7 @@ public class IngredientLine {
   @JoinColumn(name = "unit")
   public IngredientUnit unit;
 
-  @Pattern(regexp = "(\\d+[.,]*\\d*-*\\d*[.,]*\\d*)|(^$)", message = "Invalid amount format (${validatedValue})")
+  @Pattern(regexp = "(\\d+[.,/]*\\d*-*\\d*[.,/]*\\d*)|(^$)", message = "Invalid amount format (${validatedValue})")
   public String amount;
 
   @OneToMany(cascade = {CascadeType.ALL}, orphanRemoval = true)
