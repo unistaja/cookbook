@@ -18,7 +18,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import { useState } from "react";
 
-export default function SearchForm({onSearch, currentSearch, onSearchChange, autoFillData}) {
+export default function SearchForm({onSearch, currentSearch, autoFillData}) {
   const [internalSearch, setInternalSearch] = useState(currentSearch);
   const [expanded, setExpanded] = useState(false);
   const [isIngredientAndMode, setIsIngredientAndMode] = useState(true);
@@ -151,7 +151,7 @@ export default function SearchForm({onSearch, currentSearch, onSearchChange, aut
                         InputProps={{
                           ...params.InputProps,
                           startAdornment: [(
-                            <InputAdornment position="start" style={{marginRight: "0px"}}>
+                            <InputAdornment position="start" style={{marginRight: "0px"}} key="ingredientmodetoggle">
                               <Button
                                 onClick={handleModeToggle}
                                 size="small" 

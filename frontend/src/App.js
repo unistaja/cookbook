@@ -21,8 +21,25 @@ const theme = createTheme({
   },
 });
 
+const defaultSearch = {
+  name: null,
+  source: null,
+  hasPicture: false,
+  resultsPerPage: 10,
+  sortOrder: 2,
+  descending: true,
+  username: null,
+  withIngredients: [],
+  withoutIngredients: [],
+  categories: [],
+  userId: null,
+  hasPrepared: null,
+  resultPage: 0
+};
+
 export default function App() {
   const [user, setUser] = useState({});
+  const [currentSearch, setCurrentSearch] = useState({...defaultSearch})
 
   useEffect(() => {
     getLoggedInUser()
@@ -45,7 +62,7 @@ export default function App() {
           <Route path="edit-recipe">
             <Route path=":recipeId" element={<AddRecipeView />}></Route>
           </Route>
-          <Route path="search" element={<SearchView />}></Route>
+          <Route path="search" element={<SearchView currentSearch={currentSearch} setCurrentSearch={setCurrentSearch} />}></Route>
           <Route path="recipe">
             <Route path=":recipeId" element={<RecipeView user={user}/>}></Route>
           </Route>
