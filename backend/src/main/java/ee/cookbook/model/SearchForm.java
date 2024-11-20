@@ -11,6 +11,8 @@ public class SearchForm {
 
   public String name;
 
+  public Boolean exactName = false;
+
   public List<IngredientLine> withIngredients;
 
   public List<String> withoutIngredients;

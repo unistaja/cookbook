@@ -27,8 +27,13 @@ public class SearchService {
     parameters.add(userId);
     parameters.add(userId);
     if (!StringUtils.isBlank(searchParameters.name)) {
-      query.append(" name = ? AND ");
-      parameters.add(searchParameters.name);
+      if (searchParameters.exactName) {
+        query.append(" name = ? AND ");
+        parameters.add(searchParameters.name);
+      } else {
+        query.append(" name LIKE ? AND ");
+        parameters.add("%" + searchParameters.name + "%");
+      }
     }
     if (!StringUtils.isBlank(searchParameters.username)) {
       query.append(" username = ? AND ");
