@@ -16,6 +16,7 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import RestaurantIcon from '@mui/icons-material/Restaurant';
 import EditIcon from '@mui/icons-material/Edit';
 import { Fragment } from "react";
+import { CategoriesSection } from "../components/CategoriesSection";
 
 
 
@@ -101,6 +102,7 @@ export default function RecipeView ({user}) {
           </Stack>
           <Box sx={{alignSelf: {xs: "center", sm: "auto"}, width:"200px"}}>
             <RecipeImageSection recipeId={recipeId} imageName={recipe.pictureName} onUpdateImage={onImageAdded}/>
+            <CategoriesSection categories={recipe.categories}/>
           </Box>
         </Stack>
         <Typography variant="body1" align="left" paddingTop="1em" whiteSpace="pre-line">{recipe.instructions}</Typography>

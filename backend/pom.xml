@@ -127,9 +127,6 @@
                             <overwrite>true</overwrite>
                             <resources>
                                 <resource>
-                                    <directory>${project.parent.basedir}/frontend-vue/target/dist</directory>
-                                </resource>
-                                <resource>
                                     <directory>${project.parent.basedir}/frontend/build</directory>
                                 </resource>
                             </resources>
