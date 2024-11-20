@@ -1,7 +1,6 @@
-import * as React from 'react';
-import { useState } from 'react';
-import { useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useState, useEffect, Fragment } from 'react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import Alert from '@mui/material/Alert';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid2';
 import Stack from '@mui/material/Stack';
@@ -11,7 +10,7 @@ import Autocomplete from '@mui/material/Autocomplete';
 import Button from '@mui/material/Button';
 import ImageUploadInput from '../components/ImageUploadInput';
 import AddRecipeModal from '../components/AddRecipeModal';
-import { getAutoFillData, addRecipe, deleteTempImage, deleteSavedImage, getRecipe } from "../api";
+import { getAutoFillData, addRecipe, deleteTempImage, deleteSavedImage, getRecipe, findRecipeIdsByName } from "../api";
 import RecipeImage from '../components/RecipeImage';
 
 const amountValidator = /^\d+(?:[.,/]\d+)?(?:-\d+(?:[.,/]\d+)?)?$/;
@@ -36,6 +35,7 @@ Koori kartulid ja keeda soolaga maitsestatud vees pehmeks.
   const [submitModalOpen, setSubmitModalOpen] = useState(false);
   const [existingRecipeImage, setExistingRecipeImage] = useState(null);
   const [recipeImage, setRecipeImage] = useState(null);
+  const [existingRecipesWithSameName, setExistingRecipesWithSameName] = useState([]);
   const availableCategories = autoFillData.categories ?? [];
   const recipeSources = autoFillData.sources ?? [];
 
@@ -93,6 +93,11 @@ Koori kartulid ja keeda soolaga maitsestatud vees pehmeks.
     }
   }
 
+  async function checkExistingRecipeNames() {
+    const result = await findRecipeIdsByName(recipeName);
+    setExistingRecipesWithSameName(result);
+  }
+
   useEffect(() => {
       getAutoFillData()
         .then((data) => setAutoFillData(data))
@@ -124,7 +129,10 @@ Koori kartulid ja keeda soolaga maitsestatud vees pehmeks.
       <Grid container direction={{ xs: "column", sm: "row"}} spacing={1}>
         <Grid size="grow">
           <Stack spacing={1}>
-            <TextField id="heading" label="Pealkiri" value={recipeName} onChange={e => setRecipeName(e.target.value)}/>
+            <TextField id="heading" label="Pealkiri" value={recipeName} onChange={e => {setRecipeName(e.target.value);setExistingRecipesWithSameName([])}} onBlur={checkExistingRecipeNames} autoComplete='off'/>
+            {existingRecipesWithSameName.length > 0 && <Alert severity="warning">
+              Sama nimega retsept(id): {existingRecipesWithSameName.map(id => <Fragment key={id}><Link to={`/recipe/${id}`} >{id}</Link> </Fragment>)}
+            </Alert>}
             <Autocomplete
                     id="source"
                     freeSolo
@@ -133,8 +141,8 @@ Koori kartulid ja keeda soolaga maitsestatud vees pehmeks.
                     onInputChange={(e, newValue) => setRecipeSource(newValue)}
                     renderInput={(params) => <TextField {...params}  label="Allikas" />}
                   />
-            <TextField id="amount" label="Kogus" value={recipeAmount} onChange={e => setRecipeAmount(e.target.value)} placeholder="Neljale"/>
-            <TextField id="time" label="Valmistusaeg" value={recipePrepareTime} onChange={e => setRecipePrepareTime(e.target.value)} placeholder="15 min + 30 min ahjus"/>
+            <TextField id="amount" label="Kogus" value={recipeAmount} onChange={e => setRecipeAmount(e.target.value)} placeholder="Neljale" autoComplete='off'/>
+            <TextField id="time" label="Valmistusaeg" value={recipePrepareTime} onChange={e => setRecipePrepareTime(e.target.value)} placeholder="15 min + 30 min ahjus" autoComplete='off'/>
             <TextField
               id="recipe"
               label="Retsept"

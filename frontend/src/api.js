@@ -38,6 +38,19 @@ export const getRecipe = async (recipeId) => {
   return response.json();
 }
 
+export const findRecipeIdsByName = async (name) => {
+  const formData = new FormData();
+  formData.append("name", name);
+  const response = await fetch('/api/search/findByName', {
+    method: "POST",
+    body: formData
+  });
+  if (!response.ok) {
+    throw Error("Sama nimega retseptide kontrollimine ebaõnnestus!");
+  }
+  return response.json();
+}
+
 export const findRecipes = async (query) => {
   const response = await fetch('/api/search', {
     method: "POST",

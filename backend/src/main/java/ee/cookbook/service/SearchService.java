@@ -151,4 +151,8 @@ public class SearchService {
     }
     return result;
   }
+
+  public List<Long> findRecipeIdsByName(String name) {
+    return template.queryForList("SELECT id FROM recipe WHERE name = ?;", Long.class, name);
+  }
 }
