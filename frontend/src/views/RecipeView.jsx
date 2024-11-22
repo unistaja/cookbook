@@ -54,6 +54,13 @@ export default function RecipeView ({user}) {
     });
   }
 
+  function onCategoriesAdded(newCategories) {
+    setRecipe({
+      ...recipe,
+      categories: newCategories.concat(recipe.categories)
+    });
+  }
+
   useEffect(() => {
     getRecipe(recipeId)
       .then((data) => setRecipe(data))
@@ -102,7 +109,7 @@ export default function RecipeView ({user}) {
           </Stack>
           <Box sx={{alignSelf: {xs: "center", sm: "auto"}, width:"200px"}}>
             <RecipeImageSection recipeId={recipeId} imageName={recipe.pictureName} onUpdateImage={onImageAdded}/>
-            <CategoriesSection categories={recipe.categories}/>
+            <CategoriesSection categories={recipe.categories} recipeId={recipeId} onCategoryUpdate={onCategoriesAdded}/>
           </Box>
         </Stack>
         <Typography variant="body1" align="left" paddingTop="1em" whiteSpace="pre-line">{recipe.instructions}</Typography>

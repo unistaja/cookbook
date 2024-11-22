@@ -3,6 +3,7 @@ package ee.cookbook.controller;
 import ee.cookbook.dao.PreparedHistoryRepository;
 import ee.cookbook.dao.RatingRepository;
 import ee.cookbook.dao.RecipeRepository;
+import ee.cookbook.model.Category;
 import ee.cookbook.model.PreparedHistory;
 import ee.cookbook.model.Rating;
 import ee.cookbook.model.Recipe;
@@ -79,8 +80,13 @@ public class RecipeController {
     return autoFillDataService.getAutoFillData();
   }
 
+  @RequestMapping(value = "/autofill/categories", method = RequestMethod.GET)
+  List<String> getCategoriesAutoFillData() {
+    return autoFillDataService.getAutoFillCategories();
+  }
+
   @RequestMapping(method = RequestMethod.POST)
-  ResponseEntity add(@RequestBody Recipe recipe, Authentication auth) {
+  ResponseEntity<String> add(@RequestBody Recipe recipe, Authentication auth) {
     User user = (User) auth.getPrincipal();
     String imageName = "";
     if (recipe.id != 0 && !user.isAdmin && recipeRepository.countByIdAndUserId(recipe.id, user.id) == 0) {
@@ -130,7 +136,7 @@ public class RecipeController {
   }
 
   @RequestMapping(value = "/savedate", method = RequestMethod.POST)
-  ResponseEntity saveDate(@RequestParam("date") String date, @RequestParam("id") Long id, @RequestParam("recipeId") Long recipeId, Authentication auth) {
+  ResponseEntity<String> saveDate(@RequestParam("date") String date, @RequestParam("id") Long id, @RequestParam("recipeId") Long recipeId, Authentication auth) {
     PreparedHistory newDate = new PreparedHistory();
     newDate.userId = ((User) auth.getPrincipal()).id;
     try {
@@ -151,7 +157,7 @@ public class RecipeController {
   }
 
   @RequestMapping(value = "/deletedate", method = RequestMethod.POST)
-  ResponseEntity deleteDate(@RequestParam("id") Long id, Authentication auth) {
+  ResponseEntity<String> deleteDate(@RequestParam("id") Long id, Authentication auth) {
     User user = (User) auth.getPrincipal();
     if (preparedHistoryRepository.findById(id).userId == user.id) {
       preparedHistoryRepository.deleteById(id);
@@ -160,7 +166,7 @@ public class RecipeController {
   }
 
   @RequestMapping(value = "/saverating", method = RequestMethod.POST)
-  ResponseEntity saveRating(@RequestParam("rating") int rating, @RequestParam("recipeId") Long recipeId, Authentication auth) {
+  ResponseEntity<String> saveRating(@RequestParam("rating") int rating, @RequestParam("recipeId") Long recipeId, Authentication auth) {
     Rating newRating = new Rating();
     newRating.userId = ((User) auth.getPrincipal()).id;
     newRating.rating = rating;
@@ -173,5 +179,13 @@ public class RecipeController {
   List<PreparedHistory> findPreparedTimes (@RequestParam("recipeId") Long recipeId, Authentication auth) {
     User user = (User) auth.getPrincipal();
     return preparedHistoryRepository.findAllByRecipeIdAndUserIdOrderByPreparedTimeDesc(recipeId, user.id);
+  }
+
+  @RequestMapping(value = "/addcategories", method = RequestMethod.POST)
+  ResponseEntity<String> saveRating(@RequestParam("recipeId") Long recipeId, @RequestParam("categories") List<String> categories) {
+    Recipe recipeToSave = recipeRepository.findById(recipeId).orElseThrow();
+    recipeToSave.categories.addAll(categories.parallelStream().map(category -> new Category(category)).toList());
+    recipeRepository.save(recipeToSave);
+    return ResponseEntity.ok("");
   }
 }

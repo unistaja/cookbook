@@ -15,6 +15,28 @@ export const getAutoFillData = async () => {
   return response.json();
 };
 
+export const getCategoriesAutoFillData = async () => {
+  const response = await fetch('/api/recipe/autofill/categories');
+  if (!response.ok) {
+    console.log("Invalid response when fetching autofill data");
+    return [];
+  }
+  return response.json();
+};
+
+export const addCategories = async (categories, recipeId) => {
+  const formData = new FormData();
+  formData.append("categories", categories);
+  formData.append("recipeId", recipeId);
+  const response = await fetch('/api/recipe/addcategories', {
+    method: "POST",
+    body: formData
+  });
+  if (!response.ok) {
+    throw Error("Kategooriate lisamine ebaõnnestus!");
+  }
+}
+
 export const addRecipe = async (recipeToSend) => {
   const response = await fetch('/api/recipe', {
     method: "POST",

@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -21,8 +22,6 @@ public class AutoFillDataService {
   @Autowired
   private CategoryRepository categoryRepository;
   @Autowired
-  private IngredientListNameRepository ingredientListNameRepository;
-  @Autowired
   private IngredientUnitRepository unitRepository;
   @Autowired
   private RecipeSourceRepository sourceRepository;
@@ -30,10 +29,8 @@ public class AutoFillDataService {
   public AutoFillData getAutoFillData() {
     AutoFillData data = new AutoFillData();
     data.users = jdbcTemplate.queryForList("SELECT username FROM User", String.class);
-    data.names = jdbcTemplate.queryForList("SELECT DISTINCT name FROM Recipe", String.class);
     data.categories = categoryRepository.findAll();
     data.units = unitRepository.findAll();
-    data.listNames = ingredientListNameRepository.findAll();
     data.sources = sourceRepository.findAll();
     data.ingredients = jdbcTemplate.query("SELECT searchName, displayName FROM IngredientAutoSuggest", new ResultSetExtractor<Map<String, String>>(){
       @Override
@@ -47,5 +44,9 @@ public class AutoFillDataService {
     });
     data.searchIngredients = jdbcTemplate.queryForList("SELECT DISTINCT searchName FROM IngredientAutoSuggest", String.class);
     return data;
+  }
+
+  public List<String> getAutoFillCategories() {
+    return categoryRepository.findAll().parallelStream().map(category -> category.name).toList();
   }
 }
