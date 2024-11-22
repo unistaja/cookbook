@@ -59,10 +59,22 @@ Koori kartulid ja keeda soolaga maitsestatud vees pehmeks.
   }
 
   async function submitRecipe() {
+    let source = null;
+    let link = null;
+    if (recipeSource) {
+      if (recipeSource.startsWith("http") && recipeSource.indexOf("/", 8) > 0) {
+        link = recipeSource;
+        source = recipeSource.substring(0, recipeSource.indexOf("/", 8));
+      } else {
+        source = recipeSource;
+      }
+    }
+
     const recipeToSubmit = {
       ...(recipeId ? {id: recipeId} : null),
       name: recipeName,
-      source: recipeSource || null,
+      source: source,
+      link: link,
       amount: recipeAmount || null,
       prepareTime: recipePrepareTime || null,
       instructions: parsedInstructions,
@@ -139,7 +151,7 @@ Koori kartulid ja keeda soolaga maitsestatud vees pehmeks.
                     options={recipeSources}
                     inputValue={recipeSource}
                     onInputChange={(e, newValue) => setRecipeSource(newValue)}
-                    renderInput={(params) => <TextField {...params}  label="Allikas" />}
+                    renderInput={(params) => <TextField {...params}  label="Allikas/Link" />}
                   />
             <TextField id="amount" label="Kogus" value={recipeAmount} onChange={e => setRecipeAmount(e.target.value)} placeholder="Neljale" autoComplete='off'/>
             <TextField id="time" label="Valmistusaeg" value={recipePrepareTime} onChange={e => setRecipePrepareTime(e.target.value)} placeholder="15 min + 30 min ahjus" autoComplete='off'/>

@@ -1,0 +1,1 @@
+ALTER TABLE Recipe ADD link VARCHAR(2048);
