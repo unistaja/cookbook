@@ -39,7 +39,7 @@ export default function Navbar({user}) {
           <Tab icon={<HomeIcon/>} value="/" to="/" component={RouterLink} aria-label="home" sx={{minWidth: "48px"}}/>
           <Tab label={isTiny ? undefined : "Lisa retsept"} icon={isTiny ? <PostAddIcon/> : undefined} value="/add-recipe" to="/add-recipe" component={RouterLink} sx={{minWidth: "48px"}}/>
           <Tab label={isTiny ? undefined : "Otsing"} icon={isTiny ? <SearchIcon/> : undefined} value="/search" to="/search" component={RouterLink} sx={{minWidth: "48px"}}/>
-          <Tab label={isTiny ? undefined : "Nädalaplaan"} icon={isTiny ? <MenuBookIcon/> : undefined} value="/weekplan" to="/weekplan" component={RouterLink} sx={{minWidth: "48px"}}/>
+          <Tab label={isTiny ? undefined : "Menüü"} icon={isTiny ? <MenuBookIcon/> : undefined} value="/menuplan" to="/menuplan" component={RouterLink} sx={{minWidth: "48px"}}/>
         </Tabs>
         <Button startIcon={<AccountCircleIcon />} color="inherit" onClick={handleClick}>
           {user.username}

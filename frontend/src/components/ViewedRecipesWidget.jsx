@@ -1,15 +1,9 @@
 import { useState, useEffect } from 'react';
-import {
-  Link as RouterLink
-} from 'react-router-dom';
 import { getViewedRecipes} from "../api";
 import Paper from '@mui/material/Paper';
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
 import Grid from '@mui/material/Grid2';
 import Typography from '@mui/material/Typography';
-import CardActionArea from '@mui/material/CardActionArea';
-import RecipeImage from './RecipeImage';
+import SimpleRecipeCard from './SimpleRecipeCard';
 
 export default function ViewedRecipesWidget() {
   const [viewedRecipes, setViewedRecipes] = useState([]);
@@ -34,14 +28,7 @@ export default function ViewedRecipesWidget() {
         <Grid container spacing={2}  >
         {viewedRecipes.map((recipe) => (
           <Grid key={recipe.recipeId} sx={{  display: "flex", alignItems: "stretch", justifyContent: "center", flexWrap: "wrap"}}>
-          <Card elevation={4}>
-            <CardActionArea to={`/recipe/${recipe.recipeId}`} component={RouterLink} sx={{width: "180px", textAlign: "center", paddingTop: "10px"}}>
-              <RecipeImage recipeId={recipe.recipeId} imgName={recipe.pictureName} />
-              <CardContent>
-                <Typography variant="subtitle2">{recipe.name}</Typography>
-              </CardContent>
-            </CardActionArea>
-          </Card>
+            <SimpleRecipeCard recipe={recipe}/>
           </Grid>
         ))}
         </Grid>

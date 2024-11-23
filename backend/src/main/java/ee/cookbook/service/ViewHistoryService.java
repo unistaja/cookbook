@@ -2,7 +2,7 @@ package ee.cookbook.service;
 
 import ee.cookbook.dao.RecipeViewHistoryRepository;
 import ee.cookbook.model.RecipeViewHistory;
-import ee.cookbook.model.ViewedRecipe;
+import ee.cookbook.model.RecipeSummary;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -41,9 +41,9 @@ public class ViewHistoryService {
         }
     }
 
-    public List<ViewedRecipe> getViewedRecipes(Long userId) {
-        RowMapper<ViewedRecipe> mapper = (resultSet, index) -> {
-            ViewedRecipe result = new ViewedRecipe();
+    public List<RecipeSummary> getViewedRecipes(Long userId) {
+        RowMapper<RecipeSummary> mapper = (resultSet, index) -> {
+            RecipeSummary result = new RecipeSummary();
             result.name = resultSet.getString("name");
             result.recipeId = resultSet.getLong("recipeId");
             result.pictureName = resultSet.getString("pictureName");

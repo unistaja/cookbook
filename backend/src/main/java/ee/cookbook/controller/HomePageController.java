@@ -1,7 +1,7 @@
 package ee.cookbook.controller;
 
 import ee.cookbook.model.User;
-import ee.cookbook.model.ViewedRecipe;
+import ee.cookbook.model.RecipeSummary;
 import ee.cookbook.service.ViewHistoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -18,7 +18,7 @@ public class HomePageController {
     private ViewHistoryService viewHistoryService;
 
     @RequestMapping(value = "/viewedRecipes", method = RequestMethod.GET)
-    public List<ViewedRecipe> getViewedRecipes(Authentication auth) {
+    public List<RecipeSummary> getViewedRecipes(Authentication auth) {
         User user = (User) auth.getPrincipal();
         return viewHistoryService.getViewedRecipes(user.id);
     }

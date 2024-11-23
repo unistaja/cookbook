@@ -236,3 +236,38 @@ export const addUser = async (username, password) => {
     throw Error("Kasutaja lisamine ebaõnnestus.");
   }
 }
+
+export const addRecipeToMenu = async (recipeId) => {
+  const formData = new FormData();
+  formData.append("recipeId", recipeId);
+  const response = await fetch('/api/menu/addRecipe', {
+    method: "POST",
+    body: formData
+  });
+  if (!response.ok) {
+    alert("Retsepti menüüsse ebaõnnestus")
+    throw Error("Retsepti menüüsse ebaõnnestus");
+  }
+}
+
+export const removeMenuRecipe = async (recipeId) => {
+  const formData = new FormData();
+  formData.append("recipeId", recipeId);
+  const response = await fetch('/api/menu/removeRecipe', {
+    method: "POST",
+    body: formData
+  });
+  if (!response.ok) {
+    alert("Retsepti menüüst eemaldamine ebaõnnestus")
+    throw Error("Retsepti menüüst eemaldamine ebaõnnestus");
+  }
+}
+
+export const getMenuRecipes = async () => {
+  const response = await fetch('/api/menu/get');
+  if (!response.ok) {
+    console.log("Invalid response when fetching menu recipe data");
+    return [];
+  }
+  return response.json();
+};

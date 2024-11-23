@@ -1,23 +1,32 @@
 import * as React from 'react';
-import {Container, Grid, styled} from "@mui/material";
+import {Container, styled} from "@mui/material";
+import Grid from "@mui/material/Grid2";
 import Button from "@mui/material/Button";
+import IconButton from "@mui/material/IconButton";
+import Paper from "@mui/material/Paper";
+import Typography from "@mui/material/Typography";
 import {createTheme} from "@mui/material/styles";
 import {Fragment, useEffect, useState} from "react";
 import { Link } from 'react-router-dom';
+import SimpleRecipeCard from './SimpleRecipeCard';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import PostAddIcon from '@mui/icons-material/PostAdd';
+import { addRecipeToMenu } from '../api';
 
 const days = ['Esmaspäev', "Teisipäev", "Kolmapäev", "Neljapäev", "Reede", "Laupäev", "Pühapäev"]
 
-export default function WeekPlan() {
+export default function WeekPlan({onRecipeAddedToMenu}) {
     return (
-        <Container>
-            <Grid container spacing={2} mt={2} columnSpacing={0}>
-                { days.map(day => DayPlan({day})) }
-            </Grid>
-        </Container>
+        <Paper variant="outlined" sx={{align: "center", padding: "20px"}}>
+        <Typography variant="h5">Juhuslik valik:</Typography>
+        <Grid container spacing={2} mt={2} >
+            { days.map(day => DayPlan({day, onRecipeAddedToMenu})) }
+        </Grid>
+        </Paper>
     );
 }
 
-function DayPlan({day}) {
+function DayPlan({day, onRecipeAddedToMenu}) {
     const theme = createTheme();
     const StyledDiv = styled('div')({
         marginTop: theme.spacing(1)
@@ -51,27 +60,27 @@ function DayPlan({day}) {
                 }
                 return response.json();
             }).then(data => {
-                setRecipe(data.recipes[0]);
+                setRecipe({...data.recipes[0], recipeId: data.recipes[0].id});
             })
+    }
+
+    async function handleAddRecipeToMenu() {
+        await addRecipeToMenu(recipe.recipeId);
+        onRecipeAddedToMenu(recipe);
     }
 
     useEffect(() => {
         fetchNewRecipe();
     }, [setRecipe])
     return (
-        <Fragment>
-            <Grid item xs={3}>
-                <Button variant="contained" onClick={ fetchNewRecipe }>
-                    Genereeri uus päeva retsept
-                </Button>
-            </Grid>
-            <Grid item xs={9}>
-                <StyledDiv mt>
-                    {day}
-                </StyledDiv>
-                <Link to={"/recipe/" + recipe?.id}>{recipe?.name}</Link>
-            </Grid>
-        </Fragment>
+    <SimpleRecipeCard recipe={recipe} key={day}>
+        <IconButton color="primary" onClick={ fetchNewRecipe }>
+            <RefreshIcon/>
+        </IconButton>
+        <IconButton color="primary" onClick={ handleAddRecipeToMenu } sx={{marginLeft: "auto"}}>
+            <PostAddIcon/>
+        </IconButton>
+    </SimpleRecipeCard>
     );
 }
 

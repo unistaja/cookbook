@@ -3,7 +3,6 @@ import { Routes, Route, Outlet, Link } from "react-router-dom";
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { green } from '@mui/material/colors';
 import Navbar from './components/Navbar';
-import WeekPlan from "./views/WeekPlan";
 import HomePageView from "./views/HomePageView";
 import AddRecipeView from "./views/AddRecipeView";
 import { getLoggedInUser } from "./api";
@@ -11,6 +10,7 @@ import RecipeView from './views/RecipeView';
 import SearchView from './views/SearchView';
 import ChangePasswordView from './views/ChangePasswordView';
 import AdminView from './views/AdminView';
+import MenuPlanView from './views/MenuPlanView';
 
 const theme = createTheme({
   palette: {
@@ -57,7 +57,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Layout user={user}/>}>
           <Route index element={<HomePageView />} />
-          <Route path="weekplan" element={<WeekPlan />}></Route>
+          <Route path="menuplan" element={<MenuPlanView />}></Route>
           <Route path="add-recipe" element={<AddRecipeView />}></Route>
           <Route path="edit-recipe">
             <Route path=":recipeId" element={<AddRecipeView />}></Route>
