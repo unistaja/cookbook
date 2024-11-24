@@ -17,7 +17,7 @@ const days = ['Esmaspäev', "Teisipäev", "Kolmapäev", "Neljapäev", "Reede", "
 
 export default function WeekPlan({onRecipeAddedToMenu}) {
     return (
-        <Paper variant="outlined" sx={{align: "center", padding: "20px"}}>
+        <Paper variant="outlined" sx={{align: "center", padding: "20px", margin: "10px"}}>
         <Typography variant="h5">Juhuslik valik:</Typography>
         <Grid container spacing={2} mt={2} >
             { days.map(day => DayPlan({day, onRecipeAddedToMenu})) }

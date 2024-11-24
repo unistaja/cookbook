@@ -3,10 +3,12 @@ package ee.cookbook.controller;
 import ee.cookbook.dao.PreparedHistoryRepository;
 import ee.cookbook.dao.RatingRepository;
 import ee.cookbook.dao.RecipeRepository;
+import ee.cookbook.dao.SavedMenuRepository;
 import ee.cookbook.model.Category;
 import ee.cookbook.model.PreparedHistory;
 import ee.cookbook.model.Rating;
 import ee.cookbook.model.Recipe;
+import ee.cookbook.model.SavedMenu;
 import ee.cookbook.model.User;
 import ee.cookbook.protocol.AutoFillData;
 import ee.cookbook.service.AutoFillDataService;
@@ -17,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -53,6 +56,8 @@ public class RecipeController {
   private PreparedHistoryRepository preparedHistoryRepository;
   @Autowired
   private RatingRepository ratingRepository;
+  @Autowired
+  private SavedMenuRepository menuRepository;
 
   @RequestMapping(value = "/{recipeId}", method = RequestMethod.GET)
   Recipe getRecipe(@PathVariable long recipeId, Authentication auth) {
@@ -153,6 +158,11 @@ public class RecipeController {
       newDate.id = id;
     }
     preparedHistoryRepository.save(newDate);
+    try {
+      menuRepository.deleteById(new SavedMenu(newDate.userId, recipeId));
+    } catch (EmptyResultDataAccessException e) {
+      // ignore, recipe was not added to menu
+    }
     return ResponseEntity.ok("");
   }
 

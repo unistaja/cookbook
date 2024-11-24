@@ -28,16 +28,13 @@ export default function MenuPlanView() {
       });
   }, [setMenuRecipes]);
 
-  if (!menuRecipes.length) {
-    return null;
-  }
   return (
-    <Grid container spacing={2} marginTop={2}>
+    <Grid container spacing={2}>
       <Grid size="grow"></Grid>
       <Grid>
-        <Paper variant="outlined" sx={{align: "center", padding: "20px"}}>
-        <Typography variant="h5">Minu menüü</Typography>
-        <Grid container spacing={2}  >
+        <Paper variant="outlined" sx={{align: "center", padding: "20px", margin: "10px"}}>
+        <Typography variant="h5">Minu menüü:</Typography>
+        <Grid container spacing={2} mt={2} >
         {menuRecipes.map((recipe) => (
           <Grid key={recipe.recipeId} sx={{  display: "flex", alignItems: "stretch", justifyContent: "center", flexWrap: "wrap"}}>
             <SimpleRecipeCard recipe={recipe}>
