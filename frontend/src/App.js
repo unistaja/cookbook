@@ -67,7 +67,7 @@ export default function App() {
             <Route path=":recipeId" element={<RecipeView user={user}/>}></Route>
           </Route>
           <Route path="user" element={<ChangePasswordView />}></Route>
-          <Route path="admin" element={<AdminView />}></Route>
+          <Route path="admin" element={user.isAdmin ? <AdminView /> : <NoMatch />}></Route>
 
           {/* Using path="*"" means "match anything", so this route
                 acts like a catch-all for URLs that we don't have explicit

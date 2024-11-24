@@ -19,7 +19,7 @@ import {
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 
-const knownPaths = ["/", "/add-recipe", "/search", "/weekplan"];
+const knownPaths = ["/", "/add-recipe", "/search", "/menuplan"];
 export default function Navbar({user}) {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const { pathname } = useLocation();

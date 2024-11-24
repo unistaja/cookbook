@@ -33,4 +33,20 @@ public class AdminController {
     userRepository.save(user);
     return ResponseEntity.ok("");
   }
+
+  @RequestMapping(value = "/changeUserPassword", method = RequestMethod.POST)
+  public ResponseEntity<String> changeUserPassword(@RequestParam String username, @RequestParam String password) {
+
+    if (username == null || username.trim().isEmpty()) {
+      return ResponseEntity.badRequest().body("Kasutajanimi ei tohi olla tühi.");
+    }
+    if (password == null || password.isEmpty()) {
+      return ResponseEntity.badRequest().body("Parool ei tohi olla tühi.");
+    }
+    BCryptPasswordEncoder hasher = new BCryptPasswordEncoder();
+    User user = userRepository.findByUsername(username.trim());
+    user.passwordHash = hasher.encode(password);
+    userRepository.save(user);
+    return ResponseEntity.ok("");
+  }
 }

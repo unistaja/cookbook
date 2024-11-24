@@ -237,6 +237,20 @@ export const addUser = async (username, password) => {
   }
 }
 
+export const changeUserPassword = async (username, password) => {
+  const formData = new FormData();
+  formData.append("username", username);
+  formData.append("password", password);
+  const response = await fetch('/api/admin/changeUserPassword', {
+    method: "POST",
+    body: formData
+  });
+  if (!response.ok) {
+    alert("Kasutaja parooli muutmine ebaõnnestus")
+    throw Error("Kasutaja parooli muutmine ebaõnnestus.");
+  }
+}
+
 export const addRecipeToMenu = async (recipeId) => {
   const formData = new FormData();
   formData.append("recipeId", recipeId);
