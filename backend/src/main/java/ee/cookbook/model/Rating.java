@@ -1,6 +1,6 @@
 package ee.cookbook.model;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 @Entity @IdClass(RatingId.class)
 public class Rating {

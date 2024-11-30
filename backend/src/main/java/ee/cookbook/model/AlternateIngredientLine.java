@@ -1,7 +1,7 @@
 package ee.cookbook.model;
 
-import javax.persistence.*;
-import javax.validation.constraints.Pattern;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Pattern;
 
 @Entity
 public class AlternateIngredientLine {

@@ -2,8 +2,8 @@ package ee.cookbook.model;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 
 @Entity
 public class Category {

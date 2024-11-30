@@ -19,7 +19,6 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>17</java.version>
         <selenium.version>4.8.1</selenium.version>
-        <httpclient5.version>5.2.1</httpclient5.version>
     </properties>
 
     <dependencies>

@@ -1,46 +1,51 @@
 package ee.cookbook.security;
 
 import ee.cookbook.model.User;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.stereotype.Component;
 
 @Configuration
 @EnableWebSecurity
 @Component
-public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
-  @Autowired
-  private CookbookUserDetailsService userDetailsService;
+public class SecurityConfigurer {
 
-  @Override
-  protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-    auth.userDetailsService(userDetailsServiceBean())
-        .passwordEncoder(new BCryptPasswordEncoder());
-
+  @Bean
+  public PasswordEncoder encoder() {
+    return new BCryptPasswordEncoder();
   }
 
-  @Override
-  public UserDetailsService userDetailsServiceBean() throws Exception {
-    return userDetailsService;
+  @Bean
+  public AuthenticationManager authenticationManager(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
+    var provider = new DaoAuthenticationProvider();
+    provider.setUserDetailsService(userDetailsService);
+    provider.setPasswordEncoder(passwordEncoder);
+
+    return new ProviderManager(provider);
   }
 
-  @Override
-  protected void configure(HttpSecurity http) throws Exception {
+  @Bean
+  public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http
-      .authorizeRequests()
-        .antMatchers("/manifest.json").permitAll()
-        .antMatchers("/api/admin/**").hasRole(User.ROLE_ADMIN)
+      .authorizeHttpRequests((authz) -> authz
+        .requestMatchers("/manifest.json").permitAll()
+        .requestMatchers("/api/admin/**").hasRole(User.ROLE_ADMIN)
         .anyRequest().authenticated()
-        .and()
-      .formLogin().and()
-      .httpBasic();
-    //TODO: figure out how to actually handle this
-    http.csrf().disable();
+      )
+      .formLogin(Customizer.withDefaults())
+      .httpBasic(Customizer.withDefaults())
+      //TODO: figure out how to actually handle this
+      .csrf(csrf -> csrf.disable());
+    return http.build();
   }
 }
