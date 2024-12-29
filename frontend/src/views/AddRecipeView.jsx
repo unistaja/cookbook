@@ -10,7 +10,7 @@ import Autocomplete from '@mui/material/Autocomplete';
 import Button from '@mui/material/Button';
 import ImageUploadInput from '../components/ImageUploadInput';
 import AddRecipeModal from '../components/AddRecipeModal';
-import { getAutoFillData, addRecipe, deleteTempImage, deleteSavedImage, getRecipe, findRecipeIdsByName } from "../api";
+import { getAutoFillData, addRecipe, deleteTempImage, deleteSavedImage, getRecipe, findRecipeIdsByName, getRemoteRecipe } from "../api";
 import RecipeImage from '../components/RecipeImage';
 
 const amountValidator = /^\d+(?:[.,/]\d+)?(?:-\d+(?:[.,/]\d+)?)?$/;
@@ -110,6 +110,21 @@ Koori kartulid ja keeda soolaga maitsestatud vees pehmeks.
     setExistingRecipesWithSameName(result);
   }
 
+  async function handleSourceUpdate(newSource) {
+    if (!recipeSource && newSource) {
+      getRemoteRecipe(newSource).then(result => {
+        if (result.amount) setRecipeAmount(result.amount);
+        if (result.prepareTime) setRecipePrepareTime(result.prepareTime);
+        if (result.name) setRecipeName(result.name);
+        if (result.instructions) setRecipeContent(result.instructions);
+        console.log(result);
+      });
+      
+    }
+    setRecipeSource(newSource);
+
+  }
+
   useEffect(() => {
       getAutoFillData()
         .then((data) => setAutoFillData(data))
@@ -150,7 +165,7 @@ Koori kartulid ja keeda soolaga maitsestatud vees pehmeks.
                     freeSolo
                     options={recipeSources}
                     inputValue={recipeSource}
-                    onInputChange={(e, newValue) => setRecipeSource(newValue)}
+                    onInputChange={(e, newValue) => handleSourceUpdate(newValue)}
                     renderInput={(params) => <TextField {...params}  label="Allikas/Link" />}
                   />
             <TextField id="amount" label="Kogus" value={recipeAmount} onChange={e => setRecipeAmount(e.target.value)} placeholder="Neljale" autoComplete='off'/>

@@ -285,3 +285,21 @@ export const getMenuRecipes = async () => {
   }
   return response.json();
 };
+
+export const getRemoteRecipe = async (url) => {
+  const formData = new FormData();
+  formData.append("url", url);
+  const response = await fetch('/api/getRemoteRecipe', {
+    method: "POST",
+    body: formData
+  });
+  if (!response.ok) {
+    alert("Retsepti laadimine ebaõnnestus")
+    throw Error("Retsepti laadimine ebaõnnestus!");
+  }
+  const responseText = await response.text();
+  if (!responseText) {
+    return {};
+  }
+  return JSON.parse(responseText);
+};
