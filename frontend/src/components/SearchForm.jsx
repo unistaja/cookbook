@@ -267,7 +267,8 @@ export default function SearchForm({onSearch, currentSearch, autoFillData}) {
                 <MenuItem value={0}>Pealkirja järgi</MenuItem>
                 <MenuItem value={1}>Lisaja järgi</MenuItem>
                 <MenuItem value={2}>Lisamisaja järgi</MenuItem>
-                <MenuItem value={3}>Juhuslikult</MenuItem>
+                <MenuItem value={3}>Valmistusaja järgi</MenuItem>
+                <MenuItem value={4}>Juhuslikult</MenuItem>
               </Select>
             </FormControl>
           </Grid>

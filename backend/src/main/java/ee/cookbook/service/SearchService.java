@@ -92,22 +92,18 @@ public class SearchService {
     query.delete(query.length() - 5, query.length());
     if (searchParameters.sortOrder == 0) {
       query.append(" ORDER BY name");
-      if (searchParameters.descending) {
-        query.append(" DESC");
-      }
     } else if (searchParameters.sortOrder == 1) {
       query.append(" ORDER BY username");
-      if (searchParameters.descending) {
-        query.append(" DESC");
-      }
-      query.append(", name");
     } else if (searchParameters.sortOrder == 2) {
       query.append(" ORDER BY added");
-      if (searchParameters.descending) {
-        query.append(" DESC");
-      }
     } else if (searchParameters.sortOrder == 3) {
+      query.append(" ORDER BY preparedTime");
+    } else if (searchParameters.sortOrder == 4) {
       query.append(" ORDER BY RAND()");
+    }
+
+    if (searchParameters.descending && searchParameters.sortOrder != 4) {
+      query.append(" DESC");
     }
     // ensure recipes with equal sort values are sorted in logical order
     query.append(", id");
