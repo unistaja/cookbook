@@ -7,8 +7,8 @@ import org.springframework.web.util.HtmlUtils;
 
 import ee.cookbook.model.ParsedRemoteRecipe;
 
-public class NamiNamiParser {
-  public static ParsedRemoteRecipe parse(String html) {
+public class NamiNamiParser implements RecipeParserInterface {
+  public ParsedRemoteRecipe parse(String html) {
     var result = new ParsedRemoteRecipe();
     result.name = parseTitle(html);
     result.amount = parseAmount(html);
