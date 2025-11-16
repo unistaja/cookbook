@@ -45,7 +45,7 @@ function DayPlan({day, onRecipeAddedToMenu}) {
                     hasPicture: false,
                     resultsPerPage: 1,
                     resultPage: 0,
-                    sortOrder: 3,
+                    sortOrder: 4,
                     descending: false,
                     username: null,
                     withIngredients: [],
