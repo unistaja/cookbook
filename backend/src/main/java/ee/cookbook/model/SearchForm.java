@@ -2,7 +2,7 @@ package ee.cookbook.model;
 
 import java.util.List;
 
-public class SearchForm {
+public class SearchForm implements java.io.Serializable {
   public Boolean hasPicture;
 
   public String username;

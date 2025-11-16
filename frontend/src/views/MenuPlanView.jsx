@@ -1,18 +1,22 @@
 import { useEffect, useState } from "react";
-import WeekPlan from "../components/WeekPlan";
-import { getMenuRecipes, removeMenuRecipe } from "../api";
+import { getMenuRecipes, removeMenuRecipe, addRecipeToMenu } from "../api";
 import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid2';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import SimpleRecipeCard from '../components/SimpleRecipeCard';
 import DeleteIcon from '@mui/icons-material/Delete';
+import RecipeSuggestionsList from "../components/RecipeSuggestionsList";
 
 export default function MenuPlanView() {
   const [menuRecipes, setMenuRecipes] = useState([]);
 
-  function onRecipeAddedToMenu(recipe) {
-    setMenuRecipes([recipe, ...menuRecipes]);
+  async function onAddRecipeToMenu(recipe) {
+    if (menuRecipes.find(r => r.recipeId === recipe.id)) {
+      return;
+    }
+    await addRecipeToMenu(recipe.id);
+    setMenuRecipes([{...recipe, recipeId: recipe.id}, ...menuRecipes]);
   }
 
   async function removeRecipeFromMenu(recipeId) {
@@ -46,7 +50,7 @@ export default function MenuPlanView() {
         ))}
         </Grid>
         </Paper>
-        <WeekPlan onRecipeAddedToMenu={onRecipeAddedToMenu}/>
+        <RecipeSuggestionsList onAddRecipeToMenu={onAddRecipeToMenu}/>
                  
       </Grid>
       <Grid size="grow"></Grid>

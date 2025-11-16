@@ -78,7 +78,7 @@ public class SearchService {
       query.delete(query.length() - 3, query.length());
       query.append(") ) ) AND ");
     }
-    if (searchParameters.hasPicture) {
+    if (searchParameters.hasPicture != null && searchParameters.hasPicture) {
       query.append(" NOT pictureName = '' AND ");
     }
     if (searchParameters.hasPrepared != null) {

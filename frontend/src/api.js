@@ -303,3 +303,27 @@ export const getRemoteRecipe = async (url) => {
   }
   return JSON.parse(responseText);
 };
+
+export const getRecipeSuggestionsConfigurations = async () => {
+  const response = await fetch('/api/recipeSuggestionsConfiguration/getUserConfigurations');
+  if (!response.ok) {
+    console.log("Invalid response when fetching recipe suggestions configurations");
+    return [];
+  }
+  return response.json();
+};
+
+export const addRecipeSuggestionsConfiguration = async (config) => {
+  const response = await fetch('/api/recipeSuggestionsConfiguration/addConfiguration', {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(config)
+  });
+  if (!response.ok) {
+    alert("Retsepti soovituste konfiguratsiooni lisamine ebaõnnestus")
+    throw Error("Retsepti soovituste konfiguratsiooni lisamine ebaõnnestus!");
+  }
+  return response.json();
+};
